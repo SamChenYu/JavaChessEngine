@@ -1,9 +1,10 @@
 package chessengine;
 
 import GUI.ControlPanel;
+import GUI.EnginePanel;
 import javax.swing.SwingUtilities;
 
-public class ChessEngine {
+public final class ChessEngine {
 
     public ChessEngine() {
     }
@@ -15,8 +16,7 @@ public class ChessEngine {
             // Using a lambda expression to handle the button click event
             controlPanel.setButtonClickListener(e -> {
                 // Handle button click event in the main class
-                System.out.println("Button clicked!");
-                System.out.println(controlPanel.getString());
+                EnginePanel engineP = new EnginePanel(controlPanel.getString());
             });
         });
     }

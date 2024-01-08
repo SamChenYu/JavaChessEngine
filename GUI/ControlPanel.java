@@ -24,7 +24,7 @@ public final class ControlPanel extends JFrame {
     
     final JPanel ui = new JPanel();
     final JLabel mainLabel = new JLabel("<html><div style='text-align: center; vertical-align: middle;'>Enter FEN notation chess position or press<br>enter for a default position</div></html>");
-    final JTextField inputTextField = new JTextField(15);
+    final JTextField inputTextField = new JTextField(28);
     
     final JButton button = new JButton("Enter");
     private ActionListener buttonClickListener;
@@ -40,6 +40,7 @@ public final class ControlPanel extends JFrame {
         setVisible(true);
         setResizable(false);
         setTitle("Chess Engine Control Panel");
+        inputTextField.setText("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     }
     
     
@@ -68,11 +69,12 @@ public final class ControlPanel extends JFrame {
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                input = inputTextField.getText();
                 if (buttonClickListener != null) {
                     buttonClickListener.actionPerformed(e);
                 }
                 
-                input = inputTextField.getText();
+                
             }
         });
         

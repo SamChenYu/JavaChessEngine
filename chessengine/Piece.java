@@ -4,8 +4,17 @@ package chessengine;
 import java.awt.image.BufferedImage;
 
 public class Piece {
-    int value;
     String name;
-    int x,y;
+    char color;
     BufferedImage image;
+    
+    public Piece(String name, char color) {
+        this.name = name;
+        this.color = color;
+        
+    }
+    
+    public Piece() {
+        name = "";
+    }
 }
