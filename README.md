@@ -1,8 +1,7 @@
 # JavaChessEngine
-Chess Engine Developed With The MiniMax Algorithm
+In-Progress Chess Engine Developed With The MiniMax Algorithm
 
-The basic evaluate function is solely based on material, and nothing else. This is to faciliate the development of the minimax algorithm,  
-then a proper evaluate function will be built.
+
 
 ROADMAP:
 - GUI ✅ (10/01/24)
@@ -15,6 +14,8 @@ Engine (IN PROGRESS)
 - Alpha-Beta Pruning
   
 - Proper Evaluate Function
+(The basic evaluate function is solely based on material, and nothing else. This is to faciliate the development of the minimax algorithm,  
+then a proper evaluate function will be built.)
 
 
 <div align="center">
