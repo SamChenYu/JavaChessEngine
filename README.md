@@ -4,11 +4,16 @@ Chess Engine Developed With The MiniMax Algorithm
 The basic evaluate function is solely based on material, and nothing else. This is to faciliate the development of the minimax algorithm,  
 then a proper evaluate function will be built.
 
-IN PROGRESS:
+ROADMAP:
 - GUI ✅ (10/01/24)
 - Input with FEN Notation✅ (07/01/24)
 - Basic Evaluate Function ✅ (08/01/24)
-- MiniMax Algorithim (IN PROGRESS)
+  
+Engine (IN PROGRESS)
+- Update Possible Moves Function (IN PROGRESS)
+- MiniMax Algorithm
+- Alpha-Beta Pruning
+  
 - Proper Evaluate Function
 
 
