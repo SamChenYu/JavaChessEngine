@@ -35,6 +35,7 @@ public final class ControlPanel extends JFrame {
         
         setSize(400,400);
         setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         initUI();
         add(ui);
         setVisible(true);
