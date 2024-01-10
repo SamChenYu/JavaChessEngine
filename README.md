@@ -14,8 +14,7 @@ Engine (IN PROGRESS)
 - Alpha-Beta Pruning
   
 - Proper Evaluate Function
-(The basic evaluate function is solely based on material, and nothing else. This is to faciliate the development of the minimax algorithm,  
-then a proper evaluate function will be built.)
+(The basic evaluate function is solely based on material, and nothing else. This is to faciliate the development of the minimax algorithm, then a proper evaluate function will be built.)
 
 
 <div align="center">
