@@ -9,6 +9,12 @@ IN PROGRESS:
 - Proper Evaluate Function
 
 
-![Enter](https://github.com/SamChenYu/JavaChessEngine/assets/150127006/f254d4b6-aa5b-4a99-8ab3-1cf218cc59eb)
-![EnginePanel](https://github.com/SamChenYu/JavaChessEngine/assets/150127006/3d2b4d18-f49d-42a7-9845-dc88e29c3bca)
+<div align="center">
+  <img src="https://github.com/SamChenYu/JavaChessEngine/assets/150127006/f254d4b6-aa5b-4a99-8ab3-1cf218cc59eb" alt="Image Alt Text">
+</div>
+
+
+<div style="text-align:center;">
+    <img src="https://github.com/SamChenYu/JavaChessEngine/assets/150127006/3d2b4d18-f49d-42a7-9845-dc88e29c3bca" alt="EnginePanel">
+</div>
 
