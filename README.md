@@ -1,7 +1,7 @@
 # JavaChessEngine
 In-Progress Chess Engine Developed With The MiniMax Algorithm
 
-EVALUATION Method:
+EVALUATION Method:  
 Evaluation is between a number between -1 and 1.   
 Any number above 0 means white is winning. 1 is checkmate for white  
 Any number below 0 means black is winning. -1 is checkmate for black  
