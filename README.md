@@ -15,6 +15,7 @@ ROADMAP:
   
 Engine (IN PROGRESS)
 - Calculate Possible Moves Function (IN PROGRESS)
+- isCheckmate Function
 - MiniMax Algorithm
 - Alpha-Beta Pruning
   
