@@ -21,6 +21,8 @@ Engine (IN PROGRESS)
 - Proper Evaluate Function
 (The basic evaluate function is solely based on material, and nothing else. This is to faciliate the development of the minimax algorithm, then a proper evaluate function will be built.)
 
+- OUPUT FEN NOTATION
+- Ability to Play Moves Directly On Panel
 
 <div align="center">
   <img src="https://github.com/SamChenYu/JavaChessEngine/assets/150127006/f254d4b6-aa5b-4a99-8ab3-1cf218cc59eb" alt="Image Alt Text">
