@@ -6,12 +6,15 @@ public class Move {
     private int startY;
     private int endX;
     private int endY;
+    
     private boolean isCapture;
     
-    private boolean isEnPassant = false;
+    // Pawn moved forward twice
+    private boolean pawnMovedTwice = false;
     private int enPassantX = -1;
     private int enPassantY = -1;
     
+    // Captures an en passant
     private boolean isCaptureEnPassant = false;
     private int capturePassantX = -1;
     private int capturePassantY = -1;
@@ -63,8 +66,8 @@ public class Move {
         this.capturePassantY = capturePassantY;
     }
     
-    public void causesEnPassant() {
-        isEnPassant = true;
+    public void pawnMovedTwice() {
+        pawnMovedTwice = true;
         enPassantX = startX;
         enPassantY = (startY + endY) /2;
     }
@@ -94,7 +97,7 @@ public class Move {
         return isPromote;
     }
     
-    public String getPromotePiece() {
+    public String promotePiece() {
         return promotePiece;
     }
     
@@ -102,11 +105,11 @@ public class Move {
         return isCaptureEnPassant;
     }
     
-    public boolean getIsCastle() {
+    public boolean isCastle() {
         return isCastle;
     }
     
-    public boolean getIsKingSide() {
+    public boolean isKingSide() {
         return isKingSide;
     }
 

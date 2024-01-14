@@ -1,0 +1,109 @@
+                    case "pawn" -> {
+                        if(activeColor == piece.getColor()) {
+                            
+                            /*
+                            Pawns are the only uni-directional piece depending on the
+                            Player color, so this is way you have to split it between
+                            White and black
+                            
+                            */
+                            
+                            boolean enpassant = true; // need to edit for en passant
+                            
+                            /**********************************************/
+                            /************** WHITE PAWN MOVING**************/
+                            /**********************************************/
+                            
+                            if(activeColor == 'w') {
+                                // Checking for forward one
+                                System.out.println(i + " " + j);
+                                
+                                if(j!=1 && j!=0) {
+                                    System.out.println(board[i][j-1].isEmpty());
+                                    if(board[i][j-1].isEmpty()) {
+                                        // Can move forward one
+                                        System.out.println("moved added");
+                                        Move move = new Move(i,j,i,j-1, false);
+                                        moves.add(move);
+                                    }
+                                }
+                                //Checking starting position + forward two
+                                if(j == 6 ) {
+                                    if(board[i][j-1].isEmpty() && board[i][j-2].isEmpty()){
+                                        // Can move forward twice
+                                    }
+                                }
+                                
+                                if(j == 1) {
+                                    if(board[i][j-1].isEmpty()) {
+                                        // can PROMOTE
+                                    }
+                                }
+                                
+                                
+                                
+                                // every pawn except h file can attack to the right
+                                if(i < 7 && j > 0) {
+                                    if(board[i+1][j-1].getColor() == 'b') {
+                                        // can capture to the right
+                                    }
+                                }
+                                
+                                // every pawn except a file can attack to the left
+                                if(i > 0 && j > 0) {
+                                    if(board[i-1][j-1].getColor() == 'b') {
+                                        // can capture to the left
+                                    }
+                                }
+                                
+                                if(j == 6) {
+                                    if(board[i][j-1].isEmpty()) {
+                                        // can PROMOTE
+                                    }
+                                }
+                                
+                                
+                                // en passant
+                                
+                                
+                                /**********************************************/
+                                /************** Black PAWN MOVING**************/
+                                /**********************************************/
+                            } else {
+                                // BLACK IS ACTIVE COLOR
+                                
+                                if(j!=6 && j!=7) {
+                                    if(board[i][j+1].isEmpty()) {
+                                        // Can move downwards
+                                    }
+                                }
+                                
+                                if( j == 1 ) {
+                                    if(board[i][j+1].isEmpty() && board[i][j+2].isEmpty()){
+                                        // Can move downwards twice
+                                    }
+                                }
+                                
+                                
+                                // every pawn except h file can attack to the left
+                                if(i < 7 && j > 7) {
+                                    if(board[i-1][j+1].getColor() == 'w') {
+                                        // can capture to the left
+                                    }
+                                }
+                                
+                                // every pawn except a file can attack to the right
+                                if(i > 0 && j > 7) {
+                                    if(board[i+1][j-1].getColor() == 'w') {
+                                        // can capture to the right
+                                    }
+                                }
+                                
+                                
+                                // en passant
+                                
+                                
+                                
+                            } // End BLACK's pawn code
+                        }
+                    } // End case pawn

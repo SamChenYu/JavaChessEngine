@@ -1,27 +1,18 @@
-Normal Position:
-rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
 
-Random Positions:
-r1b1k2r/pp2ppbp/2n1qn2/3p4/3P4/2N1BN2/PPP1BPPP/R2QK2R b KQkq - 0 9
-
-r1b1k2r/pp2ppbp/2n5/3p3q/3Pn3/2N1B3/PPP2PPP/R2QK2R w KQkq - 0 11
-
-r2q1rk1/pp1b1pbp/2p1pnp1/3p4/3P4/2N1P3/PPP2PPP/R1BQKB1R w KQkq - 2 8 
+package chessengine;
 
 
-
-
-
-Testing states:
-en passant :
-8/8/1pP5/8/8/8/8/8 w KQkq b7 0 1
-8/8/1Pp5/8/8/8/8/8 w KQkq c7 0 1
-8/8/8/4n3/8/8/8/8 w KQkq c7 0 1 
-
-
-
-Typical Chess Board
-BLACK
+public final class Board {
+        /**********************************************
+    
+    
+    Things to taken note:
+    * The array implementation is actually backwards to align the array indices
+    * with the chess board pieces
+        
+   
+     
+    Typical Chess Board:
     [A8][B8][C8][D8][E8][F8][G8][H8]
     [A7][B7][C7][D7][E7][F7][G7][H7]
     [A6][B6][C6][D6][E6][F6][G6][H6]
@@ -30,9 +21,9 @@ BLACK
     [A3][B3][C3][D3][E3][F3][G3][H3]
     [A2][B2][C2][D2][E2][F2][G2][H2]
     [A1][B1][C1][D1][E1][F1][G1][H1]
-WHITE
-
-
+    * 
+    * 
+    * 
      ARRAY REFERENCE TABLE
      * WHITE
      [A1][B1][C1][D1][E1][F1][G1][H1]
@@ -45,7 +36,6 @@ WHITE
      [A8][B8][C8][D8][E8][F8][G8][H8]
      * BLACK
      * 
-	WHITE
     [0,0][1,0][2,0][3,0][4,0][5,0][6,0][7,0]
     [0,1][1,1][2,1][3,1][4,1][5,1][6,1][7,1]
     [0,2][1,2][2,2][3,2][4,2][5,2][6,2][7,2]
@@ -54,7 +44,6 @@ WHITE
     [0,5][1,5][2,5][3,5][4,5][5,5][6,5][7,5]
     [0,6][1,6][2,6][3,6][4,6][5,6][6,6][7,6]
     [0,7][1,7][2,7][3,7][4,7][5,7][6,7][7,7]
-	BLACK
     
     A File = [0,y]      B File = [1,y]
     C File = [2,y]      D File = [3,y]
@@ -65,3 +54,12 @@ WHITE
     3rd Rank = [x,1]    4th Rank = [x,5]
     5th Rank = [x,2]    6th Rank = [x,6]
     7th Rank = [x,3]    8th Rank = [x,7]
+    **********************************************/
+
+    
+    
+    
+    
+    
+    
+} // end clas
