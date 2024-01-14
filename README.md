@@ -23,7 +23,7 @@ Engine (IN PROGRESS)
 - Make Move Function:
   Things to take note:
   Managing En Passant
-  Managing King Castling Rights
+  Managing King Castling Rights [ if a rook / king moves, then privileges are revoked ]
   Checks / Checkmate
 
   
