@@ -34,14 +34,14 @@ public final class EnginePanel{
             final int initialSquareOffsetY = 36;    
             final int initialSquareOffsetX = 39;
 
-            Piece[][] board = engine.getBoard();
+            Piece[][] board = engine.getFlippedBoard();
             for(int x=0; x<8; x++) {
                 for(int y=0; y<8; y++) {
                     int spriteX = (x*spriteWidth)+initialSquareOffsetX;
                     int spriteY = (y*spriteHeight)+initialSquareOffsetY;
-                    g2.drawImage(board[y][x].getImage(),spriteX,spriteY,spriteWidth,spriteHeight,null);
-                    //g2.setColor(Color.red);
-                    //g2.drawRect(spriteX,spriteY,spriteWidth,spriteHeight);
+                    g2.drawImage(board[x][y].getImage(),spriteX,spriteY,spriteWidth,spriteHeight,null);
+//                    g2.setColor(Color.red);
+//                    g2.drawRect(spriteX,spriteY,spriteWidth,spriteHeight);
                 }
             }
             final Font font = new Font("Arial",Font.BOLD,30);

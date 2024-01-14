@@ -13,11 +13,8 @@ public class Piece {
     private char color = '.';
     private String filepath;
     private BufferedImage image;
-    private ArrayList<Move> possibleMoves = new ArrayList<>();
-    
-    
-    
-    
+    private boolean hasMoved; // for king's castling rights for rook and king
+
     public Piece(String name, char color) {
         this.name = name;
         this.color = color;
@@ -131,11 +128,22 @@ public class Piece {
         return color;
     }
     
-    public ArrayList<Move> getMoves() {
-        return possibleMoves;
-    }
     
     public BufferedImage getImage() {
         return image;
+    }
+    
+    public boolean isEmpty() {
+        return name.equals("-");
+    }
+    
+    
+    public boolean isEnemy(char testColor) {
+        
+        if(color == testColor || color == '.') {
+            return false;
+        }  {
+            return true;
+        }
     }
 }
