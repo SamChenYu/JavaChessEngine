@@ -2,7 +2,7 @@
 package GUI;
 
 import chessengine.Engine;
-import chessengine.Piece;
+import Game.Piece;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 

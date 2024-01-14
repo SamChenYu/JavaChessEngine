@@ -1,230 +1,27 @@
 
 package chessengine;
 
+import Game.Piece;
+import Game.Game;
 import java.util.ArrayList;
 
 public final class Engine {
     
-
-    private final Piece[][] board = new Piece[8][8];
-    private final Piece[][] flippedBoard = new Piece[8][8]; // this is sent out to the panels to print out
-    private char activeColor = ' ';
-    private boolean whiteCastleKingSide = false;
-    private boolean whiteCastleQueenSide = false;
-    private boolean blackCastleKingSide = false;
-    private boolean blackCastleQueenSide = false;
-    private String enPassant = "-";
-    private int enPassantX = -1;
-    private int enPassantY = -1;
-    private int halfMoveClock = 0; // turns since last capture for 50 move rule
-    private int fullMoveClock = 1; // full amount of turns taken
+    private Game game;
     
     private double evaluation = 0;
-    
-    private ArrayList<Move> moves = new ArrayList<>();
+    private final ArrayList<Move> moves = new ArrayList<>();
     
     public Engine(String input) {
         
-        for(int i=0; i<8; i++) {
-            for(int j=0; j<8; j++) {
-                board[i][j] = new Piece();
-                flippedBoard[i][j] = new Piece();
-            }
-        }
-        
-        processString(input);
-        evaluate(board);
-        updateMoves(board,activeColor);
-        printMoves(board,moves);
+        game = new Game(input);
+        evaluate(game.getBoard());
+        updateMoves(game);
+        printMoves(game.getBoard(),moves);
     }
-    public void processString(String input) {
 
-        // Split the FEN string using space as the delimiter
-        String[] fenParts = input.split(" ");
-        
-        activeColor = fenParts[1].charAt(0);
-        
-        for(int i=0; i<fenParts[2].length(); i++) {
-            char currentChar = fenParts[2].charAt(i);
-            switch(currentChar) {
-                case 'K' -> { whiteCastleKingSide = true; break; }
-                case 'Q' -> { whiteCastleQueenSide = true; break; }
-                case 'k' -> { blackCastleKingSide = true; break; }
-                case 'q' -> { blackCastleQueenSide = true; break; }
-            }
-        }
-        enPassant = fenParts[3];
-        if(enPassant.length() == 2) {
-            char row = enPassant.charAt(0);
-            char file = enPassant.charAt(1);
-            
-            switch(row) {
-                case 'a' -> { enPassantX = 0; break;}
-                case 'b' -> { enPassantX = 1; break;}
-                case 'c' -> { enPassantX = 2; break;}
-                case 'd' -> { enPassantX = 3; break;}
-                case 'e' -> { enPassantX = 4; break;}
-                case 'f' -> { enPassantX = 5; break;}
-                case 'g' -> { enPassantX = 6; break;}
-                case 'h' -> { enPassantX = 7; break;}
-            }
-            
-            enPassantY = Character.getNumericValue(file);
-            enPassantY--;
-        }
 
-        halfMoveClock = Integer.parseInt(fenParts[4]);
-        fullMoveClock = Integer.parseInt(fenParts[5]);
-        
-        String[] boardRows = fenParts[0].split("/");
-        
-        // Flipping the board files so that the row number match the array indicies
-        // Copy over the array to flip
-        String[] temp = new String[boardRows.length];
-        for(int i=0; i<boardRows.length; i++) {
-            temp[i] = boardRows[i];
-        }
-        // flipping the board
-        int backwardCounter = boardRows.length-1;
-        for(int i=0; i<8; i++) {
-            boardRows[i] = temp[backwardCounter];
-            backwardCounter--;
-        }
-        
-        
-        
-        
-        
-        
-
-        outerLoop:
-        for(int i=0; i<8; i++) {
-            //ITERATING FOR 8 ROWS
-            int squareCounter = 0; // This keeps track of which square is currently being updated
-            for(int j=0; j<boardRows[i].length(); j++) {
-                //ITERATING FOR However Long the String given in the input is
-                char currentChar = boardRows[i].charAt(j);
-                switch(currentChar) {
-                    case 'r' -> {
-                        // black rook
-                        board[squareCounter][i] = new Piece("rook", 'b');
-                        squareCounter++;
-                        break;
-                    }
-                    
-                    case 'n' -> {
-                        // black knight
-                        board[squareCounter][i] = new Piece("knight", 'b');
-                        squareCounter++;
-                        break;
-                    }
-                    
-                    case 'b' -> {
-                        // black bishop
-                        board[squareCounter][i] = new Piece("bishop", 'b');
-                        squareCounter++;
-                        break;
-                    }
-                    
-                    case 'q' -> {
-                        // black queen
-                        board[squareCounter][i] = new Piece("queen", 'b');
-                        squareCounter++;
-                        break;
-                    }
-                    
-                    case 'k' -> {
-                        // black king
-                        board[squareCounter][i] = new Piece("king", 'b');
-                        squareCounter++;
-                        break;
-                    }
-                    
-                    case 'p' -> {
-                        // black pawn
-                        board[squareCounter][i] = new Piece("pawn", 'b');
-                        squareCounter++;
-                        break;
-                    }
-                    
-                    case 'P' -> {
-                        // white pawn
-                        board[squareCounter][i] = new Piece("pawn", 'w');
-                        squareCounter++;
-                        break;
-                    }
-                    
-                    case 'K' -> {
-                        // white king
-                        board[squareCounter][i] = new Piece("king", 'w');
-                        squareCounter++;
-                        break;
-                    }
-                    
-                    case 'Q' -> {
-                        //white queen
-                        board[squareCounter][i] = new Piece("queen", 'w');
-                        squareCounter++;
-                        break;
-                    }
-                    
-                    case 'B' -> {
-                        // white bishop
-                        board[squareCounter][i] = new Piece("bishop", 'w');
-                        squareCounter++;
-                        break;
-                    }
-                    
-                    case 'N' -> {
-                        // white knight
-                        board[squareCounter][i] = new Piece("knight", 'w');
-                        squareCounter++;
-                        break;
-                    }
-                    
-                    case 'R' -> {
-                        // white rook
-                        board[squareCounter][i] = new Piece("rook", 'w');
-                        squareCounter++;
-                        break;
-                    }
-                    
-                    // Handle empty squares (represented by numbers)
-                    case '1', '2', '3', '4', '5', '6', '7', '8' -> {
-                        // Convert the character to an integer and skip that number of squares
-                        int emptySquares = Character.getNumericValue(currentChar);
-                        squareCounter += emptySquares; // Subtract 1 because the loop will increment j
-                        break;
-                    }
-                    
-                    default -> {
-                        System.out.println("something went wrong with the FEN notation processing");
-                        // For the non-valid input, the board is set to a normal state
-                        processString("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-                        break outerLoop;
-                    }
-                } // END SWITCH
-            } // END INNER LOOP
-        } // END OUTER LOOP
-    
-        initFlippedBoard();
-    } // END PROCESS STRING
-    public void initFlippedBoard() {
-        
-        
-        int backwardCounter = 7;
-        for(int i=0; i<8; i++) {
-            backwardCounter = 7;
-            for(int j=0; j<8;j++) {
-                flippedBoard[i][backwardCounter] = board[i][j];
-                backwardCounter--;
-            }
-        }
-        
-    }
- 
-    
-    // Algoritmic Functions:
+    // Algorithmic Functions:
     public void evaluate(Piece[][] board) {
         
         int whiteMaterial = 0;
@@ -259,7 +56,7 @@ public final class Engine {
         double blackCalc = (double) blackMaterial  / 39.0;
         evaluation = (whiteCalc - blackCalc);
     }
-    public void updateMoves(Piece[][] board, char activeColor) {
+    public void updateMoves(Game game) {
         
        /*
         
@@ -296,7 +93,14 @@ public final class Engine {
         // If any of the possible moves intersect the active player's king,
         // It is CHECK
         
-        
+        Piece[][] board = game.getBoard();
+        char activeColor = game.getActiveColor();
+        int enPassantX = game.getEnPassantX();
+        int enPassantY = game.getEnPassantY();
+        boolean whiteCastleKingSide = game.getWhiteCastleKingSide();
+        boolean whiteCastleQueenSide = game.getWhiteCastleQueenSide();
+        boolean blackCastleKingSide = game.getBlackCastleKingSide();
+        boolean blackCastleQueenSide = game.getBlackCastleQueenSide();
         
         for(int i=0; i<8; i++) {
             for(int j=0; j<8; j++) {
@@ -1613,6 +1417,19 @@ public final class Engine {
     
     // Testing Functions:
     public void printBoardState() {
+        
+        Piece[][] board = game.getBoard();
+        char activeColor = game.getActiveColor();
+        int halfMoveClock = game.getHalfMoveClock();
+        int fullMoveClock = game.getFullMoveClock();
+        String enPassant = game.getEnPassant();
+        
+        boolean whiteCastleKingSide = game.getWhiteCastleKingSide();
+        boolean whiteCastleQueenSide = game.getWhiteCastleQueenSide();
+        boolean blackCastleKingSide = game.getBlackCastleKingSide();
+        boolean blackCastleQueenSide = game.getBlackCastleQueenSide();
+        
+        
         System.out.println("Complete Board");
         for(int i=0; i<8; i++) {
             for(int j=0; j<8; j++) {
@@ -1694,11 +1511,6 @@ public final class Engine {
         }
     } // End printMoves
     // Getters and Setters
-    public Piece[][] getBoard() { return board; }
-    public Piece[][] getFlippedBoard() { return flippedBoard; }
-    public char getActiveColor() { return activeColor; }
-    public int getHalfMoveClock() { return halfMoveClock; }
-    public int getFullMoveClock() { return fullMoveClock; }
     public double getEvaluation() { return evaluation; }
     public double getTruncatedEvaluation() {
         String truncatedNumberString = String.format("%.5f", evaluation);
@@ -1706,4 +1518,11 @@ public final class Engine {
         double truncatedNumber = Double.parseDouble(truncatedNumberString);
         return truncatedNumber;
     }
+    // Some getters and setters for the original game to pump back to the EnginePanel
+    public Piece[][] getFlippedBoard() { return game.getFlippedBoard(); }
+    public char getActiveColor() { return game.getActiveColor(); }
+    public int getHalfMoveClock() { return game.getHalfMoveClock(); }
+    public int getFullMoveClock() { return game.getFullMoveClock(); }
+    
+    
 } // END ENGINE
