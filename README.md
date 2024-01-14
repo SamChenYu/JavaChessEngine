@@ -43,8 +43,8 @@ Engine (IN PROGRESS)
 </div>
 
 
-Things that have been implemented incorrectly / need to watch out for:
-King currently can take a piece under check
-King can castle when the castling squares in check / castle into check
+Things that have been implemented incorrectly / need to watch out for:  
+King currently can take a piece under check  
+King can castle when the castling squares in check / castle into check  
 
 
