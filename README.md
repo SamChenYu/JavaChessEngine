@@ -18,6 +18,14 @@ Engine (IN PROGRESS)
 - isCheckmate Function
 - MiniMax Algorithm
 - Alpha-Beta Pruning
+
+
+- Make Move Function:
+  Things to take note:
+  Managing En Passant
+  Managing King Castling Rights
+  Checks / Checkmate
+
   
 - Proper Evaluate Function
 (The basic evaluate function is solely based on material, and nothing else. This is to faciliate the development of the minimax algorithm, then a proper evaluate function will be built.)
