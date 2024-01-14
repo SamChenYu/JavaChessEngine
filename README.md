@@ -14,7 +14,7 @@ ROADMAP:
 - Basic Evaluate Function ✅ (08/01/24)
   
 Engine (IN PROGRESS)
-- Calculate Possible Moves Function (IN PROGRESS)
+- Calculate Possible Moves Function ✅ (14/01/24)
 - isCheckmate Function
 - MiniMax Algorithm
 - Alpha-Beta Pruning
