@@ -42,10 +42,9 @@ Engine (IN PROGRESS)
     <img src="https://github.com/SamChenYu/JavaChessEngine/assets/150127006/3d2b4d18-f49d-42a7-9845-dc88e29c3bca" alt="EnginePanel">
 </div>
 
-                        /****************************************
-                         * Special Notes:
-                         * The king cannot take a piece under check
-                         * However, I think due to the minimax algorithm, it should
-                         * be able to avoid that unless it is at the terminated depth
-                         ****************************************/
+
+Things that have been implemented incorrectly / need to watch out for:
+King currently can take a piece under check
+King can castle when the castling squares in check / castle into check
+
 
