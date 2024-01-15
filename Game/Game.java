@@ -1,6 +1,9 @@
 
 package Game;
 
+import chessengine.Move;
+import java.util.ArrayList;
+
 
 public final class Game {
     
@@ -72,15 +75,28 @@ public final class Game {
     private int halfMoveClock = 0; // turns since last capture for 50 move rule
     private int fullMoveClock = 1; // full amount of turns taken
     
+    public ArrayList<Move> moves; // list of possible moves for the current board state
+    
+    
     public Game(String input) {
-                for(int i=0; i<8; i++) {
+        for(int i=0; i<8; i++) {
             for(int j=0; j<8; j++) {
                 board[i][j] = new Piece();
                 flippedBoard[i][j] = new Piece();
             }
         }
-        
+        moves = new ArrayList<Move>();
         processString(input);
+    }
+    
+    public Game() { // most likely created for a copy
+        for(int i=0; i<8; i++) {
+            for(int j=0; j<8; j++) {
+                board[i][j] = new Piece();
+                flippedBoard[i][j] = new Piece();
+            }
+        }
+        moves = new ArrayList<Move>();
     }
     
     public void processString(String input) {
@@ -271,6 +287,55 @@ public final class Game {
     }
     
     // Getters and Setters
+    public void setBoard(Piece[][] newBoard) {
+        for(int i=0; i<8;i++) {
+            for(int j=0; j<8; j++) {
+                board[i][j] = newBoard[i][j];
+            }
+        }
+    }
+    
+    public void setActiveColor(char color) {
+        activeColor = color;
+    }
+    
+    public void setWhiteCastleKingSide(boolean bool) {
+        whiteCastleKingSide = bool;
+    }
+    
+    public void setWhiteCastleQueenSide(boolean bool) {
+        whiteCastleQueenSide = bool;
+    }
+    
+    public void setBlackCastleKingSide(boolean bool) {
+        blackCastleKingSide = bool;
+    }
+    
+    public void setBlackCastleQueenSide(boolean bool) {
+        blackCastleQueenSide = bool;
+    }
+    
+    public void setEnPassant(String enP) {
+        enPassant = enP;
+    }
+    
+    public void setEnPassantX(int x) {
+        enPassantX = x;
+    }
+    
+    public void setEnPassantY(int y) {
+        enPassantY = y;
+        
+    }
+    
+    public void setHalfMoveClock(int x) {
+        halfMoveClock = x;
+    }
+    
+    public void setFullMoveClock(int x) {
+        fullMoveClock = x;
+    }
+    
     public Piece[][] getBoard() { return board; }
     public Piece[][] getFlippedBoard() { return flippedBoard; }
     public char getActiveColor() { return activeColor; }
@@ -283,5 +348,5 @@ public final class Game {
     public boolean getWhiteCastleQueenSide() { return whiteCastleQueenSide; }
     public boolean getBlackCastleKingSide() { return blackCastleKingSide; }
     public boolean getBlackCastleQueenSide() { return blackCastleQueenSide; }
-    
+    public ArrayList<Move> getMoveList() { return moves; }
 } // end class

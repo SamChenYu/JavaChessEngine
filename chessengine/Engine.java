@@ -10,19 +10,20 @@ public final class Engine {
     private Game game;
     
     private double evaluation = 0;
-    private final ArrayList<Move> moves = new ArrayList<>();
     
     public Engine(String input) {
         
         game = new Game(input);
-        evaluate(game.getBoard());
+        evaluate(game);
         updateMoves(game);
-        printMoves(game.getBoard(),moves);
+        printMoves(game);
     }
 
 
     // Algorithmic Functions:
-    public void evaluate(Piece[][] board) {
+    public void evaluate(Game game) {
+        
+        Piece[][] board = game.getBoard();
         
         int whiteMaterial = 0;
         int blackMaterial = 0;
@@ -101,6 +102,7 @@ public final class Engine {
         boolean whiteCastleQueenSide = game.getWhiteCastleQueenSide();
         boolean blackCastleKingSide = game.getBlackCastleKingSide();
         boolean blackCastleQueenSide = game.getBlackCastleQueenSide();
+        ArrayList<Move> moves = game.getMoveList();
         
         for(int i=0; i<8; i++) {
             for(int j=0; j<8; j++) {
@@ -134,7 +136,9 @@ public final class Engine {
                                         if(board[x][y].isEmpty()) {
                                             // Can move forward one
                                             Move move = new Move(i,j,x,y, false);
-                                            moves.add(move);
+                                            if(checkIfMoveIsValid(game,move)) {
+                                                moves.add(move);
+                                            }
                                         }
                                     }
                                     // Forward two if on the starting position
@@ -144,7 +148,9 @@ public final class Engine {
                                             // Can move forward two
                                             Move move = new Move(i,j,x,y,false);
                                             move.pawnMovedTwice();
-                                            moves.add(move);
+                                            if(checkIfMoveIsValid(game,move)) {
+                                                moves.add(move);
+                                            }
                                         }
                                     }
 
@@ -155,11 +161,15 @@ public final class Engine {
                                         if(board[x][y].isEnemy(color)) {
                                             // Can attack left
                                             Move move = new Move(i,j,x,y,true);
-                                            moves.add(move);
+                                            if(checkIfMoveIsValid(game,move)) {
+                                                moves.add(move);
+                                            }
                                         }
                                         if(enPassantX == (x) && enPassantY == (y)) {
                                             Move move = new Move(i,j,x,y,x-1,y);
-                                            moves.add(move);
+                                            if(checkIfMoveIsValid(game,move)) {
+                                                moves.add(move);
+                                            }
                                         }
 
                                     }
@@ -171,11 +181,15 @@ public final class Engine {
                                         if(board[x][y].isEnemy(color)) {
                                             // Can right left
                                             Move move = new Move(i,j,x,y,true);
-                                            moves.add(move);
+                                            if(checkIfMoveIsValid(game,move)) {
+                                                moves.add(move);
+                                            }
                                         }
                                         if(enPassantX == (x) && enPassantY == (y)) {
                                             Move move = new Move(i,j,x,y,x+1,y);
-                                            moves.add(move);
+                                            if(checkIfMoveIsValid(game,move)) {
+                                                moves.add(move);
+                                            }
                                         }
                                     }
 
@@ -188,7 +202,20 @@ public final class Engine {
                                             Move move2 = new Move(i,j,x,y,false,true,"rook");
                                             Move move3 = new Move(i,j,x,y,false,true,"bishop");
                                             Move move4 = new Move(i,j,x,y,false,true,"knight");
-                                            moves.add(move1); moves.add(move2); moves.add(move3); moves.add(move4);
+                                            
+                                            if(checkIfMoveIsValid(game,move1)) {
+                                                moves.add(move1);
+                                            }
+                                            if(checkIfMoveIsValid(game,move2)) {
+                                                moves.add(move2);
+                                            }
+                                            if(checkIfMoveIsValid(game,move3)) {
+                                                moves.add(move3);
+                                            }
+                                            if(checkIfMoveIsValid(game,move4)) {
+                                                moves.add(move4);
+                                            }
+                                           
                                         }   
                                     }
 
@@ -201,7 +228,18 @@ public final class Engine {
                                             Move move2 = new Move(i,j,x,y,true,true,"rook");
                                             Move move3 = new Move(i,j,x,y,true,true,"bishop");
                                             Move move4 = new Move(i,j,x,y,true,true,"knight");
-                                            moves.add(move1); moves.add(move2); moves.add(move3); moves.add(move4);
+                                            if(checkIfMoveIsValid(game,move1)) {
+                                                moves.add(move1);
+                                            }
+                                            if(checkIfMoveIsValid(game,move2)) {
+                                                moves.add(move2);
+                                            }
+                                            if(checkIfMoveIsValid(game,move3)) {
+                                                moves.add(move3);
+                                            }
+                                            if(checkIfMoveIsValid(game,move4)) {
+                                                moves.add(move4);
+                                            }
                                         }
                                     }
 
@@ -215,7 +253,18 @@ public final class Engine {
                                             Move move2 = new Move(i,j,x,y,true,true,"rook");
                                             Move move3 = new Move(i,j,x,y,true,true,"bishop");
                                             Move move4 = new Move(i,j,x,y,true,true,"knight");
-                                            moves.add(move1); moves.add(move2); moves.add(move3); moves.add(move4);
+                                            if(checkIfMoveIsValid(game,move1)) {
+                                                moves.add(move1);
+                                            }
+                                            if(checkIfMoveIsValid(game,move2)) {
+                                                moves.add(move2);
+                                            }
+                                            if(checkIfMoveIsValid(game,move3)) {
+                                                moves.add(move3);
+                                            }
+                                            if(checkIfMoveIsValid(game,move4)) {
+                                                moves.add(move4);
+                                            }
                                         }
                                     }
 
@@ -231,7 +280,9 @@ public final class Engine {
                                         if(board[x][y].isEmpty()) {
                                             // can move forward one
                                             Move move = new Move(i,j,x,y,false);
-                                            moves.add(move);
+                                            if(checkIfMoveIsValid(game,move)) {
+                                                moves.add(move);
+                                            }
                                         }
                                     }
 
@@ -241,7 +292,9 @@ public final class Engine {
                                         if(board[i][j-1].isEmpty() && board[x][y].isEmpty()) {
                                             // can move forward two
                                             Move move = new Move(i,j,x,y,false);
-                                            moves.add(move);
+                                            if(checkIfMoveIsValid(game,move)) {
+                                                moves.add(move);
+                                            }
                                         }
                                     }
 
@@ -252,12 +305,16 @@ public final class Engine {
                                         if(board[x][y].isEnemy(color)) {
                                             // can attack left
                                             Move move = new Move(i,j,x,y,true);
-                                            moves.add(move);
+                                            if(checkIfMoveIsValid(game,move)) {
+                                                moves.add(move);
+                                            }
                                         }
 
                                         if(enPassantX == (x) && enPassantY == (y)) {
                                             Move move = new Move(i,j,x,y,x-1,y);
-                                            moves.add(move);
+                                            if(checkIfMoveIsValid(game,move)) {
+                                                moves.add(move);
+                                            }
                                         }
                                     }
 
@@ -269,12 +326,16 @@ public final class Engine {
                                         if(board[x][y].isEnemy(color)) {
                                             // can attack right
                                             Move move = new Move(i,j,x,y,true);
-                                            moves.add(move);
+                                            if(checkIfMoveIsValid(game,move)) {
+                                                moves.add(move);
+                                            }
                                         }
 
                                         if(enPassantX == (x) && enPassantY == (y)) {
                                             Move move = new Move(i,j,x,y,x-1,y);
-                                            moves.add(move);
+                                            if(checkIfMoveIsValid(game,move)) {
+                                                moves.add(move);
+                                            }
                                         }
                                     }
 
@@ -288,7 +349,18 @@ public final class Engine {
                                             Move move2 = new Move(i,j,x,y,false,true,"rook");
                                             Move move3 = new Move(i,j,x,y,false,true,"bishop");
                                             Move move4 = new Move(i,j,x,y,false,true,"knight");
-                                            moves.add(move1); moves.add(move2); moves.add(move3); moves.add(move4);
+                                            if(checkIfMoveIsValid(game,move1)) {
+                                                moves.add(move1);
+                                            }
+                                            if(checkIfMoveIsValid(game,move2)) {
+                                                moves.add(move2);
+                                            }
+                                            if(checkIfMoveIsValid(game,move3)) {
+                                                moves.add(move3);
+                                            }
+                                            if(checkIfMoveIsValid(game,move4)) {
+                                                moves.add(move4);
+                                            }
                                         }
                                     }
 
@@ -301,7 +373,18 @@ public final class Engine {
                                             Move move2 = new Move(i,j,x,y,false,true,"rook");
                                             Move move3 = new Move(i,j,x,y,false,true,"bishop");
                                             Move move4 = new Move(i,j,x,y,false,true,"knight");
-                                            moves.add(move1); moves.add(move2); moves.add(move3); moves.add(move4);
+                                                                                        if(checkIfMoveIsValid(game,move1)) {
+                                                moves.add(move1);
+                                            }
+                                            if(checkIfMoveIsValid(game,move2)) {
+                                                moves.add(move2);
+                                            }
+                                            if(checkIfMoveIsValid(game,move3)) {
+                                                moves.add(move3);
+                                            }
+                                            if(checkIfMoveIsValid(game,move4)) {
+                                                moves.add(move4);
+                                            }
                                         }
                                     }
 
@@ -315,7 +398,18 @@ public final class Engine {
                                             Move move2 = new Move(i,j,x,y,false,true,"rook");
                                             Move move3 = new Move(i,j,x,y,false,true,"bishop");
                                             Move move4 = new Move(i,j,x,y,false,true,"knight");
-                                            moves.add(move1); moves.add(move2); moves.add(move3); moves.add(move4);
+                                            if(checkIfMoveIsValid(game,move1)) {
+                                                moves.add(move1);
+                                            }
+                                            if(checkIfMoveIsValid(game,move2)) {
+                                                moves.add(move1);
+                                            }
+                                            if(checkIfMoveIsValid(game,move3)) {
+                                                moves.add(move1);
+                                            }
+                                            if(checkIfMoveIsValid(game,move4)) {
+                                                moves.add(move1);
+                                            }
                                         }
                                     }
                                 } // End BLACK's pawn code
@@ -335,12 +429,16 @@ public final class Engine {
                                 y++;
                                 if(board[x][y].isEmpty()) {
                                     Move move = new Move(i,j,x,y, false);
-                                    moves.add(move);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                                 } else {
                                     // Piece blocks bishop's way
                                     if(board[x][y].isEnemy(color)) {
                                         Move move = new Move(i,j,x,y,true);
-                                        moves.add(move);
+                                        if(checkIfMoveIsValid(game,move)) {
+                                            moves.add(move);
+                                        }
                                         break; // break as there is a piece blocking
                                     } else {
                                         break; // block as there is a friendly piece blocking
@@ -356,12 +454,16 @@ public final class Engine {
                                 y++;
                                 if(board[x][y].isEmpty()) {
                                     Move move = new Move(i,j,x,y, false);
-                                    moves.add(move);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                                 } else {
                                     // Piece blocks bishop's way
                                     if(board[x][y].isEnemy(color)) {
                                         Move move = new Move(i,j,x,y,true);
+                                    if(checkIfMoveIsValid(game,move)) {
                                         moves.add(move);
+                                    }
                                         break; // break as there is a piece blocking
                                     } else {
                                         break; // block as there is a friendly piece blocking
@@ -376,12 +478,16 @@ public final class Engine {
                                 y--;
                                 if(board[x][y].isEmpty()) {
                                     Move move = new Move(i,j,x,y, false);
-                                    moves.add(move);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                                 } else {
                                     // Piece blocks bishop's way
                                     if(board[x][y].isEnemy(color)) {
                                         Move move = new Move(i,j,x,y,true);
+                                    if(checkIfMoveIsValid(game,move)) {
                                         moves.add(move);
+                                    }
                                         break; // break as there is a piece blocking
                                     } else {
                                         break; // block as there is a friendly piece blocking
@@ -397,12 +503,16 @@ public final class Engine {
                                 y--;
                                 if(board[x][y].isEmpty()) {
                                     Move move = new Move(i,j,x,y, false);
-                                    moves.add(move);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                                 } else {
                                     // Piece blocks bishop's way
                                     if(board[x][y].isEnemy(color)) {
                                         Move move = new Move(i,j,x,y,true);
+                                    if(checkIfMoveIsValid(game,move)) {
                                         moves.add(move);
+                                    }
                                         break; // break as there is a piece blocking
                                     } else {
                                         break; // block as there is a friendly piece blocking
@@ -430,10 +540,14 @@ public final class Engine {
 
                                 if(board[x][y].isEmpty()) {
                                     Move move = new Move(i,j,x,y, false);
-                                    moves.add(move);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                                 } else if(board[x][y].isEnemy(color)) {
                                     Move move = new Move(i,j,x,y, true);
-                                    moves.add(move);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                                 }
                             }
 
@@ -447,10 +561,14 @@ public final class Engine {
 
                                 if(board[x][y].isEmpty()) {
                                     Move move = new Move(i,j,x,y, false);
-                                    moves.add(move);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                                 } else if(board[x][y].isEnemy(color)) {
                                     Move move = new Move(i,j,x,y, true);
-                                    moves.add(move);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                                 }
                             }
 
@@ -465,10 +583,14 @@ public final class Engine {
 
                                 if(board[x][y].isEmpty()) {
                                     Move move = new Move(i,j,x,y, false);
-                                    moves.add(move);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                                 } else if(board[x][y].isEnemy(color)) {
                                     Move move = new Move(i,j,x,y, true);
-                                    moves.add(move);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                                 }
                             }
 
@@ -481,10 +603,14 @@ public final class Engine {
 
                                 if(board[x][y].isEmpty()) {
                                     Move move = new Move(i,j,x,y, false);
-                                    moves.add(move);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                                 } else if(board[x][y].isEnemy(color)) {
                                     Move move = new Move(i,j,x,y, true);
-                                    moves.add(move);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                                 }
                             }
 
@@ -498,10 +624,14 @@ public final class Engine {
 
                                 if(board[x][y].isEmpty()) {
                                     Move move = new Move(i,j,x,y, false);
-                                    moves.add(move);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                                 } else if(board[x][y].isEnemy(color)) {
                                     Move move = new Move(i,j,x,y, true);
-                                    moves.add(move);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                                 }
                             }
 
@@ -514,10 +644,14 @@ public final class Engine {
 
                                 if(board[x][y].isEmpty()) {
                                     Move move = new Move(i,j,x,y, false);
-                                    moves.add(move);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                                 } else if(board[x][y].isEnemy(color)) {
                                     Move move = new Move(i,j,x,y, true);
-                                    moves.add(move);
+                                     if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                                 }
                             }
                             // TWO LEFT (UP/DOWN)
@@ -530,10 +664,14 @@ public final class Engine {
 
                                 if(board[x][y].isEmpty()) {
                                     Move move = new Move(i,j,x,y, false);
-                                    moves.add(move);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                                 } else if(board[x][y].isEnemy(color)) {
                                     Move move = new Move(i,j,x,y, true);
-                                    moves.add(move);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                                 }
                             }
 
@@ -546,10 +684,14 @@ public final class Engine {
 
                                 if(board[x][y].isEmpty()) {
                                     Move move = new Move(i,j,x,y, false);
-                                    moves.add(move);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                                 } else if(board[x][y].isEnemy(color)) {
                                     Move move = new Move(i,j,x,y, true);
-                                    moves.add(move);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                                 }
                             }
                             break;
@@ -565,12 +707,16 @@ public final class Engine {
                                 x++;
                                 if(board[x][y].isEmpty()) {
                                     Move move = new Move(i,j,x,y, false);
-                                    moves.add(move);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                                 } else {
                                     // Piece blocks rook's way
                                     if(board[x][y].isEnemy(color)) {
                                         Move move = new Move(i,j,x,y,true);
+                                        if(checkIfMoveIsValid(game,move)) {
                                         moves.add(move);
+                                    }
                                         break; // break as there is a piece blocking
                                     } else {
                                         break; // block as there is a friendly piece blocking
@@ -584,13 +730,17 @@ public final class Engine {
                                 x--;
                                 if(board[x][y].isEmpty()) {
                                     Move move = new Move(i,j,x,y, false);
-                                    moves.add(move);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
 
                                 } else {
                                     // Piece blocks rook's way
                                     if(board[x][y].isEnemy(color)) {
                                         Move move = new Move(i,j,x,y,true);
+                                       if(checkIfMoveIsValid(game,move)) {
                                         moves.add(move);
+                                    }
                                         break; // break as there is a piece blocking
                                     } else {
                                         break; // block as there is a friendly piece blocking
@@ -605,12 +755,16 @@ public final class Engine {
                                 y++;
                                 if(board[x][y].isEmpty()) {
                                     Move move = new Move(i,j,x,y, false);
-                                    moves.add(move);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                                 } else {
                                     // Piece blocks rook's way
                                     if(board[x][y].isEnemy(color)) {
                                         Move move = new Move(i,j,x,y,true);
+                                        if(checkIfMoveIsValid(game,move)) {
                                         moves.add(move);
+                                    }
                                         break; // break as there is a piece blocking
                                     } else {
                                         break; // block as there is a friendly piece blocking
@@ -624,12 +778,16 @@ public final class Engine {
                                 y--;
                                 if(board[x][y].isEmpty()) {
                                     Move move = new Move(i,j,x,y, false);
-                                    moves.add(move);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                                 } else {
                                     // Piece blocks bishop's way
                                     if(board[x][y].isEnemy(color)) {
                                         Move move = new Move(i,j,x,y,true);
+                                        if(checkIfMoveIsValid(game,move)) {
                                         moves.add(move);
+                                    }
                                         break; // break as there is a piece blocking
                                     } else {
                                         break; // block as there is a friendly piece blocking
@@ -649,12 +807,16 @@ public final class Engine {
                                 x++;
                                 if(board[x][y].isEmpty()) {
                                     Move move = new Move(i,j,x,y, false);
-                                    moves.add(move);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                                 } else {
                                     // Piece blocks rook's way
                                     if(board[x][y].isEnemy(color)) {
                                         Move move = new Move(i,j,x,y,true);
+                                        if(checkIfMoveIsValid(game,move)) {
                                         moves.add(move);
+                                    }
                                         break; // break as there is a piece blocking
                                     } else {
                                         break; // block as there is a friendly piece blocking
@@ -668,13 +830,17 @@ public final class Engine {
                                 x--;
                                 if(board[x][y].isEmpty()) {
                                     Move move = new Move(i,j,x,y, false);
-                                    moves.add(move);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
 
                                 } else {
                                     // Piece blocks rook's way
                                     if(board[x][y].isEnemy(color)) {
                                         Move move = new Move(i,j,x,y,true);
+                                       if(checkIfMoveIsValid(game,move)) {
                                         moves.add(move);
+                                    }
                                         break; // break as there is a piece blocking
                                     } else {
                                         break; // block as there is a friendly piece blocking
@@ -689,12 +855,16 @@ public final class Engine {
                                 y++;
                                 if(board[x][y].isEmpty()) {
                                     Move move = new Move(i,j,x,y, false);
-                                    moves.add(move);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                                 } else {
                                     // Piece blocks rook's way
                                     if(board[x][y].isEnemy(color)) {
                                         Move move = new Move(i,j,x,y,true);
+                                        if(checkIfMoveIsValid(game,move)) {
                                         moves.add(move);
+                                    }
                                         break; // break as there is a piece blocking
                                     } else {
                                         break; // block as there is a friendly piece blocking
@@ -708,12 +878,16 @@ public final class Engine {
                                 y--;
                                 if(board[x][y].isEmpty()) {
                                     Move move = new Move(i,j,x,y, false);
-                                    moves.add(move);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                                 } else {
                                     // Piece blocks bishop's way
                                     if(board[x][y].isEnemy(color)) {
                                         Move move = new Move(i,j,x,y,true);
+                                        if(checkIfMoveIsValid(game,move)) {
                                         moves.add(move);
+                                    }
                                         break; // break as there is a piece blocking
                                     } else {
                                         break; // block as there is a friendly piece blocking
@@ -732,12 +906,16 @@ public final class Engine {
                                 y++;
                                 if(board[x][y].isEmpty()) {
                                     Move move = new Move(i,j,x,y, false);
-                                    moves.add(move);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                                 } else {
                                     // Piece blocks bishop's way
                                     if(board[x][y].isEnemy(color)) {
                                         Move move = new Move(i,j,x,y,true);
+                                        if(checkIfMoveIsValid(game,move)) {
                                         moves.add(move);
+                                    }
                                         break; // break as there is a piece blocking
                                     } else {
                                         break; // block as there is a friendly piece blocking
@@ -753,12 +931,16 @@ public final class Engine {
                                 y++;
                                 if(board[x][y].isEmpty()) {
                                     Move move = new Move(i,j,x,y, false);
-                                    moves.add(move);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                                 } else {
                                     // Piece blocks bishop's way
                                     if(board[x][y].isEnemy(color)) {
                                         Move move = new Move(i,j,x,y,true);
+                                        if(checkIfMoveIsValid(game,move)) {
                                         moves.add(move);
+                                    }
                                         break; // break as there is a piece blocking
                                     } else {
                                         break; // block as there is a friendly piece blocking
@@ -773,12 +955,16 @@ public final class Engine {
                                 y--;
                                 if(board[x][y].isEmpty()) {
                                     Move move = new Move(i,j,x,y, false);
-                                    moves.add(move);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                                 } else {
                                     // Piece blocks bishop's way
                                     if(board[x][y].isEnemy(color)) {
                                         Move move = new Move(i,j,x,y,true);
+                                        if(checkIfMoveIsValid(game,move)) {
                                         moves.add(move);
+                                    }
                                         break; // break as there is a piece blocking
                                     } else {
                                         break; // block as there is a friendly piece blocking
@@ -794,12 +980,16 @@ public final class Engine {
                                 y--;
                                 if(board[x][y].isEmpty()) {
                                     Move move = new Move(i,j,x,y, false);
-                                    moves.add(move);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                                 } else {
                                     // Piece blocks bishop's way
                                     if(board[x][y].isEnemy(color)) {
                                         Move move = new Move(i,j,x,y,true);
+                                        if(checkIfMoveIsValid(game,move)) {
                                         moves.add(move);
+                                    }
                                         break; // break as there is a piece blocking
                                     } else {
                                         break; // block as there is a friendly piece blocking
@@ -828,7 +1018,9 @@ public final class Engine {
                             x++;
                             if( x <= 7 && board[x][y].isEmpty()) {
                                 Move move = new Move(i,j,x,y, false);
-                                moves.add(move);
+                                if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                             }
 
                             x = i;
@@ -836,7 +1028,9 @@ public final class Engine {
                             x--;
                             if(x >= 0 && board[x][y].isEmpty() ) {
                                 Move move = new Move(i,j,x,y, false);
-                                moves.add(move);
+                                if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                             }
 
                             x = i;
@@ -844,7 +1038,9 @@ public final class Engine {
                             y++;
                             if( y <= 7 && board[x][y].isEmpty()) {
                                 Move move = new Move(i,j,x,y, false);
-                                moves.add(move);
+                                if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                             }
 
                             x = i;
@@ -852,7 +1048,9 @@ public final class Engine {
                             y--;
                             if( y>=0 && board[x][y].isEmpty()  ) {
                                 Move move = new Move(i,j,x,y, false);
-                                moves.add(move);
+                                if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                             }
 
                             // Diagonals
@@ -865,7 +1063,9 @@ public final class Engine {
                             y++;
                             if(x <= 7 && y <= 7  && board[x][y].isEmpty()) {
                                 Move move = new Move(i,j,x,y, false);
-                                moves.add(move);
+                                if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                             }
 
                             // TOP LEFT
@@ -875,7 +1075,9 @@ public final class Engine {
                             y++;
                             if(x >= 0 && y <=7 && board[x][y].isEmpty()) {
                                 Move move = new Move(i,j,x,y, false);
-                                moves.add(move);
+                                if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                             }
 
                             // Bottom RIGHT
@@ -885,7 +1087,9 @@ public final class Engine {
                             y--;
                             if( (x<=7 && y >= 0) && board[x][y].isEmpty()) {
                                 Move move = new Move(i,j,x,y, false);
-                                moves.add(move);
+                                if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                             }
                             // Bottom LEFT
                             x = i;
@@ -894,7 +1098,9 @@ public final class Engine {
                             y--;
                             if(x>= 0 && y>=0 && board[x][y].isEmpty()) {
                                 Move move = new Move(i,j,x,y, false);
-                                moves.add(move);
+                                if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                             }
 
                             // castling moves
@@ -903,28 +1109,36 @@ public final class Engine {
                                 if(whiteCastleKingSide) {
                                     if(board[5][0].isEmpty() && board[6][0].isEmpty()) {
                                         Move move = new Move(true, true);
+                                        if(checkIfMoveIsValid(game,move)) {
                                         moves.add(move);
+                                    }
                                     }
                                 }
 
                                 if(whiteCastleQueenSide) {
                                     if(board[3][0].isEmpty() && board[2][0].isEmpty() && board[1][0].isEmpty()) {
                                         Move move = new Move(true, false);
+                                        if(checkIfMoveIsValid(game,move)) {
                                         moves.add(move);
+                                    }
                                     }
                                 }
                             } else {
                                 if(blackCastleKingSide) {
                                     if(board[5][7].isEmpty() && board[6][7].isEmpty()) {
                                         Move move = new Move(true, true);
+                                        if(checkIfMoveIsValid(game,move)) {
                                         moves.add(move);
+                                    }
                                     }
                                 }
 
                                 if(blackCastleQueenSide) {
                                     if(board[3][7].isEmpty() && board[2][7].isEmpty() && board[1][7].isEmpty()) {
                                         Move move = new Move(true, false);
+                                        if(checkIfMoveIsValid(game,move)) {
                                         moves.add(move);
+                                    }
                                     }
                                 }
                             }
@@ -938,8 +1152,21 @@ public final class Engine {
         } // END OUTERLOOP
     } // END UPDATEMOVES
     
-    public boolean isInCheck(Piece[][] board, char activeColor) {
-                
+    public boolean checkIfMoveIsValid(Game game, Move move) {
+        Game future = new Game();
+        future = copyGame(game,future);
+        if(isInCheck(makeMove(future, move))) {;
+            return false;
+        } else {
+
+            return true;
+        }
+    }
+    
+    public boolean isInCheck(Game game) {
+        
+        Piece[][] board = game.getBoard();
+        char activeColor = game.getActiveColor();
         /********************
          * 
          * This method checks the entire opposite color
@@ -956,10 +1183,10 @@ public final class Engine {
             for(int j=0; j<8; j++) {
                 if(board[i][j].getName().equals("king") && board[i][j].getColor() == activeColor) {
                     kingX = i; kingY = j;
+                    break;
                 }
             } // End inner loop 
         }// End Outerloop
-        
         // Wanting to see the enemy attacks
         char enemyColor;
         if(activeColor == 'w') {
@@ -967,6 +1194,8 @@ public final class Engine {
         } else {
             enemyColor = 'w';
         }
+        
+        outerLoop:
         for(int i=0; i<8; i++) {
             for(int j=0; j<8; j++) {
                 Piece piece = board[i][j];
@@ -981,7 +1210,7 @@ public final class Engine {
                                         int x = i-1, y = j+1; // coords interested in
                                         if(x == kingX && y == kingY) {
                                             isKingInCheck = true;
-                                            break;
+                                            break outerLoop;
                                         }
                                     }
 
@@ -991,7 +1220,7 @@ public final class Engine {
                                         int x = i+1, y = j+1; // coords interested in
                                         if(x == kingX && y == kingY) {
                                             isKingInCheck = true;
-                                            break;
+                                            break outerLoop;
                                         }
                                     }
                         }  else {
@@ -1001,7 +1230,7 @@ public final class Engine {
                                         int x = i-1, y = j-1; // coords interested in
                                         if(x == kingX && y == kingY) {
                                             isKingInCheck = true;
-                                            break;
+                                            break outerLoop;
                                         }
                                     }
 
@@ -1011,7 +1240,7 @@ public final class Engine {
                                         int x = i+1, y = j-1;
                                         if(x == kingX && y == kingY) {
                                             isKingInCheck = true;
-                                            break;
+                                            break outerLoop;
                                         }
 
                                     }
@@ -1032,8 +1261,11 @@ public final class Engine {
                                 if(!board[x][y].isEmpty()) {
                                     if(x == kingX && y == kingY) {
                                         isKingInCheck = true;
+                                        break outerLoop;
                                     }
                                     break; // break as piece blocks
+                                    
+                                    
                                 } 
                             }
 
@@ -1046,6 +1278,7 @@ public final class Engine {
                                 if(!board[x][y].isEmpty()) {
                                     if(x == kingX && y == kingY) {
                                         isKingInCheck = true;
+                                        break outerLoop;
                                     }
                                     break; // break as piece blocks
                                 } 
@@ -1059,6 +1292,7 @@ public final class Engine {
                                 if(!board[x][y].isEmpty()) {
                                     if(x == kingX && y == kingY) {
                                         isKingInCheck = true;
+                                        break outerLoop;
                                     }
                                     break; // break as piece blocks
                                 } 
@@ -1073,6 +1307,7 @@ public final class Engine {
                                 if(!board[x][y].isEmpty()) {
                                     if(x == kingX && y == kingY) {
                                         isKingInCheck = true;
+                                        break outerLoop;
                                     }
                                     break; // break as piece blocks
                                 } 
@@ -1098,7 +1333,7 @@ public final class Engine {
 
                                 if(x == kingX && y == kingY) {
                                     isKingInCheck = true;
-                                    break;
+                                    break outerLoop;
                                 }
                             }
 
@@ -1112,7 +1347,7 @@ public final class Engine {
 
                                 if(x == kingX && y == kingY) {
                                     isKingInCheck = true;
-                                    break;
+                                    break outerLoop;
                                 }
                             }
 
@@ -1127,7 +1362,7 @@ public final class Engine {
 
                                 if(x == kingX && y == kingY) {
                                     isKingInCheck = true;
-                                    break;
+                                    break outerLoop;
                                 }
                             }
 
@@ -1139,7 +1374,7 @@ public final class Engine {
                             if( x >= 0 && y >= 0) {
                                 if(x == kingX && y == kingY) {
                                     isKingInCheck = true;
-                                    break;
+                                    break outerLoop;
                                 }
                             }
 
@@ -1153,7 +1388,7 @@ public final class Engine {
 
                                 if(x == kingX && y == kingY) {
                                     isKingInCheck = true;
-                                    break;
+                                    break outerLoop;
                                 }
                             }
 
@@ -1166,7 +1401,7 @@ public final class Engine {
 
                                  if(x == kingX && y == kingY) {
                                     isKingInCheck = true;
-                                    break;
+                                    break outerLoop;
                                 }
                             }
                             // TWO LEFT (UP/DOWN)
@@ -1179,7 +1414,7 @@ public final class Engine {
 
                                   if(x == kingX && y == kingY) {
                                     isKingInCheck = true;
-                                    break;
+                                    break outerLoop;
                                 }
                             }
 
@@ -1192,7 +1427,7 @@ public final class Engine {
 
                                 if(x == kingX && y == kingY) {
                                     isKingInCheck = true;
-                                    break;
+                                    break outerLoop;
                                 }
                             }
                             break;
@@ -1204,9 +1439,11 @@ public final class Engine {
                             int x = i;
                             int y = j;
                             while(x < 7) {
+                                x++;
                                 if(!board[x][y].isEmpty()) {
                                     if(x == kingX && y == kingY) {
                                         isKingInCheck = true;
+                                        break outerLoop;
                                     }
                                     break; // break as piece blocks
                                 } 
@@ -1219,6 +1456,7 @@ public final class Engine {
                                  if(!board[x][y].isEmpty()) {
                                     if(x == kingX && y == kingY) {
                                         isKingInCheck = true;
+                                        break outerLoop;
                                     }
                                     break; // break as piece blocks
                                 } 
@@ -1232,6 +1470,7 @@ public final class Engine {
                                  if(!board[x][y].isEmpty()) {
                                     if(x == kingX && y == kingY) {
                                         isKingInCheck = true;
+                                        break outerLoop;
                                     }
                                     break; // break as piece blocks
                                 } 
@@ -1244,6 +1483,7 @@ public final class Engine {
                                 if(!board[x][y].isEmpty()) {
                                     if(x == kingX && y == kingY) {
                                         isKingInCheck = true;
+                                        break outerLoop;
                                     }
                                     break; // break as piece blocks
                                 } 
@@ -1264,6 +1504,7 @@ public final class Engine {
                                 if(!board[x][y].isEmpty()) {
                                     if(x == kingX && y == kingY) {
                                         isKingInCheck = true;
+                                        break outerLoop;
                                     }
                                     break; // break as piece blocks
                                 } 
@@ -1278,6 +1519,7 @@ public final class Engine {
                                 if(!board[x][y].isEmpty()) {
                                     if(x == kingX && y == kingY) {
                                         isKingInCheck = true;
+                                        break outerLoop;
                                     }
                                     break; // break as piece blocks
                                 } 
@@ -1291,6 +1533,7 @@ public final class Engine {
                                 if(!board[x][y].isEmpty()) {
                                     if(x == kingX && y == kingY) {
                                         isKingInCheck = true;
+                                        break outerLoop;
                                     }
                                     break; // break as piece blocks
                                 } 
@@ -1305,6 +1548,7 @@ public final class Engine {
                                 if(!board[x][y].isEmpty()) {
                                     if(x == kingX && y == kingY) {
                                         isKingInCheck = true;
+                                        break outerLoop;
                                     }
                                     break; // break as piece blocks
                                 } 
@@ -1318,6 +1562,7 @@ public final class Engine {
                                 if(!board[x][y].isEmpty()) {
                                     if(x == kingX && y == kingY) {
                                         isKingInCheck = true;
+                                        break outerLoop;
                                     }
                                     break; // break as piece blocks
                                 } 
@@ -1330,6 +1575,7 @@ public final class Engine {
                                  if(!board[x][y].isEmpty()) {
                                     if(x == kingX && y == kingY) {
                                         isKingInCheck = true;
+                                        break outerLoop;
                                     }
                                     break; // break as piece blocks
                                 } 
@@ -1343,6 +1589,7 @@ public final class Engine {
                                  if(!board[x][y].isEmpty()) {
                                     if(x == kingX && y == kingY) {
                                         isKingInCheck = true;
+                                        break outerLoop;
                                     }
                                     break; // break as piece blocks
                                 } 
@@ -1352,9 +1599,11 @@ public final class Engine {
                             y = j;
                             while(y > 0) {
                                 y--;
+                                
                                 if(!board[x][y].isEmpty()) {
                                     if(x == kingX && y == kingY) {
                                         isKingInCheck = true;
+                                        break outerLoop;
                                     }
                                     break; // break as piece blocks
                                 } 
@@ -1368,26 +1617,18 @@ public final class Engine {
         } // End outer loop
         
         
-        if(isKingInCheck) {
-            System.out.println("king in check");
-        } else {
-            System.out.println("not in check");
-        }
         
         
         
         return isKingInCheck;
     } // end IsInCheck
     
-    public Piece[][] makeMove(Piece[][] board, Move move) {
-        
-        // This will be the new board to return
-        Piece[][] temp = new Piece[8][8];
-        for(int i=0; i<8; i++) {
-            for(int j=0; j<8; j++) {
-                temp[i][j] = board[i][j];
-            }
-        }
+    public Game makeMove(Game game, Move move) {
+        // creating a new game where the move was taken
+        Game temp = new Game();
+        temp = copyGame(game,temp);
+        Piece[][] newBoard = game.getBoard();
+
         
         // isCastle, isEnpassant, isPromote, isCapture
         
@@ -1398,25 +1639,59 @@ public final class Engine {
         
         // Dichotmy of moves
         
-        if(isCastle) {
+        int startX = move.getStartX();
+        int startY = move.getStartY();
+        int endX = move.getEndX();
+        int endY = move.getEndY();
+        
+        if(isCastle) { // if the player wants to castle
             
         } else if (isEnPassant && isCapture) { // this is if you are taking en passant
             
         } else if(isEnPassant) { // this is if the pawn moved twice
             
-        } else if(isCapture) {
+        } else if(isCapture) { // capturing and moving basically overwrite the target square
+            newBoard[endX][endY] = newBoard[startX][startY];
+            newBoard[startX][startY] = new Piece();
+        } else { // move just moves a piece
             
+            newBoard[endX][endY] = newBoard[startX][startY];
+            newBoard[startX][startY] = new Piece();
         }
         
+        temp.setBoard(newBoard);
         
-        
-        
-        
-        return null;
+        return temp;
     }
     
+    public Game copyGame(Game game, Game copy) {
+        copy = new Game("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+        Piece[][] board = game.getBoard();
+        
+        for(int i=0; i<8; i++) {
+            for(int j=0; j<8; j++) {
+                copy.setBoard(game.getBoard()); // copy over the contents 
+            }
+        }
+        copy.initFlippedBoard();
+        copy.setActiveColor(game.getActiveColor());
+        copy.setWhiteCastleKingSide(game.getWhiteCastleKingSide());
+        copy.setWhiteCastleQueenSide(game.getWhiteCastleQueenSide());
+        copy.setBlackCastleKingSide(game.getBlackCastleKingSide());
+        copy.setBlackCastleQueenSide(game.getBlackCastleQueenSide());
+        copy.setEnPassant(game.getEnPassant());
+        copy.setEnPassantX(game.getEnPassantX());
+        copy.setEnPassantY(game.getEnPassantY());
+        copy.setHalfMoveClock(game.getHalfMoveClock());
+        copy.setFullMoveClock(game.getFullMoveClock());
+        
+        return copy;
+    }
+    
+    
     // Testing Functions:
-    public void printBoardState() {
+    public void printBoardState(Game game) {
+        
         
         Piece[][] board = game.getBoard();
         char activeColor = game.getActiveColor();
@@ -1433,7 +1708,7 @@ public final class Engine {
         System.out.println("Complete Board");
         for(int i=0; i<8; i++) {
             for(int j=0; j<8; j++) {
-                System.out.print(board[i][j].getName() + " ");
+                System.out.print(board[j][i].getName() + " ");
             }
             System.out.print("\n");
         }
@@ -1445,12 +1720,19 @@ public final class Engine {
         System.out.println("En Passant: " + enPassant);
         System.out.println("Half Move Clock " + halfMoveClock);
         System.out.println("Full Move Clock " + fullMoveClock);
-        evaluate(board);
+        evaluate(game);
         System.out.println("\n ---------------------\nEvaluation (Only material wise): " + evaluation);
     }
-    public void printMoves(Piece[][] board, ArrayList<Move> moves) {
-        System.out.println("MOVES: " + moves.size());
-        for(int i=0; i<moves.size(); i++) {
+    public void printMoves(Game game) {
+        Piece[][] board = game.getBoard();
+        ArrayList<Move> moves = game.getMoveList();
+        
+        System.out.println("VALID MOVES: " + moves.size());
+        
+        if(moves.size() == 0) { 
+            System.out.println("Checkmate");
+        } else {
+            for(int i=0; i<moves.size(); i++) {
             
             String startFile ="";
             int startX = moves.get(i).getStartX();
@@ -1509,6 +1791,7 @@ public final class Engine {
                 System.out.println(pieceName + " " + startFile + startY  + " " + "moves to " + endFile + endY);
             } 
         }
+        }
     } // End printMoves
     // Getters and Setters
     public double getEvaluation() { return evaluation; }
@@ -1518,7 +1801,7 @@ public final class Engine {
         double truncatedNumber = Double.parseDouble(truncatedNumberString);
         return truncatedNumber;
     }
-    // Some getters and setters for the original game to pump back to the EnginePanel
+    // Some getters and setters for the game to pump back to the EnginePanel to user interface
     public Piece[][] getFlippedBoard() { return game.getFlippedBoard(); }
     public char getActiveColor() { return game.getActiveColor(); }
     public int getHalfMoveClock() { return game.getHalfMoveClock(); }
