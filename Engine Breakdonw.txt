@@ -1,35 +1,29 @@
 This document is designed to breakdown the engine class.
 
-Global Variables:
-Game game;
-double evaluation = 0;
-movesIndexed = 0;
-
 Constructor:
 Creates the new game object with the user FEN input.
 
 evaluate()
 Evaluates the game state and who is winning.
-
-
+Currently it is a basic evaluation that only calculates entirely on material
 
 checkIfMoveIsValid()
-Game game, Move move
-Creates a copy of the game, and executes the move.
+Creates a copy of the game, and executes a given move.
 
 isInCheck()
 Given a board state, is the active player in check?
 
 isSquareInCheck()
 Given a square, are enemies covering this square?
-This function is used to check castling rights for the kings only.
+This function is used to check castling rights for the kings.
 
 copyGame()
-Creates a copy of the game object.
+Creates a copy of the game object. The purpose of the copy is to have a separate
+game to execute moves and analyse
 
 updateMoves():
-Loop through each square on the board, and depending on it's
-piece type, decides whether every single possible move it can play.
+Loop through each square on the board, and if it is a piece, it will calculate
+it's legal moves.
 
 Structure:
 updateMoves() -> Move is created
@@ -37,5 +31,5 @@ updateMoves() -> Move is created
 checkIfMoveIsValid(game,move) -> Check if move is valid
 Game future = newCopy(Game, future) -> Copy is created
 makeMove(future, move) -> Move is executed on the copy
-isInCheck(future) -> if FALSE move is valid if TRUE move is invalid
+isInCheck(future) -> if the player isn't in check, it is a legal move. if the player is in check, it is invalid
 
