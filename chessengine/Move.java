@@ -14,10 +14,14 @@ public class Move {
     private int enPassantX = -1;
     private int enPassantY = -1;
     
+    
+
     // Captures an en passant
     private boolean isCaptureEnPassant = false;
-    private int capturePassantX = -1;
-    private int capturePassantY = -1;
+    private int enPassantPieceActualX = -1;
+    private int enPassantPieceActualY = -1;
+    
+
     
     private boolean isPromote = false;
     private String promotePiece = "";
@@ -55,15 +59,15 @@ public class Move {
     
     // For capturing en passant
     
-    public Move(int startX, int startY, int endX, int endY, int capturePassantX, int capturePassantY) {
+    public Move(int startX, int startY, int endX, int endY, int enPassantPieceActualX, int enPassantPieceActualY) {
         this.startX = startX;
         this.startY = startY;
         this.endX = endX;
         this.endY = endY;
         isCapture = true;
         isCaptureEnPassant = true;
-        this.capturePassantX = capturePassantX;
-        this.capturePassantY = capturePassantY;
+        this.enPassantPieceActualX = enPassantPieceActualX;
+        this.enPassantPieceActualY = enPassantPieceActualY;
     }
     
     public void pawnMovedTwice() {
@@ -113,6 +117,13 @@ public class Move {
         return isKingSide;
     }
 
+    
+    public int getEnPassantX() { return enPassantX; }
+    public int getEnPassantY() { return enPassantY; }
+    
+    public int getEnPassantPieceActualX() { return enPassantPieceActualX; }
+    public int getEnPassantPieceActualY() { return enPassantPieceActualY;}
+    
     @Override
     public String toString() {
         char startFile = (char) ('a' + startX);

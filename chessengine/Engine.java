@@ -10,6 +10,7 @@ public final class Engine {
     private Game game;
     
     private double evaluation = 0;
+    private int movesIndexed = 0;
     
     public Engine(String input) {
         
@@ -17,6 +18,7 @@ public final class Engine {
         evaluate(game);
         updateMoves(game);
         printMoves(game);
+        System.out.println(movesIndexed);
     }
 
 
@@ -30,7 +32,7 @@ public final class Engine {
         
         for(int i=0; i<8; i++) {
             for(int j=0; j<8;j++) {
-                
+                movesIndexed++;
                 switch(board[i][j].getColor()) {
                     
                     case 'w' -> {
@@ -56,11 +58,24 @@ public final class Engine {
         double whiteCalc = (double) whiteMaterial  / 39.0;
         double blackCalc = (double) blackMaterial  / 39.0;
         evaluation = (whiteCalc - blackCalc);
-    }
+    } // end evaluate
+    
+    
+    
+    /************
+     * Obtaining the possible moves
+     * updateMoves finds every possible moves:
+     * 
+     * For every piece, find a move
+     * copyGame and execute the move in another board
+     * If king is in check, then it is invalid move
+     * If king is not in check, then it is valid move
+     * 
+     ***********/
+    
+    
     public void updateMoves(Game game) {
-        
        /*
-        
             OKIE FLOW CHART FOR HOW MOVES ARE DETERMINED
         
         1) GIVEN THE ACTIVE PLAYER ARE YOU IN CHECK? (yes -> 2) (no -> )
@@ -86,10 +101,6 @@ public final class Engine {
         
         EVERY SINGLE PIECE WILL HAVE THEIR possibleMoves ArrayList Checked
         */
-        
-
-
-        
         // Firstly we update every single piece's possible moves
         // If any of the possible moves intersect the active player's king,
         // It is CHECK
@@ -106,7 +117,7 @@ public final class Engine {
         
         for(int i=0; i<8; i++) {
             for(int j=0; j<8; j++) {
-                
+                movesIndexed++;
                 Piece piece = board[i][j];
                 String pieceName = piece.getName();
                 char color = piece.getColor();
@@ -1102,47 +1113,50 @@ public final class Engine {
                                         moves.add(move);
                                     }
                             }
-
-                            // castling moves
+                            // CASTLING RIGHTS
                             if(color == 'w') {
 
                                 if(whiteCastleKingSide) {
                                     if(board[5][0].isEmpty() && board[6][0].isEmpty()) {
-                                        Move move = new Move(true, true);
-                                        if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                    }
-                                }
+                                        
+                                        if(!isSquareInCheck(game,4,0) && !isSquareInCheck(game,5,0) &&
+                                        !isSquareInCheck(game,6,0) && !isSquareInCheck(game,7,0)) {
+                                            Move move = new Move(true, true);
+                                            moves.add(move);
+                                        }
 
+                                    }
+                                }   
                                 if(whiteCastleQueenSide) {
                                     if(board[3][0].isEmpty() && board[2][0].isEmpty() && board[1][0].isEmpty()) {
-                                        Move move = new Move(true, false);
-                                        if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
+                                        if(!isSquareInCheck(game,0,0) && !isSquareInCheck(game,1,0) &&
+                                        !isSquareInCheck(game,2,0) && !isSquareInCheck(game,3,0) && !isSquareInCheck(game,4,0)) {
+                                            Move move = new Move(true, false);
+                                            moves.add(move);
+                                        }
                                     }
                                 }
                             } else {
+
                                 if(blackCastleKingSide) {
                                     if(board[5][7].isEmpty() && board[6][7].isEmpty()) {
-                                        Move move = new Move(true, true);
-                                        if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                    }
+                                        if(!isSquareInCheck(game,4,7) && !isSquareInCheck(game,5,7) &&
+                                        !isSquareInCheck(game,6,7) && !isSquareInCheck(game,7,7)) {
+                                            Move move = new Move(true, true);
+                                            moves.add(move);
+                                        }
                                 }
-
+                                }
                                 if(blackCastleQueenSide) {
                                     if(board[3][7].isEmpty() && board[2][7].isEmpty() && board[1][7].isEmpty()) {
-                                        Move move = new Move(true, false);
-                                        if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                    }
+                                        if(!isSquareInCheck(game,0,7) && !isSquareInCheck(game,1,7) &&
+                                        !isSquareInCheck(game,2,7) && !isSquareInCheck(game,3,7) && !isSquareInCheck(game,4,7)) {
+                                            Move move = new Move(true, false);
+                                            moves.add(move);
+                                        }
                                 }
                             }
-
+                            }
 
                         } // End case kING
 
@@ -1151,18 +1165,16 @@ public final class Engine {
             } // END INNERLOOP
         } // END OUTERLOOP
     } // END UPDATEMOVES
-    
     public boolean checkIfMoveIsValid(Game game, Move move) {
         Game future = new Game();
         future = copyGame(game,future);
-        if(isInCheck(makeMove(future, move))) {;
+        if(isInCheck(makeMove(future, move))) {
             return false;
         } else {
 
             return true;
         }
-    }
-    
+    } // checkIfMoveIsValid
     public boolean isInCheck(Game game) {
         
         Piece[][] board = game.getBoard();
@@ -1181,6 +1193,7 @@ public final class Engine {
         
         for(int i=0; i<8; i++) {
             for(int j=0; j<8; j++) {
+                movesIndexed++;
                 if(board[i][j].getName().equals("king") && board[i][j].getColor() == activeColor) {
                     kingX = i; kingY = j;
                     break;
@@ -1559,6 +1572,7 @@ public final class Engine {
                             x = i;
                             y = j;
                             while(x < 7) {
+                                x++;
                                 if(!board[x][y].isEmpty()) {
                                     if(x == kingX && y == kingY) {
                                         isKingInCheck = true;
@@ -1623,18 +1637,465 @@ public final class Engine {
         return isKingInCheck;
     } // end IsInCheck
     
+    
+    
+    public boolean isSquareInCheck(Game game, int targetX, int targetY) {
+        
+        Piece[][] board = game.getBoard();
+        char activeColor = game.getActiveColor();
+        /********************
+         * 
+         * This method checks the entire opposite color
+         * to see if there is a check on your king
+         * returns true if the king is under check
+         * returns false if the king isn't under check
+         * 
+         * very similar to the updatemoves function
+        ********************/
+        boolean isKingInCheck = false;
+        int kingX = targetX, kingY = targetY;
+        
+        // Wanting to see the enemy attacks
+        char enemyColor;
+        if(activeColor == 'w') {
+            enemyColor = 'b';
+        } else {
+            enemyColor = 'w';
+        }
+        
+        outerLoop:
+        for(int i=0; i<8; i++) {
+            for(int j=0; j<8; j++) {
+                movesIndexed++;
+                Piece piece = board[i][j];
+                if(piece.getColor() == enemyColor) {
+                    switch(piece.getName()) {
+
+                        case("pawn") -> {
+                            if(enemyColor == 'w') {
+                                    // Attacking to the left (A pawn cannot attack left)
+                                    // Includes if it can attack the en passant square
+                                    if( i>0) {
+                                        int x = i-1, y = j+1; // coords interested in
+                                        if(x == kingX && y == kingY) {
+                                            return true;
+                                        }
+                                    }
+
+                                    //Attacking to the right (H pawn cannot attack right)
+                                    // Includes if it can attack the en passant
+                                    if( i<7) {
+                                        int x = i+1, y = j+1; // coords interested in
+                                        if(x == kingX && y == kingY) {
+                                            return true;
+                                        }
+                                    }
+                        }  else {
+                                    // Attacking to the left (A pawn cannot attack to the left) (from white perspective)
+                                    // Includes if it can attack the en passant square
+                                    if(i > 0) {
+                                        int x = i-1, y = j-1; // coords interested in
+                                        if(x == kingX && y == kingY) {
+                                            return true;
+                                        }
+                                    }
+
+                                    // Attacking to the right (H pawn cannot attack to the right) (from white perspective)
+                                    // Includes it if can attack the en passant square
+                                    if(i < 7) {
+                                        int x = i+1, y = j-1;
+                                        if(x == kingX && y == kingY) {
+                                        return true;
+                                        }
+
+                                    }
+                            }
+                            break;
+                        } // end Case pawn
+                        
+                        case("bishop") -> {
+                            // 4 Diagonals:
+
+                            int x = i;
+                            int y = j;
+
+                            // Top Right
+                            while(x < 7 && y < 7) {
+                                x++;
+                                y++;
+                                if(x == kingX && y == kingY) {
+                                    return true;
+                                }
+                                
+                                if(!board[x][y].isEmpty()) {
+                                    break; // break as piece blocks
+                                } 
+                            }
+
+                            // Top Left
+                            x = i;
+                            y = j;
+                            while(x > 0 && y < 7) {
+                                x--;
+                                y++;
+                                if(x == kingX && y == kingY) {
+                                    return true;
+                                }
+                                
+                                if(!board[x][y].isEmpty()) {
+                                    break; // break as piece blocks
+                                } 
+                            }
+                            // Bottom Right
+                            x = i;
+                            y = j;
+                            while(x < 7 && y > 0) {
+                                x++;
+                                y--;
+                                if(x == kingX && y == kingY) {
+                                    return true;
+                                }
+                                
+                                if(!board[x][y].isEmpty()) {
+                                    break; // break as piece blocks
+                                }
+                            }
+
+                            // Bottom Left
+                            x = i;
+                            y = j;
+                            while(x > 0 && y > 0) {
+                                x--;
+                                y--;
+                                if(x == kingX && y == kingY) {
+                                    return true;
+                                }
+                                
+                                if(!board[x][y].isEmpty()) {
+                                    break; // break as piece blocks
+                                } 
+                            }
+                            break;
+                        } // end case bishop
+                        
+                        case("knight") -> {
+
+                            // Knight has 8 possible attacks
+
+
+
+                            int x = i;
+                            int y = j;
+
+                            // TWO UP (LEFT / RIGHT)
+
+                            // Right
+                            x++;
+                            y+=2;
+                            if( x <= 7 && y<= 7) {
+
+                                if(x == kingX && y == kingY) {
+                                        return true;
+                                }
+                            }
+
+
+                            // Left
+                            x = i;
+                            y = j;
+                            x--;
+                            y+=2;
+                            if( x >= 0 && y<= 7) {
+
+                                if(x == kingX && y == kingY) {
+                                        return true;
+                                }
+                            }
+
+
+                            // TWO DOWN (LEFT / RIGHT)
+                            x = i;
+                            y = j;
+                            // Right
+                            x++;
+                            y-=2;
+                            if( x <= 7  && y>=0) {
+
+                                if(x == kingX && y == kingY) {
+                                        return true;
+                                }
+                            }
+
+                            // Left
+                            x = i;
+                            y = j;
+                            x--;
+                            y-=2;
+                            if( x >= 0 && y >= 0) {
+                                if(x == kingX && y == kingY) {
+                                        return true;
+                                }
+                            }
+
+                            // TWO RIGHT (UP/DOWN)
+                            x = i;
+                            y = j;
+                            // up
+                            x+=2;
+                            y++;
+                            if( x <= 7  && y <= 7) {
+
+                                if(x == kingX && y == kingY) {
+                                        return true;
+                                }
+                            }
+
+                            // down
+                            x = i;
+                            y = j;
+                            x+=2;
+                            y--;
+                            if( x <=7 && y >= 0) {
+
+                                 if(x == kingX && y == kingY) {
+                                        return true;
+                                }
+                            }
+                            // TWO LEFT (UP/DOWN)
+                            x = i;
+                            y = j;
+                            // up
+                            x-=2;
+                            y++;
+                            if( x >= 0  && y <= 7) {
+
+                                  if(x == kingX && y == kingY) {
+                                        return true;
+                                }
+                            }
+
+                            // down
+                            x = i;
+                            y = j;
+                            x-=2;
+                            y--;
+                            if( x >= 0 && y >= 0) {
+
+                                if(x == kingX && y == kingY) {
+                                        return true;
+                                }
+                            }
+                            break;
+                        } // end case knight
+                        
+                        case("rook") -> {
+                            // 4 DIRECTIONS:
+                            // POSITIVE X
+                            int x = i;
+                            int y = j;
+                            while(x < 7) {
+                                x++;
+                                if(x == kingX && y == kingY) {
+                                    return true;
+                                }
+                                
+                                if(!board[x][y].isEmpty()) {
+                                    break; // break as piece blocks
+                                } 
+                            }
+                            // NEGATIVE X
+                            x = i;
+                            y = j;
+                            while(x > 0) {
+                                x--;
+                                if(x == kingX && y == kingY) {
+                                    return true;
+                                }
+                                
+                                if(!board[x][y].isEmpty()) {
+                                    break; // break as piece blocks
+                                } 
+                            }
+
+                            // POSITIVE Y
+                            x = i;
+                            y = j;
+                            while(y < 7) {
+                                y++;
+                                if(x == kingX && y == kingY) {
+                                    return true;
+                                }
+                                
+                                if(!board[x][y].isEmpty()) {
+                                    break; // break as piece blocks
+                                } 
+                            }
+                            // NEGATIVE Y
+                            x = i;
+                            y = j;
+                            while(y > 0) {
+                                y--;
+                                if(x == kingX && y == kingY) {
+                                    return true;
+                                }
+                                
+                                if(!board[x][y].isEmpty()) {
+                                    break; // break as piece blocks
+                                } 
+                            }
+                            break;
+                        } // end case rook
+                        
+                        case("queen") -> {
+                            // 4 Diagonals:
+
+                            int x = i;
+                            int y = j;
+
+                            // Top Right
+                            while(x < 7 && y < 7) {
+                                x++;
+                                y++;
+                                if(x == kingX && y == kingY) {
+                                    return true;
+                                }
+                                
+                                if(!board[x][y].isEmpty()) {
+                                    break; // break as piece blocks
+                                } 
+                            }
+
+                            // Top Left
+                            x = i;
+                            y = j;
+                            while(x > 0 && y < 7) {
+                                x--;
+                                y++;
+                                if(x == kingX && y == kingY) {
+                                    return true;
+                                }
+                                
+                                if(!board[x][y].isEmpty()) {
+                                    break; // break as piece blocks
+                                }
+                            }
+                            // Bottom Right
+                            x = i;
+                            y = j;
+                            while(x < 7 && y > 0) {
+                                x++;
+                                y--;
+                                if(x == kingX && y == kingY) {
+                                    return true;
+                                }
+                                
+                                if(!board[x][y].isEmpty()) {
+                                    break; // break as piece blocks
+                                } 
+                            }
+
+                            // Bottom Left
+                            x = i;
+                            y = j;
+                            while(x > 0 && y > 0) {
+                                x--;
+                                y--;
+                                if(x == kingX && y == kingY) {
+                                    return true;
+                                }
+                                
+                                if(!board[x][y].isEmpty()) {
+                                    break; // break as piece blocks
+                                } 
+                            }
+                            
+                           // 4 DIRECTIONS:
+                            // POSITIVE X
+                            x = i;
+                            y = j;
+                            while(x < 7) {
+                                x++;
+                                if(x == kingX && y == kingY) {
+                                    return true;
+                                }
+                                
+                                if(!board[x][y].isEmpty()) {
+                                    break; // break as piece blocks
+                                } 
+                            }
+                            // NEGATIVE X
+                            x = i;
+                            y = j;
+                            while(x > 0) {
+                                x--;
+                                if(x == kingX && y == kingY) {
+                                    return true;
+                                }
+                                
+                                if(!board[x][y].isEmpty()) {
+                                    break; // break as piece blocks
+                                } 
+                            }
+
+                            // POSITIVE Y
+                            x = i;
+                            y = j;
+                            while(y < 7) {
+                                y++;
+                                if(x == kingX && y == kingY) {
+                                    return true;
+                                }
+                                
+                                if(!board[x][y].isEmpty()) {
+                                    break; // break as piece blocks
+                                } 
+                            }
+                            // NEGATIVE Y
+                            x = i;
+                            y = j;
+                            while(y > 0) {
+                                y--;
+                                if(x == kingX && y == kingY) {
+                                    return true;
+                                }
+                                
+                                if(!board[x][y].isEmpty()) {
+                                    break; // break as piece blocks
+                                } 
+                            }
+                            break;
+                        } // end case queen
+                        
+                    } // End switch
+                }
+            } // End inner loop
+        } // End outer loop
+        
+        
+        
+        
+        
+        return false;
+    }
+    
     public Game makeMove(Game game, Move move) {
         // creating a new game where the move was taken
         Game temp = new Game();
         temp = copyGame(game,temp);
         Piece[][] newBoard = game.getBoard();
+        char color = game.getActiveColor();
+        
 
         
         // isCastle, isEnpassant, isPromote, isCapture
         
         boolean isCastle = move.isCastle();
+        boolean isKingSide = move.isKingSide();
         boolean isEnPassant = move.isCaptureEnPassant();
+        int enPassantX = move.getEnPassantPieceActualX();
+        int enPassantY = move.getEnPassantPieceActualY();
         boolean isPromote = move.isPromote();
+        String promotePiece = move.promotePiece();
         boolean isCapture = move.isCapture();
         
         // Dichotmy of moves
@@ -1645,16 +2106,58 @@ public final class Engine {
         int endY = move.getEndY();
         
         if(isCastle) { // if the player wants to castle
-            
+            if(color == 'w') {
+                
+                if(isKingSide) {
+                    newBoard[4][0] = new Piece();
+                    newBoard[7][0] = new Piece();
+                    newBoard[6][0] = new Piece("king",'w');
+                    newBoard[5][0] = new Piece("rook", 'w');
+                    
+                } else {
+                    newBoard[4][0] = new Piece();
+                    newBoard[0][0] = new Piece();
+                    newBoard[2][0] = new Piece("king", 'w');
+                    newBoard[3][0] = new Piece("rook", 'w');
+                    
+                }
+                
+                
+            } else {
+                
+                if(isKingSide) {
+                    newBoard[4][7] = new Piece();
+                    newBoard[7][7] = new Piece();
+                    newBoard[6][7] = new Piece("king",'b');
+                    newBoard[5][7] = new Piece("rook", 'b');
+                } else {
+                    newBoard[4][7] = new Piece();
+                    newBoard[0][7] = new Piece();
+                    newBoard[2][7] = new Piece("king", 'b');
+                    newBoard[3][7] = new Piece("rook", 'b');
+                }
+                
+            }
         } else if (isEnPassant && isCapture) { // this is if you are taking en passant
-            
-        } else if(isEnPassant) { // this is if the pawn moved twice
-            
-        } else if(isCapture) { // capturing and moving basically overwrite the target square
+            // enPassantX = the capturable enPassant X
+            // enPassantActualX = the current position of the pawn x
             newBoard[endX][endY] = newBoard[startX][startY];
             newBoard[startX][startY] = new Piece();
-        } else { // move just moves a piece
+            newBoard[enPassantX][enPassantY] = new Piece();
             
+        } else if(isEnPassant) { // this is if the pawn moved twice
+            newBoard[endX][endY] = newBoard[startX][startY];
+            newBoard[startX][startY] = new Piece();
+            
+        } else if(isPromote) { // if a pawn is promoting
+            newBoard[endX][endY] = new Piece();
+            newBoard[startX][startY] = new Piece(promotePiece, color);
+            
+        }else if(isCapture) { // capturing basically overwrite the target square
+            newBoard[endX][endY] = newBoard[startX][startY];
+            newBoard[startX][startY] = new Piece();
+            
+        } else { // move just moves a piece
             newBoard[endX][endY] = newBoard[startX][startY];
             newBoard[startX][startY] = new Piece();
         }
@@ -1662,8 +2165,7 @@ public final class Engine {
         temp.setBoard(newBoard);
         
         return temp;
-    }
-    
+    } // end makeMove
     public Game copyGame(Game game, Game copy) {
         copy = new Game("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
         Piece[][] board = game.getBoard();
