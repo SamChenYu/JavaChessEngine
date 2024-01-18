@@ -15,12 +15,12 @@ ROADMAP:
   
 Engine (IN PROGRESS)
 - Calculate Possible Moves Function ✅ (14/01/24)
-- isCheckmate Function
+- isCheckmate Function ✅ (18/01/24)
 - MiniMax Algorithm
 - Alpha-Beta Pruning
 
 
-- Make Move Function:
+- Make Move Function: ✅ (18/01/24)
   Things to take note:
   Managing En Passant
   Managing King Castling Rights [ if a rook / king moves, then privileges are revoked ]
