@@ -317,6 +317,56 @@ public final class Game {
     
     public void setEnPassant(String enP) {
         enPassant = enP;
+        
+        if(enPassant.length() == 2) {
+            char row = enPassant.charAt(0);
+            char file = enPassant.charAt(1);
+            
+            switch(row) {
+                case 'a' -> { enPassantX = 0; break;}
+                case 'b' -> { enPassantX = 1; break;}
+                case 'c' -> { enPassantX = 2; break;}
+                case 'd' -> { enPassantX = 3; break;}
+                case 'e' -> { enPassantX = 4; break;}
+                case 'f' -> { enPassantX = 5; break;}
+                case 'g' -> { enPassantX = 6; break;}
+                case 'h' -> { enPassantX = 7; break;}
+            }
+            
+            enPassantY = Character.getNumericValue(file);
+            enPassantY--;
+        }
+        
+    }
+    
+    
+    public void setEnPassantXY(int x, int y) {
+        enPassantX = x;
+        enPassantY = y;
+        
+        String tempEnPassant = "";
+        
+        switch (x) {
+            case 0 -> { tempEnPassant = "a"; break;}
+            case 1 -> { tempEnPassant = "b"; break;}
+            case 2 -> { tempEnPassant = "c"; break;}
+            case 3 -> { tempEnPassant = "d"; break;}
+            case 4 -> { tempEnPassant = "e"; break;}
+            case 5 -> { tempEnPassant = "f"; break;}
+            case 6 -> { tempEnPassant = "g"; break;}
+            case 7 -> { tempEnPassant = "h"; break;}
+        }
+        
+        int temp;
+        if(activeColor == 'w') {
+            temp = enPassantY +1;
+        } else {
+            temp = enPassantY -1;
+        }
+        
+        tempEnPassant = tempEnPassant + ( "" + temp);
+        
+        enPassant = tempEnPassant;
     }
     
     public void setEnPassantX(int x) {
@@ -336,11 +386,24 @@ public final class Game {
         fullMoveClock = x;
     }
     
+    
+    public void flipColor() {
+        
+        if(activeColor == 'w') {
+            activeColor = 'b';
+        } else {
+            activeColor = 'w';
+        }
+        
+    }
+    
     public Piece[][] getBoard() { return board; }
     public Piece[][] getFlippedBoard() { return flippedBoard; }
     public char getActiveColor() { return activeColor; }
     public int getHalfMoveClock() { return halfMoveClock; }
     public int getFullMoveClock() { return fullMoveClock; }
+    public void incrementFullMoveClock() { fullMoveClock++; }
+    public void incrementHalfMoveClock() { halfMoveClock++; }
     public String getEnPassant() { return enPassant; }
     public int getEnPassantX() { return enPassantX; }
     public int getEnPassantY() { return enPassantY; }

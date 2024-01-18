@@ -13,8 +13,6 @@ rnbqkbnr/pppppppp/8/8/1b6/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
 
 rnbqkbnr/pppppppp/8/8/8/4q3/PPPP1PPP/RNBQKBNR w KQkq - 0 1
 
-LEFT OFF:
-isSquareInCheck to implement proper king castling
 
 
 Testing states:
@@ -66,7 +64,7 @@ WHITE
     E File = [4,y]      F File = [5,y]
     G File = [6,y]      H File = [7,y]
 
-    1st Rank = [x,0]    2nd Rank = [x,4]
-    3rd Rank = [x,1]    4th Rank = [x,5]
-    5th Rank = [x,2]    6th Rank = [x,6]
-    7th Rank = [x,3]    8th Rank = [x,7]
+    1st Rank = [x,0]    2nd Rank = [x,1]
+    3rd Rank = [x,2]    4th Rank = [x,3]
+    5th Rank = [x,4]    6th Rank = [x,5]
+    7th Rank = [x,6]    8th Rank = [x,7]

@@ -117,6 +117,7 @@ public class Move {
         return isKingSide;
     }
 
+    public boolean getPawnMovedTwice() { return pawnMovedTwice; }
     
     public int getEnPassantX() { return enPassantX; }
     public int getEnPassantY() { return enPassantY; }

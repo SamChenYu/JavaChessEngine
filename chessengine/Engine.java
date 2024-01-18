@@ -5,6 +5,13 @@ import Game.Piece;
 import Game.Game;
 import java.util.ArrayList;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+
+
+
 public final class Engine {
     
     private Game game;
@@ -12,13 +19,80 @@ public final class Engine {
     private double evaluation = 0;
     private int movesIndexed = 0;
     
+    // Multi threading
+    private ExecutorService executorService;
+    
+    // Minimax
+    private final int depth = 10;
+    
     public Engine(String input) {
+        
+        
+        
         
         game = new Game(input);
         evaluate(game);
-        updateMoves(game);
+        
+        // Create a thread pool with a fixed number of threads
+        int numThreads = Runtime.getRuntime().availableProcessors();
+        executorService = Executors.newFixedThreadPool(numThreads);
+
+        double timeStart = System.currentTimeMillis();
+        startSearch(numThreads);
+        double timeEnd = System.currentTimeMillis();
+        shutdown();
+        double totalTime = (timeEnd - timeStart) / 1000;
+        System.out.println("Total Time: " + totalTime + " seconds for " + movesIndexed + " calculations");
+        System.out.println("Moves " + game.moves.size());
         printMoves(game);
-        System.out.println(movesIndexed);
+// Testing code
+//        game = new Game("rnbqkbnr/pppp1ppp/8/4p3/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 0 1");
+//        
+//        evaluate(game);
+//        Move move = new Move(3,3,4,4,true);
+//        game = makeMove(game,move);
+//        printBoardState(game);
+//        game.initFlippedBoard();
+    }
+
+    
+    public void startSearch(int numThreads) {
+        // Submit tasks for parallel execution
+        
+        ArrayList<Future<?>> threads = new ArrayList<>();
+        Future<?> future1 = executorService.submit(() -> updateMoves(game, 0));
+        Future<?> future2 = executorService.submit(() -> updateMoves(game, 1));
+        Future<?> future3 = executorService.submit(() -> updateMoves(game, 2));
+        Future<?> future4 = executorService.submit(() -> updateMoves(game, 3));
+        Future<?> future5 = executorService.submit(() -> updateMoves(game, 4));
+        Future<?> future6 = executorService.submit(() -> updateMoves(game, 5));
+        Future<?> future7 = executorService.submit(() -> updateMoves(game, 6));
+        Future<?> future8 = executorService.submit(() -> updateMoves(game, 7));
+        
+
+        // Wait for tasks to complete
+        try {
+            future1.get();
+            future2.get();
+            future3.get();
+            future4.get();
+            future5.get();
+            future6.get();
+            future7.get();
+            future8.get();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void searchMove(String threadName) {
+        // Your chess engine logic goes here
+        System.out.println("Searching move on " + threadName);
+    }
+
+    public void shutdown() {
+        // Shutdown the executor service when you're done
+        executorService.shutdown();
     }
 
 
@@ -59,9 +133,7 @@ public final class Engine {
         double blackCalc = (double) blackMaterial  / 39.0;
         evaluation = (whiteCalc - blackCalc);
     } // end evaluate
-    
-    
-    
+
     /************
      * Obtaining the possible moves
      * updateMoves finds every possible moves:
@@ -72,9 +144,8 @@ public final class Engine {
      * If king is not in check, then it is valid move
      * 
      ***********/
-    
-    
-    public void updateMoves(Game game) {
+    // multithreading function
+    public void updateMoves(Game game, int row) {
        /*
             OKIE FLOW CHART FOR HOW MOVES ARE DETERMINED
         
@@ -115,1060 +186,1065 @@ public final class Engine {
         boolean blackCastleQueenSide = game.getBlackCastleQueenSide();
         ArrayList<Move> moves = game.getMoveList();
         
-        for(int i=0; i<8; i++) {
-            for(int j=0; j<8; j++) {
-                movesIndexed++;
-                Piece piece = board[i][j];
-                String pieceName = piece.getName();
-                char color = piece.getColor();
-                
-                if(activeColor == color) {
-                
-                switch(pieceName) {
-                    
-                        case "pawn" -> {
-                            if(activeColor == color) {
+        int i = row;
+        for(int j=0; j<8; j++) {
+            movesIndexed++;
+            Piece piece = board[i][j];
+            String pieceName = piece.getName();
+            char color = piece.getColor();
 
-                                /*
-                                Pawns are the only uni-directional piece depending on the
-                                Player color, so this is way you have to split it between
-                                White and black
+            if(activeColor == color) {
 
-                                */
-                                /**********************************************/
-                                /************** WHITE PAWN MOVING**************/
-                                /**********************************************/
+            switch(pieceName) {
 
-                                if(color == 'w') {
+                    case "pawn" -> {
+                        if(activeColor == color) {
 
-                                    // Forward one
-                                    if( j<6 /*promote is a different check*/) {
-                                        int x = i, y = j+1; // coords interested in
-                                        if(board[x][y].isEmpty()) {
-                                            // Can move forward one
-                                            Move move = new Move(i,j,x,y, false);
-                                            if(checkIfMoveIsValid(game,move)) {
-                                                moves.add(move);
-                                            }
-                                        }
-                                    }
-                                    // Forward two if on the starting position
-                                    if( j<6 && j == 1 /*promote is a different check*/) {
-                                        int x = i, y = j+2; // coords interested in
-                                        if(board[i][j+1].isEmpty() && board[x][y].isEmpty()) {
-                                            // Can move forward two
-                                            Move move = new Move(i,j,x,y,false);
-                                            move.pawnMovedTwice();
-                                            if(checkIfMoveIsValid(game,move)) {
-                                                moves.add(move);
-                                            }
-                                        }
-                                    }
+                            /*
+                            Pawns are the only uni-directional piece depending on the
+                            Player color, so this is way you have to split it between
+                            White and black
 
-                                    // Attacking to the left (A pawn cannot attack left)
-                                    // Includes if it can attack the en passant square
-                                    if( i>0 && j<6 /*Promote is a different case*/ ) {
-                                        int x = i-1, y = j+1; // coords interested in
-                                        if(board[x][y].isEnemy(color)) {
-                                            // Can attack left
-                                            Move move = new Move(i,j,x,y,true);
-                                            if(checkIfMoveIsValid(game,move)) {
-                                                moves.add(move);
-                                            }
-                                        }
-                                        if(enPassantX == (x) && enPassantY == (y)) {
-                                            Move move = new Move(i,j,x,y,x-1,y);
-                                            if(checkIfMoveIsValid(game,move)) {
-                                                moves.add(move);
-                                            }
-                                        }
+                            */
+                            /**********************************************/
+                            /************** WHITE PAWN MOVING**************/
+                            /**********************************************/
 
-                                    }
-
-                                    //Attacking to the right (H pawn cannot attack right)
-                                    // Includes if it can attack the en passant
-                                    if( i<7 && j<6) {
-                                        int x = i+1, y = j+1; // coords interested in
-                                        if(board[x][y].isEnemy(color)) {
-                                            // Can right left
-                                            Move move = new Move(i,j,x,y,true);
-                                            if(checkIfMoveIsValid(game,move)) {
-                                                moves.add(move);
-                                            }
-                                        }
-                                        if(enPassantX == (x) && enPassantY == (y)) {
-                                            Move move = new Move(i,j,x,y,x+1,y);
-                                            if(checkIfMoveIsValid(game,move)) {
-                                                moves.add(move);
-                                            }
-                                        }
-                                    }
-
-                                    // Promote via moving
-                                    if(j == 6) {
-                                        int x = i, y = j+1; // coords interested in
-                                        if(board[x][y].isEmpty()) {
-                                            // Can promote to queen, rook, bishop, knight
-                                            Move move1 = new Move(i,j,x,y,false,true,"queen");
-                                            Move move2 = new Move(i,j,x,y,false,true,"rook");
-                                            Move move3 = new Move(i,j,x,y,false,true,"bishop");
-                                            Move move4 = new Move(i,j,x,y,false,true,"knight");
-                                            
-                                            if(checkIfMoveIsValid(game,move1)) {
-                                                moves.add(move1);
-                                            }
-                                            if(checkIfMoveIsValid(game,move2)) {
-                                                moves.add(move2);
-                                            }
-                                            if(checkIfMoveIsValid(game,move3)) {
-                                                moves.add(move3);
-                                            }
-                                            if(checkIfMoveIsValid(game,move4)) {
-                                                moves.add(move4);
-                                            }
-                                           
-                                        }   
-                                    }
-
-                                    // Promote via capturing to the left (A pawn cannot attack left)
-                                    if( i>0 && j == 6) {
-                                        int x = i-1, y = j+1; // coords interested in
-                                        if(board[x][y].isEnemy(color)) {
-                                            // Can attack left
-                                            Move move1 = new Move(i,j,x,y,true,true,"queen");
-                                            Move move2 = new Move(i,j,x,y,true,true,"rook");
-                                            Move move3 = new Move(i,j,x,y,true,true,"bishop");
-                                            Move move4 = new Move(i,j,x,y,true,true,"knight");
-                                            if(checkIfMoveIsValid(game,move1)) {
-                                                moves.add(move1);
-                                            }
-                                            if(checkIfMoveIsValid(game,move2)) {
-                                                moves.add(move2);
-                                            }
-                                            if(checkIfMoveIsValid(game,move3)) {
-                                                moves.add(move3);
-                                            }
-                                            if(checkIfMoveIsValid(game,move4)) {
-                                                moves.add(move4);
-                                            }
-                                        }
-                                    }
-
-                                    // Promote via capturing to the right (H pawn cannot attack right)
-                                    //Attacking to the right (H pawn cannot attack right)
-                                    if( i<7 && j==6) {
-                                        int x = i+1, y = j+1; // coords interested in
-                                        if(board[x][y].isEnemy(color)) {
-                                            // Can attack right
-                                            Move move1 = new Move(i,j,x,y,true,true,"queen");
-                                            Move move2 = new Move(i,j,x,y,true,true,"rook");
-                                            Move move3 = new Move(i,j,x,y,true,true,"bishop");
-                                            Move move4 = new Move(i,j,x,y,true,true,"knight");
-                                            if(checkIfMoveIsValid(game,move1)) {
-                                                moves.add(move1);
-                                            }
-                                            if(checkIfMoveIsValid(game,move2)) {
-                                                moves.add(move2);
-                                            }
-                                            if(checkIfMoveIsValid(game,move3)) {
-                                                moves.add(move3);
-                                            }
-                                            if(checkIfMoveIsValid(game,move4)) {
-                                                moves.add(move4);
-                                            }
-                                        }
-                                    }
-
-                                    // END White Pawn's code
-                                } else {
-                                    /**********************************************/
-                                    /************** BLACK PAWN MOVING**************/
-                                    /**********************************************/
-
-                                    // Forward one
-                                    if(j>1 /*promote is a different check */) {
-                                        int x = i, y = j-1; // coords interested in
-                                        if(board[x][y].isEmpty()) {
-                                            // can move forward one
-                                            Move move = new Move(i,j,x,y,false);
-                                            if(checkIfMoveIsValid(game,move)) {
-                                                moves.add(move);
-                                            }
-                                        }
-                                    }
-
-                                    // Forward two if on the starting position
-                                    if(j>1 && j == 6) {
-                                        int x = i, y = j-2; // coords interested in
-                                        if(board[i][j-1].isEmpty() && board[x][y].isEmpty()) {
-                                            // can move forward two
-                                            Move move = new Move(i,j,x,y,false);
-                                            if(checkIfMoveIsValid(game,move)) {
-                                                moves.add(move);
-                                            }
-                                        }
-                                    }
-
-                                    // Attacking to the left (A pawn cannot attack to the left) (from white perspective)
-                                    // Includes if it can attack the en passant square
-                                    if(i > 0 && j>1) {
-                                        int x = i-1, y = j-1; // coords interested in
-                                        if(board[x][y].isEnemy(color)) {
-                                            // can attack left
-                                            Move move = new Move(i,j,x,y,true);
-                                            if(checkIfMoveIsValid(game,move)) {
-                                                moves.add(move);
-                                            }
-                                        }
-
-                                        if(enPassantX == (x) && enPassantY == (y)) {
-                                            Move move = new Move(i,j,x,y,x-1,y);
-                                            if(checkIfMoveIsValid(game,move)) {
-                                                moves.add(move);
-                                            }
-                                        }
-                                    }
-
-                                    // Attacking to the right (H pawn cannot attack to the right) (from white perspective)
-                                    // Includes it if can attack the en passant square
-
-                                    if(i < 7 && j>1) {
-                                        int x = i+1, y = j-1;
-                                        if(board[x][y].isEnemy(color)) {
-                                            // can attack right
-                                            Move move = new Move(i,j,x,y,true);
-                                            if(checkIfMoveIsValid(game,move)) {
-                                                moves.add(move);
-                                            }
-                                        }
-
-                                        if(enPassantX == (x) && enPassantY == (y)) {
-                                            Move move = new Move(i,j,x,y,x-1,y);
-                                            if(checkIfMoveIsValid(game,move)) {
-                                                moves.add(move);
-                                            }
-                                        }
-                                    }
-
-                                    // Promote via moving
-
-                                    if(j == 1) {
-                                        int x = i, y = j-1;
-                                        if(board[x][y].isEmpty()) {
-                                            // Can promote to queen ,rock, bishop knight
-                                            Move move1 = new Move(i,j,x,y,false,true,"queen");
-                                            Move move2 = new Move(i,j,x,y,false,true,"rook");
-                                            Move move3 = new Move(i,j,x,y,false,true,"bishop");
-                                            Move move4 = new Move(i,j,x,y,false,true,"knight");
-                                            if(checkIfMoveIsValid(game,move1)) {
-                                                moves.add(move1);
-                                            }
-                                            if(checkIfMoveIsValid(game,move2)) {
-                                                moves.add(move2);
-                                            }
-                                            if(checkIfMoveIsValid(game,move3)) {
-                                                moves.add(move3);
-                                            }
-                                            if(checkIfMoveIsValid(game,move4)) {
-                                                moves.add(move4);
-                                            }
-                                        }
-                                    }
-
-                                    // Promote via capturing to the left (A pawn cannot attack to the left)
-                                    if(i > 0 && j==1) {
-                                        int x = i-1, y = j-1; // coords interested in
-                                        if(board[x][y].isEnemy(color)) {
-                                            // can attack left to promote
-                                            Move move1 = new Move(i,j,x,y,false,true,"queen");
-                                            Move move2 = new Move(i,j,x,y,false,true,"rook");
-                                            Move move3 = new Move(i,j,x,y,false,true,"bishop");
-                                            Move move4 = new Move(i,j,x,y,false,true,"knight");
-                                                                                        if(checkIfMoveIsValid(game,move1)) {
-                                                moves.add(move1);
-                                            }
-                                            if(checkIfMoveIsValid(game,move2)) {
-                                                moves.add(move2);
-                                            }
-                                            if(checkIfMoveIsValid(game,move3)) {
-                                                moves.add(move3);
-                                            }
-                                            if(checkIfMoveIsValid(game,move4)) {
-                                                moves.add(move4);
-                                            }
-                                        }
-                                    }
-
-
-                                    // Promote via capturing to the right (H pawn cannot attack to the right) (White's perspective)
-                                    if(i > 0 && j==1) {
-                                        int x = i+1, y = j-1; // coords interested in
-                                        if(board[x][y].isEnemy(color)) {
-                                            // can attack right to promote
-                                            Move move1 = new Move(i,j,x,y,false,true,"queen");
-                                            Move move2 = new Move(i,j,x,y,false,true,"rook");
-                                            Move move3 = new Move(i,j,x,y,false,true,"bishop");
-                                            Move move4 = new Move(i,j,x,y,false,true,"knight");
-                                            if(checkIfMoveIsValid(game,move1)) {
-                                                moves.add(move1);
-                                            }
-                                            if(checkIfMoveIsValid(game,move2)) {
-                                                moves.add(move1);
-                                            }
-                                            if(checkIfMoveIsValid(game,move3)) {
-                                                moves.add(move1);
-                                            }
-                                            if(checkIfMoveIsValid(game,move4)) {
-                                                moves.add(move1);
-                                            }
-                                        }
-                                    }
-                                } // End BLACK's pawn code
-                            }
-                            break;
-                        } // End case pawn
-
-                        case "bishop" -> {
-                            // 4 Diagonals:
-
-                            int x = i;
-                            int y = j;
-
-                            // Top Right
-                            while(x < 7 && y < 7) {
-                                x++;
-                                y++;
-                                if(board[x][y].isEmpty()) {
-                                    Move move = new Move(i,j,x,y, false);
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                } else {
-                                    // Piece blocks bishop's way
-                                    if(board[x][y].isEnemy(color)) {
-                                        Move move = new Move(i,j,x,y,true);
-                                        if(checkIfMoveIsValid(game,move)) {
-                                            moves.add(move);
-                                        }
-                                        break; // break as there is a piece blocking
-                                    } else {
-                                        break; // block as there is a friendly piece blocking
-                                    }
-                                }
-                            }
-
-                            // Top Left
-                            x = i;
-                            y = j;
-                            while(x > 0 && y < 7) {
-                                x--;
-                                y++;
-                                if(board[x][y].isEmpty()) {
-                                    Move move = new Move(i,j,x,y, false);
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                } else {
-                                    // Piece blocks bishop's way
-                                    if(board[x][y].isEnemy(color)) {
-                                        Move move = new Move(i,j,x,y,true);
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                        break; // break as there is a piece blocking
-                                    } else {
-                                        break; // block as there is a friendly piece blocking
-                                    }
-                                }
-                            }
-                            // Bottom Right
-                            x = i;
-                            y = j;
-                            while(x < 7 && y > 0) {
-                                x++;
-                                y--;
-                                if(board[x][y].isEmpty()) {
-                                    Move move = new Move(i,j,x,y, false);
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                } else {
-                                    // Piece blocks bishop's way
-                                    if(board[x][y].isEnemy(color)) {
-                                        Move move = new Move(i,j,x,y,true);
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                        break; // break as there is a piece blocking
-                                    } else {
-                                        break; // block as there is a friendly piece blocking
-                                    }
-                                }
-                            }
-
-                            // Bottom Left
-                            x = i;
-                            y = j;
-                            while(x > 0 && y > 0) {
-                                x--;
-                                y--;
-                                if(board[x][y].isEmpty()) {
-                                    Move move = new Move(i,j,x,y, false);
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                } else {
-                                    // Piece blocks bishop's way
-                                    if(board[x][y].isEnemy(color)) {
-                                        Move move = new Move(i,j,x,y,true);
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                        break; // break as there is a piece blocking
-                                    } else {
-                                        break; // block as there is a friendly piece blocking
-                                    }
-                                }
-                            }
-                            break;
-                        } // End case bishop
-
-                        case "knight" -> {
-
-                            // Knight has 8 possible attacks
-
-
-
-                            int x = i;
-                            int y = j;
-
-                            // TWO UP (LEFT / RIGHT)
-
-                            // Right
-                            x++;
-                            y+=2;
-                            if( x <= 7 && y<= 7) {
-
-                                if(board[x][y].isEmpty()) {
-                                    Move move = new Move(i,j,x,y, false);
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                } else if(board[x][y].isEnemy(color)) {
-                                    Move move = new Move(i,j,x,y, true);
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                }
-                            }
-
-
-                            // Left
-                            x = i;
-                            y = j;
-                            x--;
-                            y+=2;
-                            if( x >= 0 && y<= 7) {
-
-                                if(board[x][y].isEmpty()) {
-                                    Move move = new Move(i,j,x,y, false);
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                } else if(board[x][y].isEnemy(color)) {
-                                    Move move = new Move(i,j,x,y, true);
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                }
-                            }
-
-
-                            // TWO DOWN (LEFT / RIGHT)
-                            x = i;
-                            y = j;
-                            // Right
-                            x++;
-                            y-=2;
-                            if( x <= 7  && y>=0) {
-
-                                if(board[x][y].isEmpty()) {
-                                    Move move = new Move(i,j,x,y, false);
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                } else if(board[x][y].isEnemy(color)) {
-                                    Move move = new Move(i,j,x,y, true);
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                }
-                            }
-
-                            // Left
-                            x = i;
-                            y = j;
-                            x--;
-                            y-=2;
-                            if( x >= 0 && y >= 0) {
-
-                                if(board[x][y].isEmpty()) {
-                                    Move move = new Move(i,j,x,y, false);
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                } else if(board[x][y].isEnemy(color)) {
-                                    Move move = new Move(i,j,x,y, true);
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                }
-                            }
-
-                            // TWO RIGHT (UP/DOWN)
-                            x = i;
-                            y = j;
-                            // up
-                            x+=2;
-                            y++;
-                            if( x <= 7  && y <= 7) {
-
-                                if(board[x][y].isEmpty()) {
-                                    Move move = new Move(i,j,x,y, false);
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                } else if(board[x][y].isEnemy(color)) {
-                                    Move move = new Move(i,j,x,y, true);
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                }
-                            }
-
-                            // down
-                            x = i;
-                            y = j;
-                            x+=2;
-                            y--;
-                            if( x <=7 && y >= 0) {
-
-                                if(board[x][y].isEmpty()) {
-                                    Move move = new Move(i,j,x,y, false);
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                } else if(board[x][y].isEnemy(color)) {
-                                    Move move = new Move(i,j,x,y, true);
-                                     if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                }
-                            }
-                            // TWO LEFT (UP/DOWN)
-                            x = i;
-                            y = j;
-                            // up
-                            x-=2;
-                            y++;
-                            if( x >= 0  && y <= 7) {
-
-                                if(board[x][y].isEmpty()) {
-                                    Move move = new Move(i,j,x,y, false);
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                } else if(board[x][y].isEnemy(color)) {
-                                    Move move = new Move(i,j,x,y, true);
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                }
-                            }
-
-                            // down
-                            x = i;
-                            y = j;
-                            x-=2;
-                            y--;
-                            if( x >= 0 && y >= 0) {
-
-                                if(board[x][y].isEmpty()) {
-                                    Move move = new Move(i,j,x,y, false);
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                } else if(board[x][y].isEnemy(color)) {
-                                    Move move = new Move(i,j,x,y, true);
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                }
-                            }
-                            break;
-                        } // End case knight
-
-                        case "rook" -> {
-
-                            // 4 DIRECTIONS:
-                            // POSITIVE X
-                            int x = i;
-                            int y = j;
-                            while(x < 7) {
-                                x++;
-                                if(board[x][y].isEmpty()) {
-                                    Move move = new Move(i,j,x,y, false);
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                } else {
-                                    // Piece blocks rook's way
-                                    if(board[x][y].isEnemy(color)) {
-                                        Move move = new Move(i,j,x,y,true);
-                                        if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                        break; // break as there is a piece blocking
-                                    } else {
-                                        break; // block as there is a friendly piece blocking
-                                    }
-                                }
-                            }
-                            // NEGATIVE X
-                            x = i;
-                            y = j;
-                            while(x > 0) {
-                                x--;
-                                if(board[x][y].isEmpty()) {
-                                    Move move = new Move(i,j,x,y, false);
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-
-                                } else {
-                                    // Piece blocks rook's way
-                                    if(board[x][y].isEnemy(color)) {
-                                        Move move = new Move(i,j,x,y,true);
-                                       if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                        break; // break as there is a piece blocking
-                                    } else {
-                                        break; // block as there is a friendly piece blocking
-                                    }
-                                }
-                            }
-
-                            // POSITIVE Y
-                            x = i;
-                            y = j;
-                            while(y < 7) {
-                                y++;
-                                if(board[x][y].isEmpty()) {
-                                    Move move = new Move(i,j,x,y, false);
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                } else {
-                                    // Piece blocks rook's way
-                                    if(board[x][y].isEnemy(color)) {
-                                        Move move = new Move(i,j,x,y,true);
-                                        if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                        break; // break as there is a piece blocking
-                                    } else {
-                                        break; // block as there is a friendly piece blocking
-                                    }
-                                }
-                            }
-                            // NEGATIVE Y
-                            x = i;
-                            y = j;
-                            while(y > 0) {
-                                y--;
-                                if(board[x][y].isEmpty()) {
-                                    Move move = new Move(i,j,x,y, false);
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                } else {
-                                    // Piece blocks bishop's way
-                                    if(board[x][y].isEnemy(color)) {
-                                        Move move = new Move(i,j,x,y,true);
-                                        if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                        break; // break as there is a piece blocking
-                                    } else {
-                                        break; // block as there is a friendly piece blocking
-                                    }
-                                }
-                            }
-                            break;
-                        } // END case rook
-
-                        case "queen" -> {
-
-                            // 4 AXIS:
-                            // POSITIVE X
-                            int x = i;
-                            int y = j;
-                            while(x < 7) {
-                                x++;
-                                if(board[x][y].isEmpty()) {
-                                    Move move = new Move(i,j,x,y, false);
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                } else {
-                                    // Piece blocks rook's way
-                                    if(board[x][y].isEnemy(color)) {
-                                        Move move = new Move(i,j,x,y,true);
-                                        if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                        break; // break as there is a piece blocking
-                                    } else {
-                                        break; // block as there is a friendly piece blocking
-                                    }
-                                }
-                            }
-                            // NEGATIVE X
-                            x = i;
-                            y = j;
-                            while(x > 0) {
-                                x--;
-                                if(board[x][y].isEmpty()) {
-                                    Move move = new Move(i,j,x,y, false);
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-
-                                } else {
-                                    // Piece blocks rook's way
-                                    if(board[x][y].isEnemy(color)) {
-                                        Move move = new Move(i,j,x,y,true);
-                                       if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                        break; // break as there is a piece blocking
-                                    } else {
-                                        break; // block as there is a friendly piece blocking
-                                    }
-                                }
-                            }
-
-                            // POSITIVE Y
-                            x = i;
-                            y = j;
-                            while(y < 7) {
-                                y++;
-                                if(board[x][y].isEmpty()) {
-                                    Move move = new Move(i,j,x,y, false);
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                } else {
-                                    // Piece blocks rook's way
-                                    if(board[x][y].isEnemy(color)) {
-                                        Move move = new Move(i,j,x,y,true);
-                                        if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                        break; // break as there is a piece blocking
-                                    } else {
-                                        break; // block as there is a friendly piece blocking
-                                    }
-                                }
-                            }
-                            // NEGATIVE Y
-                            x = i;
-                            y = j;
-                            while(y > 0) {
-                                y--;
-                                if(board[x][y].isEmpty()) {
-                                    Move move = new Move(i,j,x,y, false);
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                } else {
-                                    // Piece blocks bishop's way
-                                    if(board[x][y].isEnemy(color)) {
-                                        Move move = new Move(i,j,x,y,true);
-                                        if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                        break; // break as there is a piece blocking
-                                    } else {
-                                        break; // block as there is a friendly piece blocking
-                                    }
-                                }
-                            }
-
-                            // 4 Diagonals:
-
-                            x = i;
-                            y = j;
-
-                            // Top Right
-                            while(x < 7 && y < 7) {
-                                x++;
-                                y++;
-                                if(board[x][y].isEmpty()) {
-                                    Move move = new Move(i,j,x,y, false);
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                } else {
-                                    // Piece blocks bishop's way
-                                    if(board[x][y].isEnemy(color)) {
-                                        Move move = new Move(i,j,x,y,true);
-                                        if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                        break; // break as there is a piece blocking
-                                    } else {
-                                        break; // block as there is a friendly piece blocking
-                                    }
-                                }
-                            }
-
-                            // Top Left
-                            x = i;
-                            y = j;
-                            while(x > 0 && y < 7) {
-                                x--;
-                                y++;
-                                if(board[x][y].isEmpty()) {
-                                    Move move = new Move(i,j,x,y, false);
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                } else {
-                                    // Piece blocks bishop's way
-                                    if(board[x][y].isEnemy(color)) {
-                                        Move move = new Move(i,j,x,y,true);
-                                        if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                        break; // break as there is a piece blocking
-                                    } else {
-                                        break; // block as there is a friendly piece blocking
-                                    }
-                                }
-                            }
-                            // Bottom Right
-                            x = i;
-                            y = j;
-                            while(x < 7 && y > 0) {
-                                x++;
-                                y--;
-                                if(board[x][y].isEmpty()) {
-                                    Move move = new Move(i,j,x,y, false);
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                } else {
-                                    // Piece blocks bishop's way
-                                    if(board[x][y].isEnemy(color)) {
-                                        Move move = new Move(i,j,x,y,true);
-                                        if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                        break; // break as there is a piece blocking
-                                    } else {
-                                        break; // block as there is a friendly piece blocking
-                                    }
-                                }
-                            }
-
-                            // Bottom Left
-                            x = i;
-                            y = j;
-                            while(x > 0 && y > 0) {
-                                x--;
-                                y--;
-                                if(board[x][y].isEmpty()) {
-                                    Move move = new Move(i,j,x,y, false);
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                } else {
-                                    // Piece blocks bishop's way
-                                    if(board[x][y].isEnemy(color)) {
-                                        Move move = new Move(i,j,x,y,true);
-                                        if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                        break; // break as there is a piece blocking
-                                    } else {
-                                        break; // block as there is a friendly piece blocking
-                                    }
-                                }
-                            }
-
-                            break;
-                        } // End case queen
-
-                        case "king" -> {
-
-                            /****************************************
-                             * Special Notes:
-                             * The king cannot take a piece under check
-                             * However, I think due to the minimax algorithm, it should
-                             * be able to avoid that unless it is at the terminated depth
-                             * 
-                             * King also has the ability to castle
-                             ****************************************/
-
-                            int x = i;
-                            int y = j;
-
-                            // 4 horizontal axis
-                            x++;
-                            if( x <= 7 && board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, false);
-                                if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                            }
-
-                            x = i;
-                            y = j;
-                            x--;
-                            if(x >= 0 && board[x][y].isEmpty() ) {
-                                Move move = new Move(i,j,x,y, false);
-                                if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                            }
-
-                            x = i;
-                            y = j;
-                            y++;
-                            if( y <= 7 && board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, false);
-                                if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                            }
-
-                            x = i;
-                            y = j;
-                            y--;
-                            if( y>=0 && board[x][y].isEmpty()  ) {
-                                Move move = new Move(i,j,x,y, false);
-                                if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                            }
-
-                            // Diagonals
-
-                            x = i;
-                            y = j;
-
-                            // TOP RIGHT
-                            x++;
-                            y++;
-                            if(x <= 7 && y <= 7  && board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, false);
-                                if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                            }
-
-                            // TOP LEFT
-                            x = i;
-                            y = j;
-                            x--;
-                            y++;
-                            if(x >= 0 && y <=7 && board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, false);
-                                if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                            }
-
-                            // Bottom RIGHT
-                            x = i;
-                            y = j;
-                            x++;
-                            y--;
-                            if( (x<=7 && y >= 0) && board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, false);
-                                if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                            }
-                            // Bottom LEFT
-                            x = i;
-                            y = j;
-                            x--;
-                            y--;
-                            if(x>= 0 && y>=0 && board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, false);
-                                if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                            }
-                            // CASTLING RIGHTS
                             if(color == 'w') {
 
-                                if(whiteCastleKingSide) {
-                                    if(board[5][0].isEmpty() && board[6][0].isEmpty()) {
-                                        
-                                        if(!isSquareInCheck(game,4,0) && !isSquareInCheck(game,5,0) &&
-                                        !isSquareInCheck(game,6,0) && !isSquareInCheck(game,7,0)) {
-                                            Move move = new Move(true, true);
+                                // Forward one
+                                if( j<6 /*promote is a different check*/) {
+                                    int x = i, y = j+1; // coords interested in
+                                    if(board[x][y].isEmpty()) {
+                                        // Can move forward one
+                                        Move move = new Move(i,j,x,y, false);
+                                        if(checkIfMoveIsValid(game,move)) {
                                             moves.add(move);
+                                        }
+                                    }
+                                }
+                                // Forward two if on the starting position
+                                if( j<6 && j == 1 /*promote is a different check*/) {
+                                    int x = i, y = j+2; // coords interested in
+                                    if(board[i][j+1].isEmpty() && board[x][y].isEmpty()) {
+                                        // Can move forward two
+                                        Move move = new Move(i,j,x,y,false);
+                                        move.pawnMovedTwice();
+                                        if(checkIfMoveIsValid(game,move)) {
+                                            moves.add(move);
+                                        }
+                                    }
+                                }
+
+                                // Attacking to the left (A pawn cannot attack left)
+                                // Includes if it can attack the en passant square
+                                if( i>0 && j<6 /*Promote is a different case*/ ) {
+                                    int x = i-1, y = j+1; // coords interested in
+                                    if(board[x][y].isEnemy(color)) {
+                                        // Can attack left
+                                        Move move = new Move(i,j,x,y,true);
+                                        if(checkIfMoveIsValid(game,move)) {
+                                            moves.add(move);
+                                        }
+                                    }
+                                    if(enPassantX == (x) && enPassantY == (y)) {
+                                        Move move = new Move(i,j,x,y,x-1,y);
+                                        if(checkIfMoveIsValid(game,move)) {
+                                            moves.add(move);
+                                        }
+                                    }
+
+                                }
+
+                                //Attacking to the right (H pawn cannot attack right)
+                                // Includes if it can attack the en passant
+                                if( i<7 && j<6) {
+                                    int x = i+1, y = j+1; // coords interested in
+                                    if(board[x][y].isEnemy(color)) {
+                                        // Can right left
+                                        Move move = new Move(i,j,x,y,true);
+                                        if(checkIfMoveIsValid(game,move)) {
+                                            moves.add(move);
+                                        }
+                                    }
+                                    if(enPassantX == (x) && enPassantY == (y)) {
+                                        Move move = new Move(i,j,x,y,x+1,y);
+                                        if(checkIfMoveIsValid(game,move)) {
+                                            moves.add(move);
+                                        }
+                                    }
+                                }
+
+                                // Promote via moving
+                                if(j == 6) {
+                                    int x = i, y = j+1; // coords interested in
+                                    if(board[x][y].isEmpty()) {
+                                        // Can promote to queen, rook, bishop, knight
+                                        Move move1 = new Move(i,j,x,y,false,true,"queen");
+                                        Move move2 = new Move(i,j,x,y,false,true,"rook");
+                                        Move move3 = new Move(i,j,x,y,false,true,"bishop");
+                                        Move move4 = new Move(i,j,x,y,false,true,"knight");
+
+                                        if(checkIfMoveIsValid(game,move1)) {
+                                            moves.add(move1);
+                                        }
+                                        if(checkIfMoveIsValid(game,move2)) {
+                                            moves.add(move2);
+                                        }
+                                        if(checkIfMoveIsValid(game,move3)) {
+                                            moves.add(move3);
+                                        }
+                                        if(checkIfMoveIsValid(game,move4)) {
+                                            moves.add(move4);
                                         }
 
+                                    }   
+                                }
+
+                                // Promote via capturing to the left (A pawn cannot attack left)
+                                if( i>0 && j == 6) {
+                                    int x = i-1, y = j+1; // coords interested in
+                                    if(board[x][y].isEnemy(color)) {
+                                        // Can attack left
+                                        Move move1 = new Move(i,j,x,y,true,true,"queen");
+                                        Move move2 = new Move(i,j,x,y,true,true,"rook");
+                                        Move move3 = new Move(i,j,x,y,true,true,"bishop");
+                                        Move move4 = new Move(i,j,x,y,true,true,"knight");
+                                        if(checkIfMoveIsValid(game,move1)) {
+                                            moves.add(move1);
+                                        }
+                                        if(checkIfMoveIsValid(game,move2)) {
+                                            moves.add(move2);
+                                        }
+                                        if(checkIfMoveIsValid(game,move3)) {
+                                            moves.add(move3);
+                                        }
+                                        if(checkIfMoveIsValid(game,move4)) {
+                                            moves.add(move4);
+                                        }
                                     }
-                                }   
-                                if(whiteCastleQueenSide) {
-                                    if(board[3][0].isEmpty() && board[2][0].isEmpty() && board[1][0].isEmpty()) {
-                                        if(!isSquareInCheck(game,0,0) && !isSquareInCheck(game,1,0) &&
-                                        !isSquareInCheck(game,2,0) && !isSquareInCheck(game,3,0) && !isSquareInCheck(game,4,0)) {
-                                            Move move = new Move(true, false);
+                                }
+
+                                // Promote via capturing to the right (H pawn cannot attack right)
+                                //Attacking to the right (H pawn cannot attack right)
+                                if( i<7 && j==6) {
+                                    int x = i+1, y = j+1; // coords interested in
+                                    if(board[x][y].isEnemy(color)) {
+                                        // Can attack right
+                                        Move move1 = new Move(i,j,x,y,true,true,"queen");
+                                        Move move2 = new Move(i,j,x,y,true,true,"rook");
+                                        Move move3 = new Move(i,j,x,y,true,true,"bishop");
+                                        Move move4 = new Move(i,j,x,y,true,true,"knight");
+                                        if(checkIfMoveIsValid(game,move1)) {
+                                            moves.add(move1);
+                                        }
+                                        if(checkIfMoveIsValid(game,move2)) {
+                                            moves.add(move2);
+                                        }
+                                        if(checkIfMoveIsValid(game,move3)) {
+                                            moves.add(move3);
+                                        }
+                                        if(checkIfMoveIsValid(game,move4)) {
+                                            moves.add(move4);
+                                        }
+                                    }
+                                }
+
+                                // END White Pawn's code
+                            } else {
+                                /**********************************************/
+                                /************** BLACK PAWN MOVING**************/
+                                /**********************************************/
+
+                                // Forward one
+                                if(j>1 /*promote is a different check */) {
+                                    int x = i, y = j-1; // coords interested in
+                                    if(board[x][y].isEmpty()) {
+                                        // can move forward one
+                                        Move move = new Move(i,j,x,y,false);
+                                        if(checkIfMoveIsValid(game,move)) {
                                             moves.add(move);
                                         }
                                     }
+                                }
+
+                                // Forward two if on the starting position
+                                if(j>1 && j == 6) {
+                                    int x = i, y = j-2; // coords interested in
+                                    if(board[i][j-1].isEmpty() && board[x][y].isEmpty()) {
+                                        // can move forward two
+                                        Move move = new Move(i,j,x,y,false);
+                                        if(checkIfMoveIsValid(game,move)) {
+                                            moves.add(move);
+                                        }
+                                    }
+                                }
+
+                                // Attacking to the left (A pawn cannot attack to the left) (from white perspective)
+                                // Includes if it can attack the en passant square
+                                if(i > 0 && j>1) {
+                                    int x = i-1, y = j-1; // coords interested in
+                                    if(board[x][y].isEnemy(color)) {
+                                        // can attack left
+                                        Move move = new Move(i,j,x,y,true);
+                                        if(checkIfMoveIsValid(game,move)) {
+                                            moves.add(move);
+                                        }
+                                    }
+
+                                    if(enPassantX == (x) && enPassantY == (y)) {
+                                        Move move = new Move(i,j,x,y,x-1,y);
+                                        if(checkIfMoveIsValid(game,move)) {
+                                            moves.add(move);
+                                        }
+                                    }
+                                }
+
+                                // Attacking to the right (H pawn cannot attack to the right) (from white perspective)
+                                // Includes it if can attack the en passant square
+
+                                if(i < 7 && j>1) {
+                                    int x = i+1, y = j-1;
+                                    if(board[x][y].isEnemy(color)) {
+                                        // can attack right
+                                        Move move = new Move(i,j,x,y,true);
+                                        if(checkIfMoveIsValid(game,move)) {
+                                            moves.add(move);
+                                        }
+                                    }
+
+                                    if(enPassantX == (x) && enPassantY == (y)) {
+                                        Move move = new Move(i,j,x,y,x-1,y);
+                                        if(checkIfMoveIsValid(game,move)) {
+                                            moves.add(move);
+                                        }
+                                    }
+                                }
+
+                                // Promote via moving
+
+                                if(j == 1) {
+                                    int x = i, y = j-1;
+                                    if(board[x][y].isEmpty()) {
+                                        // Can promote to queen ,rock, bishop knight
+                                        Move move1 = new Move(i,j,x,y,false,true,"queen");
+                                        Move move2 = new Move(i,j,x,y,false,true,"rook");
+                                        Move move3 = new Move(i,j,x,y,false,true,"bishop");
+                                        Move move4 = new Move(i,j,x,y,false,true,"knight");
+                                        if(checkIfMoveIsValid(game,move1)) {
+                                            moves.add(move1);
+                                        }
+                                        if(checkIfMoveIsValid(game,move2)) {
+                                            moves.add(move2);
+                                        }
+                                        if(checkIfMoveIsValid(game,move3)) {
+                                            moves.add(move3);
+                                        }
+                                        if(checkIfMoveIsValid(game,move4)) {
+                                            moves.add(move4);
+                                        }
+                                    }
+                                }
+
+                                // Promote via capturing to the left (A pawn cannot attack to the left)
+                                if(i > 0 && j==1) {
+                                    int x = i-1, y = j-1; // coords interested in
+                                    if(board[x][y].isEnemy(color)) {
+                                        // can attack left to promote
+                                        Move move1 = new Move(i,j,x,y,false,true,"queen");
+                                        Move move2 = new Move(i,j,x,y,false,true,"rook");
+                                        Move move3 = new Move(i,j,x,y,false,true,"bishop");
+                                        Move move4 = new Move(i,j,x,y,false,true,"knight");
+                                        if(checkIfMoveIsValid(game,move1)) {
+                                            moves.add(move1);
+                                        }
+                                        if(checkIfMoveIsValid(game,move2)) {
+                                            moves.add(move2);
+                                        }
+                                        if(checkIfMoveIsValid(game,move3)) {
+                                            moves.add(move3);
+                                        }
+                                        if(checkIfMoveIsValid(game,move4)) {
+                                            moves.add(move4);
+                                        }
+                                    }
+                                }
+
+
+                                // Promote via capturing to the right (H pawn cannot attack to the right) (White's perspective)
+                                if(i > 0 && j==1) {
+                                    int x = i+1, y = j-1; // coords interested in
+                                    if(board[x][y].isEnemy(color)) {
+                                        // can attack right to promote
+                                        Move move1 = new Move(i,j,x,y,false,true,"queen");
+                                        Move move2 = new Move(i,j,x,y,false,true,"rook");
+                                        Move move3 = new Move(i,j,x,y,false,true,"bishop");
+                                        Move move4 = new Move(i,j,x,y,false,true,"knight");
+                                        if(checkIfMoveIsValid(game,move1)) {
+                                            moves.add(move1);
+                                            
+                                        }
+                                        
+                                        if(checkIfMoveIsValid(game,move2)) {
+                                            moves.add(move2);
+                                        }
+                                        if(checkIfMoveIsValid(game,move3)) {
+                                            moves.add(move3);
+                                        }
+                                        if(checkIfMoveIsValid(game,move4)) {
+                                            moves.add(move4);
+                                        }
+                                    }
+                                }
+                            } // End BLACK's pawn code
+                        }
+                        break;
+                    } // End case pawn
+
+                    case "bishop" -> {
+                        // 4 Diagonals:
+
+                        int x = i;
+                        int y = j;
+
+                        // Top Right
+                        while(x < 7 && y < 7) {
+                            x++;
+                            y++;
+                            if(board[x][y].isEmpty()) {
+                                Move move = new Move(i,j,x,y, false);
+                                if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
                                 }
                             } else {
-
-                                if(blackCastleKingSide) {
-                                    if(board[5][7].isEmpty() && board[6][7].isEmpty()) {
-                                        if(!isSquareInCheck(game,4,7) && !isSquareInCheck(game,5,7) &&
-                                        !isSquareInCheck(game,6,7) && !isSquareInCheck(game,7,7)) {
-                                            Move move = new Move(true, true);
-                                            moves.add(move);
-                                        }
-                                }
-                                }
-                                if(blackCastleQueenSide) {
-                                    if(board[3][7].isEmpty() && board[2][7].isEmpty() && board[1][7].isEmpty()) {
-                                        if(!isSquareInCheck(game,0,7) && !isSquareInCheck(game,1,7) &&
-                                        !isSquareInCheck(game,2,7) && !isSquareInCheck(game,3,7) && !isSquareInCheck(game,4,7)) {
-                                            Move move = new Move(true, false);
-                                            moves.add(move);
-                                        }
+                                // Piece blocks bishop's way
+                                if(board[x][y].isEnemy(color)) {
+                                    Move move = new Move(i,j,x,y,true);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
+                                    break; // break as there is a piece blocking
+                                } else {
+                                    break; // block as there is a friendly piece blocking
                                 }
                             }
+                        }
+
+                        // Top Left
+                        x = i;
+                        y = j;
+                        while(x > 0 && y < 7) {
+                            x--;
+                            y++;
+                            if(board[x][y].isEmpty()) {
+                                Move move = new Move(i,j,x,y, false);
+                                if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                            } else {
+                                // Piece blocks bishop's way
+                                if(board[x][y].isEnemy(color)) {
+                                    Move move = new Move(i,j,x,y,true);
+                                if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                                    break; // break as there is a piece blocking
+                                } else {
+                                    break; // block as there is a friendly piece blocking
+                                }
                             }
+                        }
+                        // Bottom Right
+                        x = i;
+                        y = j;
+                        while(x < 7 && y > 0) {
+                            x++;
+                            y--;
+                            if(board[x][y].isEmpty()) {
+                                Move move = new Move(i,j,x,y, false);
+                                if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                            } else {
+                                // Piece blocks bishop's way
+                                if(board[x][y].isEnemy(color)) {
+                                    Move move = new Move(i,j,x,y,true);
+                                if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                                    break; // break as there is a piece blocking
+                                } else {
+                                    break; // block as there is a friendly piece blocking
+                                }
+                            }
+                        }
 
-                        } // End case kING
+                        // Bottom Left
+                        x = i;
+                        y = j;
+                        while(x > 0 && y > 0) {
+                            x--;
+                            y--;
+                            if(board[x][y].isEmpty()) {
+                                Move move = new Move(i,j,x,y, false);
+                                if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                            } else {
+                                // Piece blocks bishop's way
+                                if(board[x][y].isEnemy(color)) {
+                                    Move move = new Move(i,j,x,y,true);
+                                if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                                    break; // break as there is a piece blocking
+                                } else {
+                                    break; // block as there is a friendly piece blocking
+                                }
+                            }
+                        }
+                        break;
+                    } // End case bishop
 
-                    } // end switch
-                } // end if(activeColor)
-            } // END INNERLOOP
-        } // END OUTERLOOP
-    } // END UPDATEMOVES
+                    case "knight" -> {
+
+                        // Knight has 8 possible attacks
+
+
+
+                        int x = i;
+                        int y = j;
+
+                        // TWO UP (LEFT / RIGHT)
+
+                        // Right
+                        x++;
+                        y+=2;
+                        if( x <= 7 && y<= 7) {
+
+                            if(board[x][y].isEmpty()) {
+                                Move move = new Move(i,j,x,y, false);
+                                if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                            } else if(board[x][y].isEnemy(color)) {
+                                Move move = new Move(i,j,x,y, true);
+                                if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                            }
+                        }
+
+
+                        // Left
+                        x = i;
+                        y = j;
+                        x--;
+                        y+=2;
+                        if( x >= 0 && y<= 7) {
+
+                            if(board[x][y].isEmpty()) {
+                                Move move = new Move(i,j,x,y, false);
+                                if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                            } else if(board[x][y].isEnemy(color)) {
+                                Move move = new Move(i,j,x,y, true);
+                                if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                            }
+                        }
+
+
+                        // TWO DOWN (LEFT / RIGHT)
+                        x = i;
+                        y = j;
+                        // Right
+                        x++;
+                        y-=2;
+                        if( x <= 7  && y>=0) {
+
+                            if(board[x][y].isEmpty()) {
+                                Move move = new Move(i,j,x,y, false);
+                                if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                            } else if(board[x][y].isEnemy(color)) {
+                                Move move = new Move(i,j,x,y, true);
+                                if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                            }
+                        }
+
+                        // Left
+                        x = i;
+                        y = j;
+                        x--;
+                        y-=2;
+                        if( x >= 0 && y >= 0) {
+
+                            if(board[x][y].isEmpty()) {
+                                Move move = new Move(i,j,x,y, false);
+                                if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                            } else if(board[x][y].isEnemy(color)) {
+                                Move move = new Move(i,j,x,y, true);
+                                if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                            }
+                        }
+
+                        // TWO RIGHT (UP/DOWN)
+                        x = i;
+                        y = j;
+                        // up
+                        x+=2;
+                        y++;
+                        if( x <= 7  && y <= 7) {
+
+                            if(board[x][y].isEmpty()) {
+                                Move move = new Move(i,j,x,y, false);
+                                if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                            } else if(board[x][y].isEnemy(color)) {
+                                Move move = new Move(i,j,x,y, true);
+                                if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                            }
+                        }
+
+                        // down
+                        x = i;
+                        y = j;
+                        x+=2;
+                        y--;
+                        if( x <=7 && y >= 0) {
+
+                            if(board[x][y].isEmpty()) {
+                                Move move = new Move(i,j,x,y, false);
+                                if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                            } else if(board[x][y].isEnemy(color)) {
+                                Move move = new Move(i,j,x,y, true);
+                                 if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                            }
+                        }
+                        // TWO LEFT (UP/DOWN)
+                        x = i;
+                        y = j;
+                        // up
+                        x-=2;
+                        y++;
+                        if( x >= 0  && y <= 7) {
+
+                            if(board[x][y].isEmpty()) {
+                                Move move = new Move(i,j,x,y, false);
+                                if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                            } else if(board[x][y].isEnemy(color)) {
+                                Move move = new Move(i,j,x,y, true);
+                                if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                            }
+                        }
+
+                        // down
+                        x = i;
+                        y = j;
+                        x-=2;
+                        y--;
+                        if( x >= 0 && y >= 0) {
+
+                            if(board[x][y].isEmpty()) {
+                                Move move = new Move(i,j,x,y, false);
+                                if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                            } else if(board[x][y].isEnemy(color)) {
+                                Move move = new Move(i,j,x,y, true);
+                                if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                            }
+                        }
+                        break;
+                    } // End case knight
+
+                    case "rook" -> {
+
+                        // 4 DIRECTIONS:
+                        // POSITIVE X
+                        int x = i;
+                        int y = j;
+                        while(x < 7) {
+                            x++;
+                            if(board[x][y].isEmpty()) {
+                                Move move = new Move(i,j,x,y, false);
+                                if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                            } else {
+                                // Piece blocks rook's way
+                                if(board[x][y].isEnemy(color)) {
+                                    Move move = new Move(i,j,x,y,true);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                                    break; // break as there is a piece blocking
+                                } else {
+                                    break; // block as there is a friendly piece blocking
+                                }
+                            }
+                        }
+                        // NEGATIVE X
+                        x = i;
+                        y = j;
+                        while(x > 0) {
+                            x--;
+                            if(board[x][y].isEmpty()) {
+                                Move move = new Move(i,j,x,y, false);
+                                if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+
+                            } else {
+                                // Piece blocks rook's way
+                                if(board[x][y].isEnemy(color)) {
+                                    Move move = new Move(i,j,x,y,true);
+                                   if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                                    break; // break as there is a piece blocking
+                                } else {
+                                    break; // block as there is a friendly piece blocking
+                                }
+                            }
+                        }
+
+                        // POSITIVE Y
+                        x = i;
+                        y = j;
+                        while(y < 7) {
+                            y++;
+                            if(board[x][y].isEmpty()) {
+                                Move move = new Move(i,j,x,y, false);
+                                if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                            } else {
+                                // Piece blocks rook's way
+                                if(board[x][y].isEnemy(color)) {
+                                    Move move = new Move(i,j,x,y,true);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                                    break; // break as there is a piece blocking
+                                } else {
+                                    break; // block as there is a friendly piece blocking
+                                }
+                            }
+                        }
+                        // NEGATIVE Y
+                        x = i;
+                        y = j;
+                        while(y > 0) {
+                            y--;
+                            if(board[x][y].isEmpty()) {
+                                Move move = new Move(i,j,x,y, false);
+                                if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                            } else {
+                                // Piece blocks bishop's way
+                                if(board[x][y].isEnemy(color)) {
+                                    Move move = new Move(i,j,x,y,true);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                                    break; // break as there is a piece blocking
+                                } else {
+                                    break; // block as there is a friendly piece blocking
+                                }
+                            }
+                        }
+                        break;
+                    } // END case rook
+
+                    case "queen" -> {
+
+                        // 4 AXIS:
+                        // POSITIVE X
+                        int x = i;
+                        int y = j;
+                        while(x < 7) {
+                            x++;
+                            if(board[x][y].isEmpty()) {
+                                Move move = new Move(i,j,x,y, false);
+                                if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                            } else {
+                                // Piece blocks rook's way
+                                if(board[x][y].isEnemy(color)) {
+                                    Move move = new Move(i,j,x,y,true);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                                    break; // break as there is a piece blocking
+                                } else {
+                                    break; // block as there is a friendly piece blocking
+                                }
+                            }
+                        }
+                        // NEGATIVE X
+                        x = i;
+                        y = j;
+                        while(x > 0) {
+                            x--;
+                            if(board[x][y].isEmpty()) {
+                                Move move = new Move(i,j,x,y, false);
+                                if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+
+                            } else {
+                                // Piece blocks rook's way
+                                if(board[x][y].isEnemy(color)) {
+                                    Move move = new Move(i,j,x,y,true);
+                                   if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                                    break; // break as there is a piece blocking
+                                } else {
+                                    break; // block as there is a friendly piece blocking
+                                }
+                            }
+                        }
+
+                        // POSITIVE Y
+                        x = i;
+                        y = j;
+                        while(y < 7) {
+                            y++;
+                            if(board[x][y].isEmpty()) {
+                                Move move = new Move(i,j,x,y, false);
+                                if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                            } else {
+                                // Piece blocks rook's way
+                                if(board[x][y].isEnemy(color)) {
+                                    Move move = new Move(i,j,x,y,true);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                                    break; // break as there is a piece blocking
+                                } else {
+                                    break; // block as there is a friendly piece blocking
+                                }
+                            }
+                        }
+                        // NEGATIVE Y
+                        x = i;
+                        y = j;
+                        while(y > 0) {
+                            y--;
+                            if(board[x][y].isEmpty()) {
+                                Move move = new Move(i,j,x,y, false);
+                                if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                            } else {
+                                // Piece blocks bishop's way
+                                if(board[x][y].isEnemy(color)) {
+                                    Move move = new Move(i,j,x,y,true);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                                    break; // break as there is a piece blocking
+                                } else {
+                                    break; // block as there is a friendly piece blocking
+                                }
+                            }
+                        }
+
+                        // 4 Diagonals:
+
+                        x = i;
+                        y = j;
+
+                        // Top Right
+                        while(x < 7 && y < 7) {
+                            x++;
+                            y++;
+                            if(board[x][y].isEmpty()) {
+                                Move move = new Move(i,j,x,y, false);
+                                if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                            } else {
+                                // Piece blocks bishop's way
+                                if(board[x][y].isEnemy(color)) {
+                                    Move move = new Move(i,j,x,y,true);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                                    break; // break as there is a piece blocking
+                                } else {
+                                    break; // block as there is a friendly piece blocking
+                                }
+                            }
+                        }
+
+                        // Top Left
+                        x = i;
+                        y = j;
+                        while(x > 0 && y < 7) {
+                            x--;
+                            y++;
+                            if(board[x][y].isEmpty()) {
+                                Move move = new Move(i,j,x,y, false);
+                                if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                            } else {
+                                // Piece blocks bishop's way
+                                if(board[x][y].isEnemy(color)) {
+                                    Move move = new Move(i,j,x,y,true);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                                    break; // break as there is a piece blocking
+                                } else {
+                                    break; // block as there is a friendly piece blocking
+                                }
+                            }
+                        }
+                        // Bottom Right
+                        x = i;
+                        y = j;
+                        while(x < 7 && y > 0) {
+                            x++;
+                            y--;
+                            if(board[x][y].isEmpty()) {
+                                Move move = new Move(i,j,x,y, false);
+                                if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                            } else {
+                                // Piece blocks bishop's way
+                                if(board[x][y].isEnemy(color)) {
+                                    Move move = new Move(i,j,x,y,true);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                                    break; // break as there is a piece blocking
+                                } else {
+                                    break; // block as there is a friendly piece blocking
+                                }
+                            }
+                        }
+
+                        // Bottom Left
+                        x = i;
+                        y = j;
+                        while(x > 0 && y > 0) {
+                            x--;
+                            y--;
+                            if(board[x][y].isEmpty()) {
+                                Move move = new Move(i,j,x,y, false);
+                                if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                            } else {
+                                // Piece blocks bishop's way
+                                if(board[x][y].isEnemy(color)) {
+                                    Move move = new Move(i,j,x,y,true);
+                                    if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                                    break; // break as there is a piece blocking
+                                } else {
+                                    break; // block as there is a friendly piece blocking
+                                }
+                            }
+                        }
+
+                        break;
+                    } // End case queen
+
+                    case "king" -> {
+
+                        /****************************************
+                         * Special Notes:
+                         * The king cannot take a piece under check
+                         * However, I think due to the minimax algorithm, it should
+                         * be able to avoid that unless it is at the terminated depth
+                         * 
+                         * King also has the ability to castle
+                         ****************************************/
+
+                        int x = i;
+                        int y = j;
+
+                        // 4 horizontal axis
+                        x++;
+                        if( x <= 7) {
+                            Move move = new Move(i,j,x,y, false);
+                            if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                        }
+
+                        x = i;
+                        y = j;
+                        x--;
+                        if(x >= 0 ) {
+                            Move move = new Move(i,j,x,y, false);
+                            if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                        }
+
+                        x = i;
+                        y = j;
+                        y++;
+                        if( y <= 7) {
+                            Move move = new Move(i,j,x,y, false);
+                            if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                        }
+
+                        x = i;
+                        y = j;
+                        y--;
+                        if( y>=0   ) {
+                            Move move = new Move(i,j,x,y, false);
+                            if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                        }
+
+                        // Diagonals
+
+                        x = i;
+                        y = j;
+
+                        // TOP RIGHT
+                        x++;
+                        y++;
+                        if(x <= 7 && y <= 7) {
+                            Move move = new Move(i,j,x,y, false);
+                            if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                        }
+
+                        // TOP LEFT
+                        x = i;
+                        y = j;
+                        x--;
+                        y++;
+                        if(x >= 0 && y <=7) {
+                            Move move = new Move(i,j,x,y, false);
+                            if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                        }
+
+                        // Bottom RIGHT
+                        x = i;
+                        y = j;
+                        x++;
+                        y--;
+                        if( (x<=7 && y >= 0)) {
+                            Move move = new Move(i,j,x,y, false);
+                            if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                        }
+                        // Bottom LEFT
+                        x = i;
+                        y = j;
+                        x--;
+                        y--;
+                        if(x>= 0 && y>=0) {
+                            Move move = new Move(i,j,x,y, false);
+                            if(checkIfMoveIsValid(game,move)) {
+                                    moves.add(move);
+                                }
+                        }
+                        // CASTLING RIGHTS
+                        if(color == 'w') {
+
+                            if(whiteCastleKingSide) {
+                                if(board[5][0].isEmpty() && board[6][0].isEmpty()) {
+
+                                    if(!isSquareInCheck(game,4,0) && !isSquareInCheck(game,5,0) &&
+                                    !isSquareInCheck(game,6,0) && !isSquareInCheck(game,7,0)) {
+                                        Move move = new Move(true, true);
+                                        moves.add(move);
+                                    }
+
+                                }
+                            }   
+                            if(whiteCastleQueenSide) {
+                                if(board[3][0].isEmpty() && board[2][0].isEmpty() && board[1][0].isEmpty()) {
+                                    if(!isSquareInCheck(game,0,0) && !isSquareInCheck(game,1,0) &&
+                                    !isSquareInCheck(game,2,0) && !isSquareInCheck(game,3,0) && !isSquareInCheck(game,4,0)) {
+                                        Move move = new Move(true, false);
+                                        moves.add(move);
+                                    }
+                                }
+                            }
+                        } else {
+
+                            if(blackCastleKingSide) {
+                                if(board[5][7].isEmpty() && board[6][7].isEmpty()) {
+                                    if(!isSquareInCheck(game,4,7) && !isSquareInCheck(game,5,7) &&
+                                    !isSquareInCheck(game,6,7) && !isSquareInCheck(game,7,7)) {
+                                        Move move = new Move(true, true);
+                                        moves.add(move);
+                                    }
+                            }
+                            }
+                            if(blackCastleQueenSide) {
+                                if(board[3][7].isEmpty() && board[2][7].isEmpty() && board[1][7].isEmpty()) {
+                                    if(!isSquareInCheck(game,0,7) && !isSquareInCheck(game,1,7) &&
+                                    !isSquareInCheck(game,2,7) && !isSquareInCheck(game,3,7) && !isSquareInCheck(game,4,7)) {
+                                        Move move = new Move(true, false);
+                                        moves.add(move);
+                                    }
+                            }
+                        }
+                        }
+
+                    } // End case kING
+
+                } // end switch
+            } // end if(activeColor)
+        } // END INNERLOOP
+    } // END UPDATEMOVES multithreading
+    
+    
     public boolean checkIfMoveIsValid(Game game, Move move) {
         Game future = new Game();
         future = copyGame(game,future);
-        if(isInCheck(makeMove(future, move))) {
+        boolean isInCheck = isInCheck(makeMove(future,move));
+        future.flipColor();
+        if(isInCheck) {
             return false;
         } else {
 
@@ -2105,6 +2181,7 @@ public final class Engine {
         int endX = move.getEndX();
         int endY = move.getEndY();
         
+        
         if(isCastle) { // if the player wants to castle
             if(color == 'w') {
                 
@@ -2113,13 +2190,15 @@ public final class Engine {
                     newBoard[7][0] = new Piece();
                     newBoard[6][0] = new Piece("king",'w');
                     newBoard[5][0] = new Piece("rook", 'w');
-                    
+                    temp.setWhiteCastleKingSide(false);
+                    temp.setWhiteCastleQueenSide(false);
                 } else {
                     newBoard[4][0] = new Piece();
                     newBoard[0][0] = new Piece();
                     newBoard[2][0] = new Piece("king", 'w');
                     newBoard[3][0] = new Piece("rook", 'w');
-                    
+                    temp.setWhiteCastleQueenSide(false);
+                    temp.setWhiteCastleKingSide(false);
                 }
                 
                 
@@ -2130,11 +2209,15 @@ public final class Engine {
                     newBoard[7][7] = new Piece();
                     newBoard[6][7] = new Piece("king",'b');
                     newBoard[5][7] = new Piece("rook", 'b');
+                    temp.setBlackCastleKingSide(false);
+                    temp.setBlackCastleQueenSide(false);
                 } else {
                     newBoard[4][7] = new Piece();
                     newBoard[0][7] = new Piece();
                     newBoard[2][7] = new Piece("king", 'b');
                     newBoard[3][7] = new Piece("rook", 'b');
+                    temp.setBlackCastleKingSide(false);
+                    temp.setBlackCastleQueenSide(false);
                 }
                 
             }
@@ -2144,25 +2227,66 @@ public final class Engine {
             newBoard[endX][endY] = newBoard[startX][startY];
             newBoard[startX][startY] = new Piece();
             newBoard[enPassantX][enPassantY] = new Piece();
-            
-        } else if(isEnPassant) { // this is if the pawn moved twice
-            newBoard[endX][endY] = newBoard[startX][startY];
-            newBoard[startX][startY] = new Piece();
-            
+            temp.setEnPassant("-");
+            temp.setHalfMoveClock(-1);
         } else if(isPromote) { // if a pawn is promoting
             newBoard[endX][endY] = new Piece();
-            newBoard[startX][startY] = new Piece(promotePiece, color);
+            newBoard[startX][endY] = new Piece(promotePiece, color);
+            newBoard[startX][startY] = new Piece();
             
         }else if(isCapture) { // capturing basically overwrite the target square
             newBoard[endX][endY] = newBoard[startX][startY];
             newBoard[startX][startY] = new Piece();
             
+            
+            temp.setHalfMoveClock(-1);
         } else { // move just moves a piece
-            newBoard[endX][endY] = newBoard[startX][startY];
-            newBoard[startX][startY] = new Piece();
-        }
-        
+            
+            // If the king moves, then it can no longer castle
+            if(newBoard[startX][startY].getName().equals("king")) {
+                if(newBoard[startX][startY].getColor() == 'w') {
+                    temp.setWhiteCastleKingSide(false);
+                    temp.setWhiteCastleQueenSide(false);
+                } else {
+                    temp.setBlackCastleKingSide(false);
+                    temp.setBlackCastleQueenSide(false);
+                }
+            }
+            
+             // if rooks move from their starting square then they cannot castle   
+            if(newBoard[startX][startY].getName().equals("rook")) {
+                    // WHITE ROOKS
+                    System.out.println("*****************");
+                    if (startX == 7 && startY == 0) {
+                        temp.setWhiteCastleKingSide(false);
+                    } else if(startX == 0 && startY == 0) {
+                        temp.setWhiteCastleQueenSide(false);
+                    }
+                
+                // BLACK ROOKS
+                    if(startX == 7 && startY == 7) {
+
+                        temp.setBlackCastleKingSide(false);
+                    } else if (startX == 0 && startY == 7) {
+                        temp.setBlackCastleQueenSide(false);
+                    }
+                }
+     
+                // If the pawn moved twice - update en passant
+                if(move.getPawnMovedTwice()) {
+                    temp.setEnPassantXY(move.getEnPassantX(), move.getEnPassantY());
+                }
+            
+                newBoard[endX][endY] = newBoard[startX][startY];
+                newBoard[startX][startY] = new Piece();
+            }
+
         temp.setBoard(newBoard);
+        
+        // swap the turns
+
+        temp.incrementHalfMoveClock();
+        temp.incrementFullMoveClock();
         
         return temp;
     } // end makeMove
@@ -2190,6 +2314,34 @@ public final class Engine {
         return copy;
     }
     
+    public void findBestMove(Game game) {
+        
+        ArrayList<Move> moves = game.moves;
+        for(int i=0; i<moves.size(); i++) {
+            
+        }
+        
+        
+        
+        
+        
+        
+        
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     // Testing Functions:
     public void printBoardState(Game game) {
@@ -2210,7 +2362,7 @@ public final class Engine {
         System.out.println("Complete Board");
         for(int i=0; i<8; i++) {
             for(int j=0; j<8; j++) {
-                System.out.print(board[j][i].getName() + " ");
+                System.out.print("\t " + board[j][i].getName().charAt(0) + " \t");
             }
             System.out.print("\n");
         }
