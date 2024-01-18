@@ -16,14 +16,13 @@ public final class Engine {
     
     private Game game;
     
-    private double evaluation = 0;
     private int movesIndexed = 0;
     
     // Multi threading
-    private ExecutorService executorService;
+    private final ExecutorService executorService;
     
     // Minimax
-    private final int depth = 10;
+    private final int depth = 5;
     
     public Engine(String input) {
         
@@ -43,8 +42,11 @@ public final class Engine {
         shutdown();
         double totalTime = (timeEnd - timeStart) / 1000;
         System.out.println("Total Time: " + totalTime + " seconds for " + movesIndexed + " calculations");
-        System.out.println("Moves " + game.moves.size());
         printMoves(game);
+        checkGameState(game);
+        
+        findBestMove(game);
+        
 // Testing code
 //        game = new Game("rnbqkbnr/pppp1ppp/8/4p3/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 0 1");
 //        
@@ -58,6 +60,7 @@ public final class Engine {
     
     public void startSearch(int numThreads) {
         // Submit tasks for parallel execution
+ 
         
         ArrayList<Future<?>> threads = new ArrayList<>();
         Future<?> future1 = executorService.submit(() -> updateMoves(game, 0));
@@ -131,7 +134,7 @@ public final class Engine {
         // Value is between 1 and -1
         double whiteCalc = (double) whiteMaterial  / 39.0;
         double blackCalc = (double) blackMaterial  / 39.0;
-        evaluation = (whiteCalc - blackCalc);
+        game.setEvaluation(whiteCalc - blackCalc);
     } // end evaluate
 
     /************
@@ -1236,6 +1239,7 @@ public final class Engine {
                 } // end switch
             } // end if(activeColor)
         } // END INNERLOOP
+        
     } // END UPDATEMOVES multithreading
     
     
@@ -1701,6 +1705,118 @@ public final class Engine {
                             break;
                         } // end case queen
                         
+                        case ("king") -> {
+                            
+                        /****************************************
+                         * Special Notes:
+                         * The king cannot take a piece under check
+                         * However, I think due to the minimax algorithm, it should
+                         * be able to avoid that unless it is at the terminated depth
+                         * 
+                         * King also has the ability to castle
+                         ****************************************/
+
+                        int x = i;
+                        int y = j;
+
+                        // 4 horizontal axis
+                        x++;
+                        if( x <= 7) {
+                            Move move = new Move(i,j,x,y, false);
+                            if(x == kingX && y == kingY) {
+                                    isKingInCheck = true;
+                                    break outerLoop;
+                                }
+                        }
+
+                        x = i;
+                        y = j;
+                        x--;
+                        if(x >= 0 ) {
+                            Move move = new Move(i,j,x,y, false);
+                            if(x == kingX && y == kingY) {
+                                    isKingInCheck = true;
+                                    break outerLoop;
+                                }
+                        }
+
+                        x = i;
+                        y = j;
+                        y++;
+                        if( y <= 7) {
+                            Move move = new Move(i,j,x,y, false);
+                            if(x == kingX && y == kingY) {
+                                    isKingInCheck = true;
+                                    break outerLoop;
+                                }
+                        }
+
+                        x = i;
+                        y = j;
+                        y--;
+                        if( y>=0   ) {
+                            Move move = new Move(i,j,x,y, false);
+                            if(x == kingX && y == kingY) {
+                                    isKingInCheck = true;
+                                    break outerLoop;
+                                }
+                        }
+
+                        // Diagonals
+
+                        x = i;
+                        y = j;
+
+                        // TOP RIGHT
+                        x++;
+                        y++;
+                        if(x <= 7 && y <= 7) {
+                            Move move = new Move(i,j,x,y, false);
+                            if(x == kingX && y == kingY) {
+                                    isKingInCheck = true;
+                                    break outerLoop;
+                                }
+                        }
+
+                        // TOP LEFT
+                        x = i;
+                        y = j;
+                        x--;
+                        y++;
+                        if(x >= 0 && y <=7) {
+                            Move move = new Move(i,j,x,y, false);
+                            if(x == kingX && y == kingY) {
+                                    isKingInCheck = true;
+                                    break outerLoop;
+                                }
+                        }
+
+                        // Bottom RIGHT
+                        x = i;
+                        y = j;
+                        x++;
+                        y--;
+                        if( (x<=7 && y >= 0)) {
+                            Move move = new Move(i,j,x,y, false);
+                            if(x == kingX && y == kingY) {
+                                    isKingInCheck = true;
+                                    break outerLoop;
+                                }
+                        }
+                        // Bottom LEFT
+                        x = i;
+                        y = j;
+                        x--;
+                        y--;
+                        if(x>= 0 && y>=0) {
+                            Move move = new Move(i,j,x,y, false);
+                            if(x == kingX && y == kingY) {
+                                    isKingInCheck = true;
+                                    break outerLoop;
+                                }
+                        }
+
+                    } // End case kING
                     } // End switch
                 }
             } // End inner loop
@@ -1713,8 +1829,7 @@ public final class Engine {
         return isKingInCheck;
     } // end IsInCheck
     
-    
-    
+
     public boolean isSquareInCheck(Game game, int targetX, int targetY) {
         
         Piece[][] board = game.getBoard();
@@ -2256,7 +2371,6 @@ public final class Engine {
              // if rooks move from their starting square then they cannot castle   
             if(newBoard[startX][startY].getName().equals("rook")) {
                     // WHITE ROOKS
-                    System.out.println("*****************");
                     if (startX == 7 && startY == 0) {
                         temp.setWhiteCastleKingSide(false);
                     } else if(startX == 0 && startY == 0) {
@@ -2314,20 +2428,41 @@ public final class Engine {
         return copy;
     }
     
+    
+    public void checkGameState(Game game) {
+        
+        
+        if(isInCheck(game) && game.moves.size() == 0) {
+            System.out.println("Checkmate!");
+            if(game.getActiveColor() == 'w') {
+                game.setEvaluation(-1);
+            } else {
+                game.setEvaluation(1);
+            }
+        } else if(!isInCheck(game) && game.moves.size() == 0) {
+            System.out.println("Stalemate!");
+            game.setEvaluation(0);
+        }
+    } // end checkGame
+    
+    
     public void findBestMove(Game game) {
         
-        ArrayList<Move> moves = game.moves;
-        for(int i=0; i<moves.size(); i++) {
-            
-        }
+
         
         
         
         
+//        evaluate(game);
+//        Move move = new Move(3,3,4,4,true);
+//        game = makeMove(game,move);
+//        printBoardState(game);
+//        game.initFlippedBoard();
         
         
         
-    }
+        
+    } // end findBestMove
     
     
     
@@ -2375,7 +2510,7 @@ public final class Engine {
         System.out.println("Half Move Clock " + halfMoveClock);
         System.out.println("Full Move Clock " + fullMoveClock);
         evaluate(game);
-        System.out.println("\n ---------------------\nEvaluation (Only material wise): " + evaluation);
+        System.out.println("\n ---------------------\nEvaluation (Only material wise): " + game.getEvaluation());
     }
     public void printMoves(Game game) {
         Piece[][] board = game.getBoard();
@@ -2384,7 +2519,7 @@ public final class Engine {
         System.out.println("VALID MOVES: " + moves.size());
         
         if(moves.size() == 0) { 
-            System.out.println("Checkmate");
+            System.out.println("Game has ended");
         } else {
             for(int i=0; i<moves.size(); i++) {
             
@@ -2448,9 +2583,9 @@ public final class Engine {
         }
     } // End printMoves
     // Getters and Setters
-    public double getEvaluation() { return evaluation; }
+    public double getEvaluation() { return game.getEvaluation(); }
     public double getTruncatedEvaluation() {
-        String truncatedNumberString = String.format("%.5f", evaluation);
+        String truncatedNumberString = String.format("%.5f", game.getEvaluation());
         // Parse the formatted string back to a double if needed
         double truncatedNumber = Double.parseDouble(truncatedNumberString);
         return truncatedNumber;

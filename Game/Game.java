@@ -62,6 +62,8 @@ public final class Game {
     **********************************************/
     }
 
+    private double evaluation = 0;
+    
     private final Piece[][] board = new Piece[8][8];
     private final Piece[][] flippedBoard = new Piece[8][8]; // this is sent out to the panels to print out
     private char activeColor = ' ';
@@ -412,4 +414,6 @@ public final class Game {
     public boolean getBlackCastleKingSide() { return blackCastleKingSide; }
     public boolean getBlackCastleQueenSide() { return blackCastleQueenSide; }
     public ArrayList<Move> getMoveList() { return moves; }
+    public double getEvaluation() { return evaluation; }
+    public void setEvaluation(double eval) { evaluation = eval; }
 } // end class
