@@ -17,6 +17,8 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
+import java.awt.Font;
+
     
 
 public final class ControlPanel extends JFrame {
@@ -30,7 +32,8 @@ public final class ControlPanel extends JFrame {
     private ActionListener buttonClickListener;
     
     public String input ="";
-    
+
+    final Font font = new Font("Arial", Font.PLAIN, 12);
     public ControlPanel() {
         
         setSize(400,400);
@@ -50,8 +53,10 @@ public final class ControlPanel extends JFrame {
         ui.setLayout(new GridBagLayout() );
         ui.setBackground(Color.BLACK);
         mainLabel.setForeground(Color.WHITE);
+        mainLabel.setFont(font);
         inputTextField.setBackground(Color.WHITE);
         inputTextField.setForeground(Color.BLACK);
+        inputTextField.setFont(font);
         
         GridBagConstraints labelConstraints = new GridBagConstraints();
         labelConstraints.gridx = 0;
