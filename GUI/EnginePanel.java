@@ -1,105 +1,99 @@
 
 package GUI;
 
-
-
-
+import chessengine.Engine;
+import Game.Piece;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import java.awt.Color;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JTextField;
-
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 
+public final class EnginePanel{
     
+    JFrame frame = new JFrame();
+    JPanel panel = new JPanel() {
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2 = (Graphics2D) g;
 
-public final class ControlPanel extends JFrame {
-    
-    
-    final JPanel ui = new JPanel();
-    final JLabel mainLabel = new JLabel("<html><div style='text-align: center; vertical-align: middle;'>Enter FEN notation chess position or press<br>enter for a default position</div></html>");
-    final JTextField inputTextField = new JTextField(28);
-    
-    final JButton button = new JButton("Enter");
-    private ActionListener buttonClickListener;
-    
-    public String input ="";
+            // Draw the board image
+            g2.drawImage(boardImage, 0, 0, 800, 760, null);
 
-    final Font font = new Font("Arial", Font.PLAIN, 12);
-    public ControlPanel() {
-        
-        setSize(400,400);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            // Drawing the individual pieces on the board
+            // For some reason there are some approximation issues with drawing the individual
+            // Pieces so the bottom of the board becomes slightly misaligned
+            final int spriteWidth = 90;
+            final int spriteHeight = 86;
+            final int initialSquareOffsetY = 36;    
+            final int initialSquareOffsetX = 39;
+
+            Piece[][] board = engine.getFlippedBoard();
+            for(int x=0; x<8; x++) {
+                for(int y=0; y<8; y++) {
+                    int spriteX = (x*spriteWidth)+initialSquareOffsetX;
+                    int spriteY = (y*spriteHeight)+initialSquareOffsetY;
+                    g2.drawImage(board[x][y].getImage(),spriteX,spriteY,spriteWidth,spriteHeight,null);
+//                    g2.setColor(Color.red);
+//                    g2.drawRect(spriteX,spriteY,spriteWidth,spriteHeight);
+                }
+            }
+            final Font font = new Font("Arial",Font.BOLD,30);
+            g2.setFont(font);
+            g2.setColor(Color.WHITE);
+            g2.drawString("Evaluation: "+engine.getTruncatedEvaluation(), 850, 50);
+            g2.drawString("Turn: "+engine.getActiveColor(),850,150);
+            g2.drawString("Full Move Clock: "+engine.getFullMoveClock(),850,200);
+            g2.drawString("Half Move Clock: "+engine.getHalfMoveClock(),850,250);
+
+            g2.drawString("Move #1: n/a",850,400);
+            g2.drawString("Move #2: n/a",850,450);
+            g2.drawString("Move #3: n/a",850,500);
+        }
+    };
+    
+    Engine engine;
+    
+    BufferedImage boardImage;
+    
+    
+    
+    public EnginePanel(String input) {
+        engine = new Engine(input);
         initUI();
-        add(ui);
-        setVisible(true);
-        setResizable(false);
-        setTitle("Chess Engine Control Panel");
-        inputTextField.setText("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+        panel.repaint();
     }
-    
     
     public void initUI() {
         
-        ui.setLayout(new GridBagLayout() );
-        ui.setBackground(Color.BLACK);
-        mainLabel.setForeground(Color.WHITE);
-        mainLabel.setFont(font);
-        inputTextField.setBackground(Color.WHITE);
-        inputTextField.setForeground(Color.BLACK);
-        inputTextField.setFont(font);
         
-        GridBagConstraints labelConstraints = new GridBagConstraints();
-        labelConstraints.gridx = 0;
-        labelConstraints.gridy = 2;
-        labelConstraints.insets = new Insets(30,50,30,50);
-        ui.add(mainLabel, labelConstraints);
+        frame.setSize(1200,800);
+        frame.setLocationRelativeTo(null);
+        frame.add(panel);
+        frame.setVisible(true);
+        frame.setResizable(false);
+        frame.setTitle("Engine Panel");
         
+        panel.setBackground(Color.BLACK);
+        loadImages();
+
+
+    }
         
-        GridBagConstraints textFieldConstraints = new GridBagConstraints();
-        textFieldConstraints.gridx = 0;
-        textFieldConstraints.gridy = 5;
-        textFieldConstraints.insets = new Insets(30,50,30,50);
-        ui.add(inputTextField, textFieldConstraints);
-        
-        
-        button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                input = inputTextField.getText();
-                if (buttonClickListener != null) {
-                    buttonClickListener.actionPerformed(e);
-                }
-                
-                
-            }
-        });
-        
-        
-        GridBagConstraints buttonConstraints = new GridBagConstraints();
-        buttonConstraints.gridx = 0;
-        buttonConstraints.gridy = 7;
-        buttonConstraints.insets = new Insets(30,50,30,50);
-        ui.add(button,buttonConstraints);
-        
-        
+    public void loadImages() {
+        try {
+            String filepath = "/res/chessboard.jpg";
+            boardImage = ImageIO.read(getClass().getResourceAsStream(filepath));
+        } catch(IOException e) {
+            System.out.println("board image loading failed");
+        }
     }
     
-    public void setButtonClickListener(ActionListener listener) {
-        this.buttonClickListener = listener;
-    }
-    
-    public String getString() {
-        return input;
-    }
-    
+
 }
