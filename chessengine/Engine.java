@@ -14,51 +14,49 @@ import java.util.concurrent.Future;
 
 public final class Engine {
     
-    private Game game;
+    private final Game game;
     
     private int movesIndexed = 0;
+    private int gamesSearched = 0;
+    private int bestMoveIndex = 0;
     
     // Multi threading
     private final ExecutorService executorService;
     
     // Minimax
-    private final int depth = 5;
+    private final int maxDepth = 2;
     
     public Engine(String input) {
-        
-        
-        
-        
-        game = new Game(input);
-        evaluate(game);
         
         // Create a thread pool with a fixed number of threads
         int numThreads = Runtime.getRuntime().availableProcessors();
         executorService = Executors.newFixedThreadPool(numThreads);
 
-        double timeStart = System.currentTimeMillis();
-        startSearch(numThreads);
-        double timeEnd = System.currentTimeMillis();
-        shutdown();
-        double totalTime = (timeEnd - timeStart) / 1000;
-        System.out.println("Total Time: " + totalTime + " seconds for " + movesIndexed + " calculations");
+        
+        game = new Game(input);
+        evaluate(game);
+        startSearch(game);
         printMoves(game);
-        checkGameState(game);
+
+
+        double timeStart = System.currentTimeMillis();
+        findBestMove(game,0);
+        double timeEnd = System.currentTimeMillis();
+        double totalTime = timeEnd - timeStart;
+        System.out.println("Total Time: " + totalTime + " seconds for " + gamesSearched + " games");
+
         
-        findBestMove(game);
-        
-// Testing code
-//        game = new Game("rnbqkbnr/pppp1ppp/8/4p3/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 0 1");
-//        
-//        evaluate(game);
-//        Move move = new Move(3,3,4,4,true);
-//        game = makeMove(game,move);
-//        printBoardState(game);
-//        game.initFlippedBoard();
+        Move bestMove = game.moves.get(bestMoveIndex);
+        Piece[][] board = game.getBoard();
+        String name = board[bestMove.getStartX()][bestMove.getStartY()].getName();
+        System.out.println("Best Move: " + name + " from " + bestMove.getStartX() + bestMove.getStartY() + " moves to " + bestMove.getEndX() + bestMove.getEndY());
+        shutdown();
+
+
     }
 
     
-    public void startSearch(int numThreads) {
+    public void startSearch( Game game) {
         // Submit tasks for parallel execution
  
         
@@ -88,11 +86,6 @@ public final class Engine {
         }
     }
 
-    private void searchMove(String threadName) {
-        // Your chess engine logic goes here
-        System.out.println("Searching move on " + threadName);
-    }
-
     public void shutdown() {
         // Shutdown the executor service when you're done
         executorService.shutdown();
@@ -100,7 +93,7 @@ public final class Engine {
 
 
     // Algorithmic Functions:
-    public void evaluate(Game game) {
+    public double evaluate(Game game) {
         
         Piece[][] board = game.getBoard();
         
@@ -129,24 +122,15 @@ public final class Engine {
                 
             }
         }
-        System.out.println("white: " + whiteMaterial);
-        System.out.println("black: " + blackMaterial);
+        //System.out.println("white: " + whiteMaterial);
+        //System.out.println("black: " + blackMaterial);
         // Value is between 1 and -1
         double whiteCalc = (double) whiteMaterial  / 39.0;
         double blackCalc = (double) blackMaterial  / 39.0;
         game.setEvaluation(whiteCalc - blackCalc);
+        return game.getEvaluation();
     } // end evaluate
 
-    /************
-     * Obtaining the possible moves
-     * updateMoves finds every possible moves:
-     * 
-     * For every piece, find a move
-     * copyGame and execute the move in another board
-     * If king is in check, then it is invalid move
-     * If king is not in check, then it is valid move
-     * 
-     ***********/
     // multithreading function
     public void updateMoves(Game game, int row) {
        /*
@@ -1103,21 +1087,26 @@ public final class Engine {
 
                         // 4 horizontal axis
                         x++;
-                        if( x <= 7) {
+                        if( x <= 7 ) {
                             Move move = new Move(i,j,x,y, false);
-                            if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
+                            
+                            if(board[x][y].isEmpty() || board[x][y].isEnemy(color)) {
+                                if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
+                            }
                         }
 
                         x = i;
                         y = j;
                         x--;
-                        if(x >= 0 ) {
+                        if(x >= 0 && board[x][y].isEmpty() || board[x][y].isEnemy(color) ) {
                             Move move = new Move(i,j,x,y, false);
-                            if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
+                            if(board[x][y].isEmpty() || board[x][y].isEnemy(color)) {
+                                if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
+                            }
                         }
 
                         x = i;
@@ -1125,9 +1114,11 @@ public final class Engine {
                         y++;
                         if( y <= 7) {
                             Move move = new Move(i,j,x,y, false);
-                            if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
+                            if(board[x][y].isEmpty() || board[x][y].isEnemy(color)) {
+                                if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
+                            }
                         }
 
                         x = i;
@@ -1135,9 +1126,11 @@ public final class Engine {
                         y--;
                         if( y>=0   ) {
                             Move move = new Move(i,j,x,y, false);
-                            if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
+                            if(board[x][y].isEmpty() || board[x][y].isEnemy(color)) {
+                                if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
+                            }
                         }
 
                         // Diagonals
@@ -1150,9 +1143,11 @@ public final class Engine {
                         y++;
                         if(x <= 7 && y <= 7) {
                             Move move = new Move(i,j,x,y, false);
-                            if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
+                            if(board[x][y].isEmpty() || board[x][y].isEnemy(color)) {
+                                if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
+                            }
                         }
 
                         // TOP LEFT
@@ -1162,9 +1157,11 @@ public final class Engine {
                         y++;
                         if(x >= 0 && y <=7) {
                             Move move = new Move(i,j,x,y, false);
-                            if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
+                            if(board[x][y].isEmpty() || board[x][y].isEnemy(color)) {
+                                if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
+                            }
                         }
 
                         // Bottom RIGHT
@@ -1174,9 +1171,11 @@ public final class Engine {
                         y--;
                         if( (x<=7 && y >= 0)) {
                             Move move = new Move(i,j,x,y, false);
-                            if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
+                            if(board[x][y].isEmpty() || board[x][y].isEnemy(color)) {
+                                if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
+                            }
                         }
                         // Bottom LEFT
                         x = i;
@@ -1185,9 +1184,11 @@ public final class Engine {
                         y--;
                         if(x>= 0 && y>=0) {
                             Move move = new Move(i,j,x,y, false);
-                            if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
+                            if(board[x][y].isEmpty() || board[x][y].isEnemy(color)) {
+                                if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
+                            }
                         }
                         // CASTLING RIGHTS
                         if(color == 'w') {
@@ -1239,7 +1240,7 @@ public final class Engine {
                 } // end switch
             } // end if(activeColor)
         } // END INNERLOOP
-        
+        checkGameState(game);
     } // END UPDATEMOVES multithreading
     
     
@@ -2273,7 +2274,7 @@ public final class Engine {
         // creating a new game where the move was taken
         Game temp = new Game();
         temp = copyGame(game,temp);
-        Piece[][] newBoard = game.getBoard();
+        Piece[][] newBoard = temp.getBoard();
         char color = game.getActiveColor();
         
 
@@ -2339,18 +2340,20 @@ public final class Engine {
         } else if (isEnPassant && isCapture) { // this is if you are taking en passant
             // enPassantX = the capturable enPassant X
             // enPassantActualX = the current position of the pawn x
-            newBoard[endX][endY] = newBoard[startX][startY];
+            //newBoard[endX][endY] = newBoard[startX][startY];
+            newBoard[endX][endY].copyPiece(newBoard[startX][startY]);
             newBoard[startX][startY] = new Piece();
             newBoard[enPassantX][enPassantY] = new Piece();
             temp.setEnPassant("-");
             temp.setHalfMoveClock(-1);
         } else if(isPromote) { // if a pawn is promoting
             newBoard[endX][endY] = new Piece();
-            newBoard[startX][endY] = new Piece(promotePiece, color);
+            newBoard[endX][endY] = new Piece(promotePiece, color);
             newBoard[startX][startY] = new Piece();
             
         }else if(isCapture) { // capturing basically overwrite the target square
-            newBoard[endX][endY] = newBoard[startX][startY];
+            //newBoard[endX][endY] = newBoard[startX][startY];
+            newBoard[endX][endY].copyPiece(newBoard[startX][startY]);
             newBoard[startX][startY] = new Piece();
             
             
@@ -2390,9 +2393,13 @@ public final class Engine {
                 if(move.getPawnMovedTwice()) {
                     temp.setEnPassantXY(move.getEnPassantX(), move.getEnPassantY());
                 }
-            
-                newBoard[endX][endY] = newBoard[startX][startY];
-                newBoard[startX][startY] = new Piece();
+
+                // these lines are for just a move
+                //newBoard[endX][endY].copyPiece(newBoard[startX][startY]);
+                //newBoard[endX][endY] = newBoard[startX][startY];
+                //newBoard[startX][startY] = new Piece();
+                 //what are these two lines????
+
             }
 
         temp.setBoard(newBoard);
@@ -2401,7 +2408,6 @@ public final class Engine {
 
         temp.incrementHalfMoveClock();
         temp.incrementFullMoveClock();
-        
         return temp;
     } // end makeMove
     public Game copyGame(Game game, Game copy) {
@@ -2446,22 +2452,47 @@ public final class Engine {
     } // end checkGame
     
     
-    public void findBestMove(Game game) {
-        
+    public double findBestMove(Game game, int depth) {
+        gamesSearched++;
+        depth++;
+        System.out.println(gamesSearched);
+        if(depth == maxDepth) {
+            evaluate(game);
+            return game.getEvaluation();
+        }
 
-        
-        
-        
-        
-//        evaluate(game);
-//        Move move = new Move(3,3,4,4,true);
-//        game = makeMove(game,move);
-//        printBoardState(game);
-//        game.initFlippedBoard();
-        
-        
-        
-        
+        ArrayList<Move> moves = game.moves;
+        startSearch(game);
+        System.out.println(moves.size() + "*********");
+        if(game.getActiveColor() == 'w') {
+
+            double bestValue = Double.NEGATIVE_INFINITY;
+            for(int i=0; i<moves.size(); i++) {
+                Game leaf = new Game();
+                leaf = copyGame(game, leaf);
+                makeMove(game,moves.get(i));
+                double tempValue  = findBestMove(leaf,depth+1);
+                System.out.println(tempValue + " " + bestValue);
+                System.out.println(tempValue >= bestValue);
+                if(tempValue >= bestValue) {
+                    System.out.println("new move called");
+                    bestValue = tempValue;
+                    bestMoveIndex = i;
+                }
+
+            }
+            return bestValue;
+        } else {
+            double leastValue = Double.POSITIVE_INFINITY;
+            for (int i = 0; i < moves.size(); i++) {
+                Game leaf = new Game();
+                leaf = copyGame(game, leaf);
+                makeMove(game, moves.get(i));
+                double tempValue = findBestMove(leaf, depth + 1);
+                leastValue = Math.min(leastValue, tempValue);
+            }
+            return leastValue;
+        }
     } // end findBestMove
     
     
