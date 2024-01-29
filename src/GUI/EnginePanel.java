@@ -12,6 +12,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
 import javax.imageio.ImageIO;
 
 public final class EnginePanel{
@@ -88,8 +89,11 @@ public final class EnginePanel{
         
     public void loadImages() {
         try {
-            String filepath = "/res/chessboard.jpg";
-            boardImage = ImageIO.read(getClass().getResourceAsStream(filepath));
+            String filepath = "/src/res/chessboard.jpg";
+            
+            InputStream stream = getClass().getResourceAsStream("/res/chessboard.jpg");
+            boardImage = ImageIO.read(stream);
+            
         } catch(IOException e) {
             System.out.println("board image loading failed");
         }
