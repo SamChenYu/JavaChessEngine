@@ -1,79 +1,61 @@
-
 package chessengine;
 
 public class Move {
+    
     private int startX;
     private int startY;
     private int endX;
     private int endY;
     
-    private boolean isCapture;
     
-    // Pawn moved forward twice
-    private boolean pawnMovedTwice = false;
-    private int enPassantX = -1;
-    private int enPassantY = -1;
+    private String moveType;
+    /**
+     * Types:
+     * Move 
+     * Moved_Twice (For pawns moving twice to update en passant)
+     * Capture (save piece type)
+     * En_Passant_Capture 
+     * Promote 
+     * Promote_Capture
+     * Castle_KingSide
+     * Castle_QueenSide
+     **/
+    private String capturedPiece;
+    private int enPassantX; // either holds the created enpassant square or the piece being captured
+    private int enPassantY;
+    private String promotePieceTo;
     
+    // States that the move needs to store in the event that it changes the states in the game
+    private boolean previousKingCastleState = false;
+    private boolean previousQueenCastleState = false;
+    private int previousEnPassantX = -1;
+    private int previousEnPassantY = -1;
     
 
-    // Captures an en passant
-    private boolean isCaptureEnPassant = false;
-    private int enPassantPieceActualX = -1;
-    private int enPassantPieceActualY = -1;
-    
-
-    
-    private boolean isPromote = false;
-    private String promotePiece = "";
-    
-    private boolean isCastle;
-    private boolean isKingSide;
-    
-    // For capturing a piece
-    public Move(int startX, int startY, int endX, int endY, boolean isCapture) {
+    public Move(int startX, int startY, int endX, int endY, String moveType,
+        String capturedPiece, int enPassantX, int enPassantY, String promotePieceTo) {
         this.startX = startX;
         this.startY = startY;
         this.endX = endX;
         this.endY = endY;
-        this.isCapture = isCapture;
+        this.moveType = moveType;
+        this.capturedPiece = capturedPiece;
+        this.enPassantX = enPassantX;
+        this.enPassantY = enPassantY;
+        this.promotePieceTo = promotePieceTo;
     }
-    
-    // For promoting a piece (move / capture)
-    public Move(int startX, int startY, int endX, int endY, boolean isCapture,
-        boolean isPromote, String promotePiece) {
-        this.startX = startX;
-        this.startY = startY;
-        this.endX = endX;
-        this.endY = endY;
-        this.isCapture = isCapture;
-        this.isPromote = isPromote;
-        this.promotePiece = promotePiece;
-    }
-    
-    public Move(boolean isCastle, boolean isKingSide) {
-        this.isCastle = isCastle;
-        this.isKingSide = isKingSide;
-    }
-    
-    
-    
-    // For capturing en passant
-    
-    public Move(int startX, int startY, int endX, int endY, int enPassantPieceActualX, int enPassantPieceActualY) {
-        this.startX = startX;
-        this.startY = startY;
-        this.endX = endX;
-        this.endY = endY;
-        isCapture = true;
-        isCaptureEnPassant = true;
-        this.enPassantPieceActualX = enPassantPieceActualX;
-        this.enPassantPieceActualY = enPassantPieceActualY;
-    }
-    
-    public void pawnMovedTwice() {
-        pawnMovedTwice = true;
-        enPassantX = startX;
-        enPassantY = (startY + endY) /2;
+    // This is a method for testing purposes
+    public Move(char startXc, int startY, char endXc, int endY, String moveType,
+        String capturedPiece, char enPassantXc, int enPassantY, String promotePieceTo) {
+        this.startX = toInt(startXc);
+        this.startY = startY-1;
+        this.endX = toInt(endXc);
+        this.endY = endY-1;
+        this.moveType = moveType;
+        this.capturedPiece = capturedPiece;
+        this.enPassantX = toInt(enPassantXc);
+        this.enPassantY = enPassantY-1;
+        this.promotePieceTo = promotePieceTo;
     }
     
     
@@ -93,37 +75,85 @@ public class Move {
         return endY;
     }
     
-    public boolean isCapture() {
-        return isCapture;
+    public String getMoveType() {
+        return moveType;
     }
     
-    public boolean isPromote() {
-        return isPromote;
+    public String getCapturedPiece() {
+        return capturedPiece;
     }
     
-    public String promotePiece() {
-        return promotePiece;
+    public int getEnPassantX() {
+        return enPassantX;
     }
     
-    public boolean isCaptureEnPassant() {
-        return isCaptureEnPassant;
+    public int getEnPassantY() {
+        return enPassantY;
     }
     
-    public boolean isCastle() {
-        return isCastle;
+    public String getPromotePieceTo() {
+        return promotePieceTo;
     }
     
-    public boolean isKingSide() {
-        return isKingSide;
+    public boolean getPreviousKingCastleState() { return previousKingCastleState; }
+    public boolean getPreviousQueenCastleState() { return previousQueenCastleState; }
+    public int getPreviousEnPassantX() { return previousEnPassantX; }
+    public int getPreviousEnPassantY() { return previousEnPassantY; }
+    
+    public void setPreviousKingCastleState(boolean b) { previousKingCastleState = b; }
+    public void setPreviousQueenCastleState(boolean b) { previousQueenCastleState = b; }
+    public void setPreviousEnPassantX(int i) { previousEnPassantX = i; }
+    public void setPreviousEnPassantY(int i) { previousEnPassantX = i; }
+    
+    
+    public int toInt(char c) {
+        
+        switch(c) {
+            
+            case 'a' -> {
+                return 0;
+            }
+            
+            case 'b' -> {
+                return 1;
+            }
+            
+            case 'c' -> {
+                return 2;
+            }
+            
+            case 'd' -> {
+                return 3;
+            }
+            
+            case 'e' -> {
+                return 4;
+            }
+            
+            case 'f' -> {
+                return 5;
+                
+            }
+            
+            case 'g' -> {
+                return 6;
+            }
+            
+            case 'h' -> {
+                return 7;
+            }
+            
+            default -> {
+                System.out.println("Unrecognized file for input move");
+                return -1;
+            }
+            
+        }
+        
+        
     }
-
-    public boolean getPawnMovedTwice() { return pawnMovedTwice; }
     
-    public int getEnPassantX() { return enPassantX; }
-    public int getEnPassantY() { return enPassantY; }
     
-    public int getEnPassantPieceActualX() { return enPassantPieceActualX; }
-    public int getEnPassantPieceActualY() { return enPassantPieceActualY;}
     
     @Override
     public String toString() {

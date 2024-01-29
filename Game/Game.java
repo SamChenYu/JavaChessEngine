@@ -400,7 +400,7 @@ public final class Game {
     }
     
     public Piece[][] getBoard() { return board; }
-    public Piece[][] getFlippedBoard() { return flippedBoard; }
+    public Piece[][] getFlippedBoard() { initFlippedBoard(); return flippedBoard; }
     public char getActiveColor() { return activeColor; }
     public int getHalfMoveClock() { return halfMoveClock; }
     public int getFullMoveClock() { return fullMoveClock; }

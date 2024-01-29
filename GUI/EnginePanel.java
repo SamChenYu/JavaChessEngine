@@ -65,8 +65,8 @@ public final class EnginePanel{
     
     
     public EnginePanel(String input) {
-        engine = new Engine(input);
         initUI();
+        engine = new Engine(input);
         panel.repaint();
     }
     

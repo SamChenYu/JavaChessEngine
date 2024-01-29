@@ -3,7 +3,6 @@ package Game;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
 public class Piece {
@@ -13,7 +12,6 @@ public class Piece {
     private char color = '.';
     private String filepath;
     private BufferedImage image;
-    private boolean hasMoved; // for king's castling rights for rook and king
 
     public Piece(String name, char color) {
         this.name = name;
@@ -103,16 +101,12 @@ public class Piece {
         
     }
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    public void copyPiece(Piece copy) {
+        name = copy.getName();
+        value = copy.getValue();
+        color = copy.getColor();
+        image = copy.getImage();
+    }
     
     
     
