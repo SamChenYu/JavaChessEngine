@@ -2,10 +2,10 @@
 In-Progress Chess Engine Developed With The MiniMax Algorithm
 
 EVALUATION Method:  
-Evaluation is between a number between -1 and 1.   
-Any number above 0 means white is winning. 1 is checkmate for white  
-Any number below 0 means black is winning. -1 is checkmate for black  
-0 is an even game  
+Piece Square Tables
+Sources
+https://www.chessprogramming.org/PeSTO%27s_Evaluation_Function 
+http://www.talkchess.com/forum3/viewtopic.php?f=2&t=68311&start=19#
 
 
 
