@@ -8,6 +8,9 @@ Any number below 0 means black is winning. -1 is checkmate for black
 0 is an even game  
 
 
+
+
+
 ROADMAP:
 - GUI ✅ (10/01/24)
 - Input with FEN Notation✅ (07/01/24)
@@ -16,19 +19,18 @@ ROADMAP:
 Engine (IN PROGRESS)
 - Calculate Possible Moves Function ✅ (14/01/24) ✅  Overhauled (28/01/24)
 - isCheckmate Function ✅ (18/01/24)
-- MiniMax Algorithm
+- MiniMax Algorithm ✅ (31/01/24)
 - Alpha-Beta Pruning
 
 
 - Make Move Function: ✅ (18/01/24)
   Things to take note:
-  Managing En Passant
-  Managing King Castling Rights [ if a rook / king moves, then privileges are revoked ]
-  Checks / Checkmate
+  Managing En Passant ✅
+  Managing King Castling Rights ✅
+  Checks / Checkmate ✅
 
   
-- Proper Evaluate Function
-(The basic evaluate function is solely based on material, and nothing else. This is to faciliate the development of the minimax algorithm, then a proper evaluate function will be built.)
+- Proper Evaluate Function✅ Introduced Piece Square Tables(31/01/24) 
 
 - OUPUT FEN NOTATION
 - Ability to Play Moves Directly On Panel
