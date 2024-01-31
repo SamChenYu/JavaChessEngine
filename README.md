@@ -3,8 +3,8 @@ In-Progress Chess Engine Developed With The MiniMax Algorithm
 
 EVALUATION Method:  
 Piece Square Tables
-Sources
-https://www.chessprogramming.org/PeSTO%27s_Evaluation_Function 
+Sources  
+https://www.chessprogramming.org/PeSTO%27s_Evaluation_Function   
 http://www.talkchess.com/forum3/viewtopic.php?f=2&t=68311&start=19#
 
 
