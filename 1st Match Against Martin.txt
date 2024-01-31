@@ -55,3 +55,5 @@ Rating Estimate - 100 ELO
 
 Opening Accuracy - 40.0
 Middlegame Accuracy - 36.6
+
+Overall Accuracy: 66.4
