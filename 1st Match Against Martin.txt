@@ -1,0 +1,57 @@
+[Event "vs Computer"]
+[Site "Chess.com"]
+[Date "2024.01.31"]
+[Round "-"]
+[White "CritPotatoxD"]
+[Black "Martin-BOT"]
+[Result "0-1"]
+[CurrentPosition "4b3/p3p2k/n1r3p1/7r/4p3/6q1/1b6/7K w - - 0 49"]
+[Timezone "UTC"]
+[ECO "D02"]
+[ECOUrl "https://www.chess.com/openings/Queens-Pawn-Opening-Zukertort-Variation"]
+[UTCDate "2024.01.31"]
+[UTCTime "21:19:22"]
+[WhiteElo "1037"]
+[BlackElo "250"]
+[TimeControl "1/0"]
+[Termination "Martin-BOT won by checkmate"]
+[StartTime "21:19:22"]
+[EndDate "2024.01.31"]
+[EndTime "21:34:34"]
+[Link "https://www.chess.com/game/computer/109521805"]
+[WhiteUrl "https://images.chesscomfiles.com/uploads/v1/user/90085386.d2fcf6fc.50x50o.99b0d061309b.jpg"]
+[WhiteCountry "125"]
+[WhiteTitle ""]
+[BlackUrl "https://images.chesscomfiles.com/uploads/v1/user/66746160.794c1e49.50x50o.54723cbc8f4a.png"]
+[BlackCountry "28"]
+[BlackTitle ""]
+
+1. Nf3 d5 2. d4 c6 3. Nbd2 Qd7 4. e4 Nf6 5. Bd3 Qh3 6. O-O Qd7 7. Ne5 Qd8 8.
+Nxf7 Kxf7 9. Nf3 Na6 10. Be3 Nxe4 11. Bxe4 dxe4 12. Ne5+ Kg8 13. Ng6 Qd7 14. Rc1
+hxg6 15. c3 Rb8 16. h3 Rh5 17. Re1 Rc5 18. d5 cxd5 19. Bd4 Qe8 20. Bxg7 Bxg7 21.
+Rxe4 dxe4 22. a3 Rh5 23. Qd8 Qxd8 24. Rd1 Qxd1+ 25. Kh2 b5 26. c4 Bb7 27. cxb5
+Bd5 28. b4 Bf7 29. a4 Nxb4 30. a5 Qe1 31. a6 Qxf2 32. Kh1 Qd4 33. g3 Qc5 34. h4
+Rxb5 35. Kg2 Qc4 36. Kg1 Nxa6 37. Kh1 Qc6 38. Kg1 Qb7 39. Kh1 Rbe5 40. Kg1 Kh7
+41. Kh1 Re6 42. Kg1 Qc7 43. Kh1 Ra5 44. Kg1 Be8 45. Kh1 Bb2 46. Kg1 Rc6 47. Kh1
+Qxg3 48. h5 Rxh5# 0-1
+
+
+Game Review
+
+Moves Breakdown:
+
+Brilliant - 0
+Great Move - 0
+Great Move - 15
+Excellent - 16
+Good - 4
+Book - 2
+Inaccuracy - 2
+Mistake - 2
+Miss - 4
+Blunder - 1
+
+Rating Estimate - 100 ELO
+
+Opening Accuracy - 40.0
+Middlegame Accuracy - 36.6
