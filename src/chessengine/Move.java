@@ -26,10 +26,10 @@ public class Move {
     private String promotePieceTo;
     
     // States that the move needs to store in the event that it changes the states in the game
-    private boolean previousKingCastleState = false;
-    private boolean previousQueenCastleState = false;
-    private int previousEnPassantX = -1;
-    private int previousEnPassantY = -1;
+    private boolean previousKingCastleState;
+    private boolean previousQueenCastleState;
+    private int previousEnPassantX;
+    private int previousEnPassantY;
     
 
     public Move(int startX, int startY, int endX, int endY, String moveType,
@@ -103,7 +103,7 @@ public class Move {
     public void setPreviousKingCastleState(boolean b) { previousKingCastleState = b; }
     public void setPreviousQueenCastleState(boolean b) { previousQueenCastleState = b; }
     public void setPreviousEnPassantX(int i) { previousEnPassantX = i; }
-    public void setPreviousEnPassantY(int i) { previousEnPassantX = i; }
+    public void setPreviousEnPassantY(int i) { previousEnPassantY = i; }
     
     
     public int toInt(char c) {

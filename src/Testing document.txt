@@ -1,47 +1,35 @@
-Different types of moves:
-isCastle - 4 different types
-isEnPassant & isCapture
-isEnPassant
-isPromote
-isCapture
-normal move
-
-
-
-isCastle WORKS!!!!!!!!!!!!!!!!
-public Move(boolean isCastle, boolean isKingSide) {
-
-enPassant + Capture WORKS!!!!!!!!!!!!!!
- public Move(int startX, int startY, int endX, int endY, int enPassantPieceActualX, int enPassantPieceActualY) {
-
-isEnpassant WORKSSS
-    public void pawnMovedTwice()
-
-
-isPromote WORKS
-    public Move(int startX, int startY, int endX, int endY, boolean isCapture,
-        boolean isPromote, String promotePiece) {
-
-
-
-isCapture / normal move WORKS
-    public Move(int startX, int startY, int endX, int endY, boolean isCapture) {
-
-
-If there are any issues, it will be only with the updateMoves()
-
-
-Some other things to take note:
-the castling rights don't update if the rook is captured
-
-
-
-
-
-
 Where I left off:
-MakeMoves is wrong, and it actually passes by reference pointers
-so putting new Piece() will change the object passed in. Probably
-need to create a new function to copy object data
+MakeMoves and Revert Moves isn't working for En Passant Tracking
 
-Alpha & Beta pruning
+
+
+Types:
+Move ✔️
+Moved_Twice ✔️
+Capture ✔️
+En_Passant_Capture ✔️
+Promote ✔️
+Promote_Capture ✔️
+Castle_KingSide ✔️
+Castle_QueenSide ✔️
+
+Evaluation Function:
+f(p) = 200(K-K')
+       + 9(Q-Q')
+       + 5(R-R')
+       + 3(B-B' + N-N')
+       + 1(P-P')
+       - 0.5(D-D' + S-S' + I-I')
+       + 0.1(M-M') + ...
+
+KQRBNP = number of kings, queens, rooks, bishops, knights and pawns
+D,S,I = doubled, blocked and isolated pawns
+M = Mobility (the number of legal moves)
+
+https://www.chessprogramming.org/Evaluation
+  from white to black
+
+
+
+
+

@@ -349,14 +349,15 @@ public final class Game {
         String tempEnPassant = "";
         
         switch (x) {
-            case 0 -> { tempEnPassant = "a"; break;}
-            case 1 -> { tempEnPassant = "b"; break;}
-            case 2 -> { tempEnPassant = "c"; break;}
-            case 3 -> { tempEnPassant = "d"; break;}
-            case 4 -> { tempEnPassant = "e"; break;}
-            case 5 -> { tempEnPassant = "f"; break;}
-            case 6 -> { tempEnPassant = "g"; break;}
-            case 7 -> { tempEnPassant = "h"; break;}
+            case 0 ->  tempEnPassant = "a";
+            case 1 ->  tempEnPassant = "b";
+            case 2 ->  tempEnPassant = "c";
+            case 3 ->  tempEnPassant = "d";
+            case 4 ->  tempEnPassant = "e";
+            case 5 ->  tempEnPassant = "f";
+            case 6 ->  tempEnPassant = "g";
+            case 7 ->  tempEnPassant = "h";
+            default -> tempEnPassant = "-";
         }
         
         int temp;

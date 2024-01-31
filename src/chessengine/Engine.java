@@ -10,41 +10,104 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 
-
-
+// import ayy lmao
 public final class Engine {
     
     private final Game game;
-    
+
+    //Piece-Square Tables from
+    // https://www.chessprogramming.org/PeSTO%27s_Evaluation_Function
+    // http://www.talkchess.com/forum3/viewtopic.php?f=2&t=68311&start=19#
+    private final int pawnPST[][] = {
+            { 0,   0,   0,   0,   0,   0,  0,   0},
+            {-35,  -1, -20, -23, -15,  24, 38, -22},
+            {-26,  -4,  -4, -10,   3,   3, 33, -12},
+            {-27,  -2,  -5,  12,  17,   6, 10, -25},
+            {-14,  13,   6,  21,  23,  12, 17, -23},
+            {-6,   7,  26,  31,  65,  56, 25, -20},
+            {98, 134,  61,  95,  68, 126, 34, -11},
+            { 0,   0,   0,   0,   0,   0,  0,   0},
+    };
+    private final int knightPST[][] = {
+            {-105, -21, -58, -33, -17, -28, -19,  -23},
+            {-29, -53, -12,  -3,  -1,  18, -14,  -19},
+            {-23,  -9,  12,  10,  19,  17,  25,  -16},
+            {-13,   4,  16,  13,  28,  19,  21,   -8},
+            {-9,  17,  19,  53,  37,  69,  18,   22},
+            {-47,  60,  37,  65,  84, 129,  73,   44},
+            {-73, -41,  72,  36,  23,  62,   7,  -17},
+            {-167, -89, -34, -49,  61, -97, -15, -107},
+    };
+    private final int bishopPST[][] = {
+            {-33,  -3, -14, -21, -13, -12, -39, -21},
+            {4,  15,  16,   0,   7,  21,  33,   1},
+            {0,  15,  15,  15,  14,  27,  18,  10},
+            {-6,  13,  13,  26,  34,  12,  10,   4},
+            {-4,   5,  19,  50,  37,  37,   7,  -2},
+            {-16,  37,  43,  40,  35,  50,  37,  -2},
+            {-26,  16, -18, -13,  30,  59,  18, -47},
+            {-29,   4, -82, -37, -25, -42,   7,  -8},
+    };
+    private final int rookPST[][] = {
+            {-19, -13,   1,  17, 16,  7, -37, -26},
+            {-44, -16, -20,  -9, -1, 11,  -6, -71},
+            {-45, -25, -16, -17,  3,  0,  -5, -33},
+            {-36, -26, -12,  -1,  9, -7,   6, -23},
+            {-24, -11,   7,  26, 24, 35,  -8, -20},
+            {-5,  19,  26,  36, 17, 45,  61,  16},
+            {27,  32,  58,  62, 80, 67,  26,  44},
+            {32,  42,  32,  51, 63,  9,  31,  43},
+    };
+    private final int queenPST[][] = {
+            {-1, -18,  -9,  10, -15, -25, -31, -50},
+            {-35,  -8,  11,   2,   8,  15,  -3,   1},
+            {-14,   2, -11,  -2,  -5,   2,  14,   5},
+            {-9, -26,  -9, -10,  -2,  -4,   3,  -3},
+            {-27, -27, -16, -16,  -1,  17,  -2,   1},
+            {-13, -17,   7,   8,  29,  56,  47,  57},
+            {-24, -39,  -5,   1, -16,  57,  28,  54},
+            {-28,   0,  29,  12,  59,  44,  43,  45},
+    };
+    private final int kingPST[][] = {
+            {-15,  36,  12, -54,   8, -28,  24,  14},
+            {1,   7,  -8, -64, -43, -16,   9,   8},
+            {-14, -14, -22, -46, -44, -30, -15, -27},
+            {-49,  -1, -27, -39, -46, -44, -33, -51},
+            {-17, -20, -12, -27, -30, -25, -14, -36},
+            {-9,  24,   2, -16, -20,   6,  22, -22},
+            {29,  -1, -20,  -7,  -8,  -4, -38, -29},
+            {-65,  23,  16, -15, -56, -34,   2,  13},
+    };
+
+    private final int maxDepth = 2;
     private int movesIndexed = 0;
     private int gamesSearched = 0;
     private int bestMoveIndex = 0;
     
     // Multi threading
     private final ExecutorService executorService;
-    
-    // Minimax
-    private final int maxDepth = 10;
+
+
     
     public Engine(String input) {
         
         // Create a thread pool with a fixed number of threads
         int numThreads = Runtime.getRuntime().availableProcessors();
         executorService = Executors.newFixedThreadPool(numThreads);
-//
-//        
+
         game = new Game(input);
         evaluate(game);
-        System.out.println(isInCheck(game));
+        printBoardState(game);
         double timeStart = System.currentTimeMillis();
 //        startSearch(game);
         for(int i=0; i<8; i++) {
             updateMoves(game,i);
         }
         double timeEnd = System.currentTimeMillis();
-        double totalTime = (timeEnd - timeStart) / 1000;
-        System.out.println("Total Time: " + totalTime + " seconds for " + movesIndexed + " games");
+        double totalTime = (timeEnd - timeStart) /1000.0;
+        System.out.println("Total Time: " + totalTime + " seconds for " + movesIndexed + " moves");
         printMoves(game);
+        printBoardState(game);
 
         
         
@@ -54,13 +117,13 @@ public final class Engine {
         
 //          game = new Game(input);
 //          evaluate(game);
-//          Move move = new Move('e',2,'e',4,"Moved_Twice","",'e',-1,"");
+//          Move move = new Move(4,6,4,4, "Moved_Twice", "", 4,5, "");;
 //          makeMove(game, move);
 //          printBoardState(game);
-//          revertMove(game,move);
-//          printBoardState(game);
-//          
-        
+//          revertMove(game,move)
+//          printMoves(game);
+//
+//
 //        game = new Game(input);
 //        double timeStart = System.currentTimeMillis();
 //        findBestMove(game,0);
@@ -68,7 +131,7 @@ public final class Engine {
 //        double totalTime = timeEnd - timeStart;
 //        System.out.println("Total Time: " + totalTime + " seconds for " + gamesSearched + " games");
 //
-//        
+//
 //        Move bestMove = game.moves.get(bestMoveIndex);
 //        Piece[][] board = game.getBoard();
 //        String name = board[bestMove.getStartX()][bestMove.getStartY()].getName();
@@ -262,10 +325,12 @@ public final class Engine {
                                             moves.add(move);
                                         }
                                     }
+
                                     if(enPassantX == (x) && enPassantY == (y)) {
                                         Move move = new Move(i,j,x,y, "En_Passant_Capture", "pawn", x,y, "");
                                         if(checkIfMoveIsValid(game,move)) {
                                             moves.add(move);
+
                                         }
                                     }
 
@@ -283,9 +348,11 @@ public final class Engine {
                                         }
                                     }
                                     if(enPassantX == (x) && enPassantY == (y)) {
+
                                         Move move = new Move(i,j,x,y, "En_Passant_Capture", "pawn", x,y, "");
                                         if(checkIfMoveIsValid(game,move)) {
                                             moves.add(move);
+                                        } else {
                                         }
                                     }
                                 }
@@ -1136,7 +1203,7 @@ public final class Engine {
                          * The king cannot take a piece under check
                          * However, I think due to the minimax algorithm, it should
                          * be able to avoid that unless it is at the terminated depth
-                         * 
+                         *
                          * King also has the ability to castle
                          ****************************************/
 
@@ -1329,7 +1396,7 @@ public final class Engine {
                                 if(board[5][0].isEmpty() && board[6][0].isEmpty()) {
 
                                     if(!isSquareInCheck(game,4,0) && !isSquareInCheck(game,5,0) &&
-                                    !isSquareInCheck(game,6,0) && !isSquareInCheck(game,7,0)) {
+                                    !isSquareInCheck(game,6,0) ) {
                                         Move move = new Move(4,0,6,0,"Castle_KingSide", "", -1, -1, "");
                                         moves.add(move);
                                     }
@@ -1338,7 +1405,7 @@ public final class Engine {
                             }   
                             if(whiteCastleQueenSide) {
                                 if(board[3][0].isEmpty() && board[2][0].isEmpty() && board[1][0].isEmpty()) {
-                                    if(!isSquareInCheck(game,0,0) && !isSquareInCheck(game,1,0) &&
+                                    if( !isSquareInCheck(game,1,0) &&
                                     !isSquareInCheck(game,2,0) && !isSquareInCheck(game,3,0) && !isSquareInCheck(game,4,0)) {
                                         Move move = new Move(4,0,2,0,"Castle_QueenSide", "", -1, -1, "");
                                         moves.add(move);
@@ -1350,7 +1417,7 @@ public final class Engine {
                             if(blackCastleKingSide) {
                                 if(board[5][7].isEmpty() && board[6][7].isEmpty()) {
                                     if(!isSquareInCheck(game,4,7) && !isSquareInCheck(game,5,7) &&
-                                        !isSquareInCheck(game,6,7) && !isSquareInCheck(game,7,7)) {
+                                        !isSquareInCheck(game,6,7)) {
                                             Move move = new Move(4,7,6,7,"Castle_KingSide", "", -1, -1, "");
                                             moves.add(move);
                                         }
@@ -1358,7 +1425,7 @@ public final class Engine {
                             }
                             if(blackCastleQueenSide) {
                                 if(board[3][7].isEmpty() && board[2][7].isEmpty() && board[1][7].isEmpty()) {
-                                    if(!isSquareInCheck(game,0,7) && !isSquareInCheck(game,1,7) &&
+                                    if(!isSquareInCheck(game,1,7) &&
                                     !isSquareInCheck(game,2,7) && !isSquareInCheck(game,3,7) && !isSquareInCheck(game,4,7)) {
                                         Move move = new Move(4,7,2,7,"Castle_QueenSide", "", -1, -1, "");
                                         moves.add(move);
@@ -1377,6 +1444,7 @@ public final class Engine {
     
     
     public boolean checkIfMoveIsValid(Game game, Move move) {
+
         boolean isInCheck = isInCheck(makeMove(game,move));
         revertMove(game,move);
         return !isInCheck; // valid if not in check
@@ -2395,14 +2463,26 @@ public final class Engine {
         String moveType = move.getMoveType();
         
         // Saving some states of the game before executing them
-        move.setPreviousKingCastleState(game.getWhiteCastleKingSide());
-        move.setPreviousQueenCastleState(game.getWhiteCastleQueenSide());
+
+        if(color == 'w') {
+            move.setPreviousKingCastleState(game.getWhiteCastleKingSide());
+            move.setPreviousQueenCastleState(game.getWhiteCastleQueenSide());
+        } else {
+            move.setPreviousKingCastleState(game.getBlackCastleKingSide());
+            move.setPreviousQueenCastleState(game.getBlackCastleQueenSide());
+
+        }
+
         
-        move.setPreviousKingCastleState(game.getBlackCastleKingSide());
-        move.setPreviousQueenCastleState(game.getBlackCastleQueenSide());
-        
+
         move.setPreviousEnPassantX(game.getEnPassantX());
         move.setPreviousEnPassantY(game.getEnPassantY());
+
+        // Set the en passant to nothing by default, and will be updated if needed below
+        game.setEnPassant("-");
+        game.setEnPassantX(-1);
+        game.setEnPassantX(-1);
+
         
         // Dichotmy of moves
         
@@ -2460,6 +2540,8 @@ public final class Engine {
                         newBoard[endX][endY].copyPiece(newBoard[startX][startY]);
                         newBoard[startX][startY] = new Piece();
                         game.setEnPassantXY(move.getEnPassantX(), move.getEnPassantY());
+                        game.setEnPassantX(move.getEnPassantX());
+                        game.setEnPassantY(move.getEnPassantY());
                         break;
                     }
 
@@ -2472,8 +2554,15 @@ public final class Engine {
                     case "En_Passant_Capture" -> {
                         newBoard[endX][endY].copyPiece(newBoard[startX][startY]);
                         newBoard[startX][startY] = new Piece();
-                        newBoard[move.getEnPassantX()][move.getEnPassantY()] = new Piece();
-                        game.setEnPassant("-");
+
+                        // information about the enemy pawn is not stored
+
+                        if(color == 'w') {
+                            newBoard[endX][endY-1] = new Piece();
+                        } else {
+                            newBoard[endX][endY+1] = new Piece();
+                        }
+
                         game.setHalfMoveClock(-1);
                         break;
                     }
@@ -2534,14 +2623,11 @@ public final class Engine {
                     }
                 } // End switch
 
-
-        //game.setBoard(newBoard);
-        // should be irrelevant because newBoard is apointer to the board anyways
         
         // swap the turns
 
-        game.revertHalfMoveClock();
-        game.revertFullMoveClock();
+        game.incrementHalfMoveClock();
+        game.incrementFullMoveClock();
         return game;
     } // end makeMove
     public Game revertMove(Game game, Move move) {
@@ -2554,7 +2640,7 @@ public final class Engine {
         } else {
             enemyColor = 'w';
         }
-        
+
         String moveType = move.getMoveType();
         int startX = move.getStartX();
         int startY = move.getStartY();
@@ -2607,23 +2693,29 @@ public final class Engine {
                     case "Moved_Twice" -> {
                         newBoard[startX][startY].copyPiece(newBoard[endX][endY]);
                         newBoard[endX][endY] = new Piece();
-                        game.setEnPassantXY(move.getPreviousEnPassantX(), move.getPreviousEnPassantY());
+
                         break;
                     }
 
                     case "Capture" -> {
                         newBoard[startX][startY].copyPiece(newBoard[endX][endY]);
                         newBoard[endX][endY] = new Piece(move.getCapturedPiece(),enemyColor);
+
                         break;
                     }
 
                     case "En_Passant_Capture" -> {
                         newBoard[startX][startY].copyPiece(newBoard[endX][endY]);
                         newBoard[endX][endY] = new Piece();
-                        newBoard[move.getEnPassantX()][move.getEnPassantY()] = new Piece("pawn", enemyColor);
-                        game.setEnPassant(""+move.getPreviousEnPassantX() + move.getPreviousEnPassantY());
-                        game.setEnPassantX(move.getPreviousEnPassantX());
-                        game.setEnPassantY(move.getPreviousEnPassantY());
+
+                        // information about the enemy pawn is not stored
+
+                        if(color == 'w') {
+                            newBoard[endX][endY-1] = new Piece("pawn",'b');
+                        } else {
+                            newBoard[endX][endY+1] = new Piece("pawn",'w');
+                        }
+
                         game.setHalfMoveClock(-1);
                         break;
                     }
@@ -2665,15 +2757,13 @@ public final class Engine {
                             newBoard[0][0] = new Piece("rook", 'w');
                             newBoard[2][0] = new Piece();
                             newBoard[3][0] = new Piece();
-                            game.setWhiteCastleQueenSide(move.getPreviousKingCastleState());
-                            game.setWhiteCastleKingSide(move.getPreviousQueenCastleState());
+
                         } else {
                             newBoard[4][7] = new Piece("king", 'b');
                             newBoard[0][7] = new Piece("rook", 'b');
                             newBoard[2][7] = new Piece();
                             newBoard[3][7] = new Piece();
-                            game.setBlackCastleKingSide(move.getPreviousKingCastleState());
-                            game.setBlackCastleQueenSide(move.getPreviousQueenCastleState());
+
                         }
                         break;
                     }
@@ -2684,12 +2774,24 @@ public final class Engine {
                     }
                 } // End switch
 
+        // Restore any states from the move being executed
 
-        
-        // swap the turns
+        if(color == 'w') {
+            game.setWhiteCastleQueenSide(move.getPreviousKingCastleState());
+            game.setWhiteCastleKingSide(move.getPreviousQueenCastleState());
+        } else {
 
-        game.incrementHalfMoveClock();
-        game.incrementFullMoveClock();
+            game.setBlackCastleKingSide(move.getPreviousKingCastleState());
+            game.setBlackCastleQueenSide(move.getPreviousQueenCastleState());
+        }
+
+        game.setEnPassantXY(move.getPreviousEnPassantX() ,move.getPreviousEnPassantY());
+        game.setEnPassantX(move.getPreviousEnPassantX());
+        game.setEnPassantY(move.getPreviousEnPassantY());
+
+
+        game.revertHalfMoveClock();
+        game.revertFullMoveClock();
         return game;
     } // End revertMove
     
@@ -2722,17 +2824,17 @@ public final class Engine {
     public void checkGameState(Game game) {
         
         
-        if(isInCheck(game) && game.moves.isEmpty()) {
-            System.out.println("Checkmate!");
-            if(game.getActiveColor() == 'w') {
-                game.setEvaluation(-1);
-            } else {
-                game.setEvaluation(1);
-            }
-        } else if(!isInCheck(game) && game.moves.isEmpty()) {
-            System.out.println("Stalemate!");
-            game.setEvaluation(0);
-        }
+//        if(isInCheck(game) && game.moves.isEmpty()) {
+//            System.out.println("Checkmate!");
+//            if(game.getActiveColor() == 'w') {
+//                game.setEvaluation(-1);
+//            } else {
+//                game.setEvaluation(1);
+//            }
+//        } else if(!isInCheck(game) && game.moves.isEmpty()) {
+//            System.out.println("Stalemate!");
+//            game.setEvaluation(0);
+//        }
     } // end checkGame
     
     
@@ -2747,7 +2849,6 @@ public final class Engine {
 
         ArrayList<Move> moves = game.moves;
         startSearch(game);
-        System.out.println(moves.size() + "*********");
         if(game.getActiveColor() == 'w') {
 
             double bestValue = Double.NEGATIVE_INFINITY;
@@ -2801,7 +2902,11 @@ public final class Engine {
         System.out.println("Complete Board");
         for(int i=0; i<8; i++) {
             for(int j=0; j<8; j++) {
-                System.out.print("\t " + board[j][i].getName().charAt(0) + " \t");
+                char c = board[j][i].getName().charAt(0);
+                if(board[j][i].getColor() == 'w') {
+                    c = Character.toUpperCase(c);
+                }
+                System.out.print("\t " +  c + " \t");
             }
             System.out.print("\n");
         }
@@ -2841,24 +2946,24 @@ public final class Engine {
                 startY++; // array starts from 0,0
                 endY++; // chess board starts from 1,1
                 switch(startX) {
-                    case 0 -> { startFile = "a"; break;}
-                    case 1 -> { startFile = "b"; break;}
-                    case 2 -> { startFile = "c"; break;}
-                    case 3 -> { startFile = "d"; break;}
-                    case 4 -> { startFile = "e"; break;}
-                    case 5 -> { startFile = "f"; break;}
-                    case 6 -> { startFile = "g"; break;}
-                    case 7 -> { startFile = "h"; break;}
+                    case 0 ->   startFile = "a";
+                    case 1 ->   startFile = "b";
+                    case 2 ->   startFile = "c";
+                    case 3 ->   startFile = "d";
+                    case 4 ->   startFile = "e";
+                    case 5 ->   startFile = "f";
+                    case 6 ->   startFile = "g";
+                    case 7 ->   startFile = "h";
                 }
                 switch(endX) {
-                    case 0 -> { endFile = "a"; break;}
-                    case 1 -> { endFile = "b"; break;}
-                    case 2 -> { endFile = "c"; break;}
-                    case 3 -> { endFile = "d"; break;}
-                    case 4 -> { endFile = "e"; break;}
-                    case 5 -> { endFile = "f"; break;}
-                    case 6 -> { endFile = "g"; break;}
-                    case 7 -> { endFile = "h"; break;}
+                    case 0 ->  endFile = "a";
+                    case 1 ->  endFile = "b";
+                    case 2 ->  endFile = "c";
+                    case 3 ->  endFile = "d";
+                    case 4 ->  endFile = "e";
+                    case 5 ->  endFile = "f";
+                    case 6 ->  endFile = "g";
+                    case 7 ->  endFile = "h";
                 }
 
                 switch(moves.get(i).getMoveType()) {
