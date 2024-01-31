@@ -18,7 +18,9 @@ public final class Engine {
     //Piece-Square Tables from
     // https://www.chessprogramming.org/PeSTO%27s_Evaluation_Function
     // http://www.talkchess.com/forum3/viewtopic.php?f=2&t=68311&start=19#
-    private final int pawnPST[][] = {
+
+    // The Piece-Square Tables have been flipped to be consistent with the board
+    private final int[][] whitePawnPST = {
             { 0,   0,   0,   0,   0,   0,  0,   0},
             {-35,  -1, -20, -23, -15,  24, 38, -22},
             {-26,  -4,  -4, -10,   3,   3, 33, -12},
@@ -28,7 +30,19 @@ public final class Engine {
             {98, 134,  61,  95,  68, 126, 34, -11},
             { 0,   0,   0,   0,   0,   0,  0,   0},
     };
-    private final int knightPST[][] = {
+
+
+    private final int[][] blackPawnPST = {
+            { 0,   0,   0,   0,   0,   0,  0,   0},
+            {98, 134,  61,  95,  68, 126, 34, -11},
+            {-6,   7,  26,  31,  65,  56, 25, -20},
+            {-14,  13,   6,  21,  23,  12, 17, -23},
+            {-27,  -2,  -5,  12,  17,   6, 10, -25},
+            {-26,  -4,  -4, -10,   3,   3, 33, -12},
+            {-35,  -1, -20, -23, -15,  24, 38, -22},
+            { 0,   0,   0,   0,   0,   0,  0,   0},
+    };
+    private final int[][] whiteKnightPST = {
             {-105, -21, -58, -33, -17, -28, -19,  -23},
             {-29, -53, -12,  -3,  -1,  18, -14,  -19},
             {-23,  -9,  12,  10,  19,  17,  25,  -16},
@@ -38,7 +52,19 @@ public final class Engine {
             {-73, -41,  72,  36,  23,  62,   7,  -17},
             {-167, -89, -34, -49,  61, -97, -15, -107},
     };
-    private final int bishopPST[][] = {
+
+    private final int[][] blackKnightPST = {
+            {-167, -89, -34, -49,  61, -97, -15, -107},
+            {-73, -41,  72,  36,  23,  62,   7,  -17},
+            {-47,  60,  37,  65,  84, 129,  73,   44},
+            {-9,  17,  19,  53,  37,  69,  18,   22},
+            {-13,   4,  16,  13,  28,  19,  21,   -8},
+            {-23,  -9,  12,  10,  19,  17,  25,  -16},
+            {-29, -53, -12,  -3,  -1,  18, -14,  -19},
+            {-105, -21, -58, -33, -17, -28, -19,  -23},
+    };
+
+    private final int[][] whiteBishopPST = {
             {-33,  -3, -14, -21, -13, -12, -39, -21},
             {4,  15,  16,   0,   7,  21,  33,   1},
             {0,  15,  15,  15,  14,  27,  18,  10},
@@ -48,7 +74,18 @@ public final class Engine {
             {-26,  16, -18, -13,  30,  59,  18, -47},
             {-29,   4, -82, -37, -25, -42,   7,  -8},
     };
-    private final int rookPST[][] = {
+
+    private final int[][] blackBishopPST = {
+            {-29,   4, -82, -37, -25, -42,   7,  -8},
+            {-26,  16, -18, -13,  30,  59,  18, -47},
+            {-16,  37,  43,  40,  35,  50,  37,  -2},
+            {-4,   5,  19,  50,  37,  37,   7,  -2},
+            {-6,  13,  13,  26,  34,  12,  10,   4},
+            {0,  15,  15,  15,  14,  27,  18,  10},
+            {4,  15,  16,   0,   7,  21,  33,   1},
+            {-33,  -3, -14, -21, -13, -12, -39, -21},
+    };
+    private final int[][] whiteRookPST = {
             {-19, -13,   1,  17, 16,  7, -37, -26},
             {-44, -16, -20,  -9, -1, 11,  -6, -71},
             {-45, -25, -16, -17,  3,  0,  -5, -33},
@@ -58,7 +95,18 @@ public final class Engine {
             {27,  32,  58,  62, 80, 67,  26,  44},
             {32,  42,  32,  51, 63,  9,  31,  43},
     };
-    private final int queenPST[][] = {
+
+    private final int[][] blackRookPST = {
+        {32,  42,  32,  51, 63,  9,  31,  43},
+        {27,  32,  58,  62, 80, 67,  26,  44},
+        {-5,  19,  26,  36, 17, 45,  61,  16},
+        {-24, -11,   7,  26, 24, 35,  -8, -20},
+        {-36, -26, -12,  -1,  9, -7,   6, -23},
+        {-45, -25, -16, -17,  3,  0,  -5, -33},
+        {-44, -16, -20,  -9, -1, 11,  -6, -71},
+        {-19, -13,   1,  17, 16,  7, -37, -26}
+    };
+    private final int[][]  whiteQueenPST= {
             {-1, -18,  -9,  10, -15, -25, -31, -50},
             {-35,  -8,  11,   2,   8,  15,  -3,   1},
             {-14,   2, -11,  -2,  -5,   2,  14,   5},
@@ -68,7 +116,18 @@ public final class Engine {
             {-24, -39,  -5,   1, -16,  57,  28,  54},
             {-28,   0,  29,  12,  59,  44,  43,  45},
     };
-    private final int kingPST[][] = {
+
+    private final int[][]  blackQueenPST= {
+            {-28,   0,  29,  12,  59,  44,  43,  45},
+            {-24, -39,  -5,   1, -16,  57,  28,  54},
+            {-13, -17,   7,   8,  29,  56,  47,  57},
+            {-27, -27, -16, -16,  -1,  17,  -2,   1},
+            {-9, -26,  -9, -10,  -2,  -4,   3,  -3},
+            {-14,   2, -11,  -2,  -5,   2,  14,   5},
+            {-35,  -8,  11,   2,   8,  15,  -3,   1},
+            {-1, -18,  -9,  10, -15, -25, -31, -50},
+    };
+    private final int[][] whiteKingPST = {
             {-15,  36,  12, -54,   8, -28,  24,  14},
             {1,   7,  -8, -64, -43, -16,   9,   8},
             {-14, -14, -22, -46, -44, -30, -15, -27},
@@ -77,6 +136,17 @@ public final class Engine {
             {-9,  24,   2, -16, -20,   6,  22, -22},
             {29,  -1, -20,  -7,  -8,  -4, -38, -29},
             {-65,  23,  16, -15, -56, -34,   2,  13},
+    };
+
+    private final int[][] blackKingPST = {
+            {-65,  23,  16, -15, -56, -34,   2,  13},
+            {29,  -1, -20,  -7,  -8,  -4, -38, -29},
+            {-9,  24,   2, -16, -20,   6,  22, -22},
+            {-17, -20, -12, -27, -30, -25, -14, -36},
+            {-49,  -1, -27, -39, -46, -44, -33, -51},
+            {-14, -14, -22, -46, -44, -30, -15, -27},
+            {1,   7,  -8, -64, -43, -16,   9,   8},
+            {-15,  36,  12, -54,   8, -28,  24,  14},
     };
 
     private final int maxDepth = 2;
@@ -95,19 +165,19 @@ public final class Engine {
         int numThreads = Runtime.getRuntime().availableProcessors();
         executorService = Executors.newFixedThreadPool(numThreads);
 
-        game = new Game(input);
-        evaluate(game);
-        printBoardState(game);
-        double timeStart = System.currentTimeMillis();
-//        startSearch(game);
-        for(int i=0; i<8; i++) {
-            updateMoves(game,i);
-        }
-        double timeEnd = System.currentTimeMillis();
-        double totalTime = (timeEnd - timeStart) /1000.0;
-        System.out.println("Total Time: " + totalTime + " seconds for " + movesIndexed + " moves");
-        printMoves(game);
-        printBoardState(game);
+//        game = new Game(input);
+//        evaluate(game);
+//        printBoardState(game);
+//        double timeStart = System.currentTimeMillis();
+////        startSearch(game);
+//        for(int i=0; i<8; i++) {
+//            updateMoves(game,i);
+//        }
+//        double timeEnd = System.currentTimeMillis();
+//        double totalTime = (timeEnd - timeStart) /1000.0;
+//        System.out.println("Total Time: " + totalTime + " seconds for " + movesIndexed + " moves");
+//        printMoves(game);
+//        printBoardState(game);
 
         
         
@@ -123,20 +193,26 @@ public final class Engine {
 //          revertMove(game,move)
 //          printMoves(game);
 //
-//
-//        game = new Game(input);
-//        double timeStart = System.currentTimeMillis();
-//        findBestMove(game,0);
-//        double timeEnd = System.currentTimeMillis();
-//        double totalTime = timeEnd - timeStart;
-//        System.out.println("Total Time: " + totalTime + " seconds for " + gamesSearched + " games");
-//
-//
-//        Move bestMove = game.moves.get(bestMoveIndex);
-//        Piece[][] board = game.getBoard();
-//        String name = board[bestMove.getStartX()][bestMove.getStartY()].getName();
-//        System.out.println("Best Move: " + name + " from " + bestMove.getStartX() + bestMove.getStartY() + " moves to " + bestMove.getEndX() + bestMove.getEndY());
-//        shutdown();
+
+        game = new Game(input);
+        double timeStart = System.currentTimeMillis();
+
+        for(int i=0; i<8;i++) {
+            updateMoves(game,i);
+        }
+        double lowestValue = -100000.0;
+        double highestValue = 100000.0;
+        findBestMove(game,0,lowestValue,highestValue);
+        double timeEnd = System.currentTimeMillis();
+        double totalTime = timeEnd - timeStart;
+        System.out.println("Total Time: " + totalTime + " seconds for " + gamesSearched + " games");
+
+
+        Move bestMove = game.moves.get(bestMoveIndex);
+        Piece[][] board = game.getBoard();
+        String name = board[bestMove.getStartX()][bestMove.getStartY()].getName();
+        System.out.println("Best Move: " + name + " from " + bestMove.toChar(bestMove.getStartX()) + (bestMove.getStartY()+1) + " moves to " + bestMove.toChar(bestMove.getEndX()) + (bestMove.getEndY()+1));
+        shutdown();
 
 
     }
@@ -190,34 +266,99 @@ public final class Engine {
         
         int whiteMaterial = 0;
         int blackMaterial = 0;
-        
-        for(int i=0; i<8; i++) {
-            for(int j=0; j<8;j++) {
-                movesIndexed++;
-                switch(board[i][j].getColor()) {
-                    
-                    case 'w' -> {
-                        if(!board[i][j].getName().equals("king")) {
-                            whiteMaterial += board[i][j].getValue();
+
+        for(int i=0; i<8;i++) {
+            for(int j=0; j<8;j++){
+                Piece piece = board[j][i];
+                switch(piece.getName()) {
+
+                    case "pawn" -> {
+                        if(piece.getColor() == 'w') {
+                            whiteMaterial += whitePawnPST[i][j];
+                        } else {
+                            blackMaterial += blackPawnPST[i][j];
                         }
-                        break;
-                    }
-                    
-                    case 'b' -> {
-                        if(!board[i][j].getName().equals("king")) {
-                            blackMaterial += board[i][j].getValue();
+                    } // End case pawn
+
+                    case "knight" -> {
+                        if(piece.getColor() == 'w') {
+                            whiteMaterial += whiteKnightPST[i][j];
+                        } else {
+                            blackMaterial += blackKnightPST[i][j];
                         }
-                        break;
-                    } 
-                }
-                
-            }
-        }
-        //System.out.println("white: " + whiteMaterial);
-        //System.out.println("black: " + blackMaterial);
-        // Value is between 1 and -1
-        double whiteCalc = (double) whiteMaterial  / 39.0;
-        double blackCalc = (double) blackMaterial  / 39.0;
+                    } // End case knight
+
+                    case "bishop" -> {
+                        if(piece.getColor() == 'w') {
+                            whiteMaterial += whiteBishopPST[i][j];
+                        } else {
+                        }
+                    } // End case bishop
+
+                    case "rook" -> {
+                        if(piece.getColor() == 'w') {
+                            whiteMaterial += whiteRookPST[i][j];
+                        } else {
+                            blackMaterial += blackRookPST[i][j];
+                        }
+                    } // End case rook
+
+                    case "queen" -> {
+                        if(piece.getColor() == 'w') {
+                            whiteMaterial += whiteQueenPST[i][j];
+                        } else {
+                            blackMaterial += blackQueenPST[i][j];
+                        }
+                    } // End case queen
+
+                    case "king" -> {
+                        if(piece.getColor() == 'w') {
+                            whiteMaterial += whiteKingPST[i][j];
+                        } else {
+                            blackMaterial += blackKingPST[i][j];
+                        }
+                    } // End case king
+
+
+                } // End switch
+            } // End innerloop
+        } // End outerloop
+
+
+//        for(int i=0; i<8; i++) {
+//            for(int j=0; j<8;j++) {
+//                movesIndexed++;
+//                switch(board[i][j].getColor()) {
+//
+//                    case 'w' -> {
+//                        if(!board[i][j].getName().equals("king")) {
+//                            whiteMaterial += board[i][j].getValue();
+//                        }
+//                        break;
+//                    }
+//
+//                    case 'b' -> {
+//                        if(!board[i][j].getName().equals("king")) {
+//                            blackMaterial += board[i][j].getValue();
+//                        }
+//                        break;
+//                    }
+//                }
+//
+//            }
+//        }
+//        //System.out.println("white: " + whiteMaterial);
+//        //System.out.println("black: " + blackMaterial);
+//        // Value is between 1 and -1
+//        double whiteCalc = (double) whiteMaterial  / 39.0;
+//        double blackCalc = (double) blackMaterial  / 39.0;
+//        game.setEvaluation(whiteCalc - blackCalc);
+
+//        System.out.println(whiteMaterial);
+//        System.out.println(blackMaterial);
+
+        double whiteCalc = (double) whiteMaterial;
+        double blackCalc = (double) blackMaterial;
         game.setEvaluation(whiteCalc - blackCalc);
         return game.getEvaluation();
     } // end evaluate
@@ -2838,10 +2979,8 @@ public final class Engine {
     } // end checkGame
     
     
-    public double findBestMove(Game game, int depth) {
+    public double findBestMove(Game game, int depth, double alpha, double beta) {
         gamesSearched++;
-        depth++;
-        System.out.println(gamesSearched);
         if(depth == maxDepth) {
             evaluate(game);
             return game.getEvaluation();
@@ -2853,31 +2992,43 @@ public final class Engine {
 
             double bestValue = Double.NEGATIVE_INFINITY;
             for(int i=0; i<moves.size(); i++) {
-                Game leaf = new Game();
-                leaf = copyGame(game, leaf);
                 makeMove(game,moves.get(i));
-                double tempValue  = findBestMove(leaf,depth+1);
-                System.out.println(tempValue + " " + bestValue);
-                System.out.println(tempValue >= bestValue);
+                double tempValue  = findBestMove(game,depth+1, alpha, beta);
+                revertMove(game,moves.get(i));
+
                 if(tempValue >= bestValue) {
-                    System.out.println("new move called");
                     bestValue = tempValue;
                     bestMoveIndex = i;
                 }
 
+                if(alpha >= bestValue) {
+                    alpha = bestValue;
+                }
+                // Pruning
+                if(beta <= alpha) {
+                    break;
+                }
+
             }
             return bestValue;
+
+
         } else {
             double leastValue = Double.POSITIVE_INFINITY;
             for (int i = 0; i < moves.size(); i++) {
-                Game leaf = new Game();
-                leaf = copyGame(game, leaf);
                 makeMove(game, moves.get(i));
-                double tempValue = findBestMove(leaf, depth + 1);
+                double tempValue = findBestMove(game, depth + 1, alpha, beta);
+                revertMove(game,moves.get(i));
                 leastValue = Math.min(leastValue, tempValue);
+                beta = Math.min(beta, leastValue);
+
+                if(beta <= alpha) {
+                    break;
+                }
             }
             return leastValue;
         }
+
     } // end findBestMove
     
     
