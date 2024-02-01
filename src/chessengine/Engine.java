@@ -12,7 +12,7 @@ import java.util.concurrent.Future;
 
 // import ayy lmao
 public final class Engine {
-    
+
     private final Game game;
 
     //Piece-Square Tables from
@@ -97,14 +97,14 @@ public final class Engine {
     };
 
     private final int[][] blackRookPST = {
-        {32,  42,  32,  51, 63,  9,  31,  43},
-        {27,  32,  58,  62, 80, 67,  26,  44},
-        {-5,  19,  26,  36, 17, 45,  61,  16},
-        {-24, -11,   7,  26, 24, 35,  -8, -20},
-        {-36, -26, -12,  -1,  9, -7,   6, -23},
-        {-45, -25, -16, -17,  3,  0,  -5, -33},
-        {-44, -16, -20,  -9, -1, 11,  -6, -71},
-        {-19, -13,   1,  17, 16,  7, -37, -26}
+            {32,  42,  32,  51, 63,  9,  31,  43},
+            {27,  32,  58,  62, 80, 67,  26,  44},
+            {-5,  19,  26,  36, 17, 45,  61,  16},
+            {-24, -11,   7,  26, 24, 35,  -8, -20},
+            {-36, -26, -12,  -1,  9, -7,   6, -23},
+            {-45, -25, -16, -17,  3,  0,  -5, -33},
+            {-44, -16, -20,  -9, -1, 11,  -6, -71},
+            {-19, -13,   1,  17, 16,  7, -37, -26}
     };
     private final int[][]  whiteQueenPST= {
             {-1, -18,  -9,  10, -15, -25, -31, -50},
@@ -149,18 +149,18 @@ public final class Engine {
             {-15,  36,  12, -54,   8, -28,  24,  14},
     };
 
-    private final int maxDepth = 2;
+    private final int maxDepth = 1;
     private int movesIndexed = 0;
     private int gamesSearched = 0;
     private int bestMoveIndex = 0;
-    
+
     // Multi threading
     private final ExecutorService executorService;
 
 
-    
+
     public Engine(String input) {
-        
+
         // Create a thread pool with a fixed number of threads
         int numThreads = Runtime.getRuntime().availableProcessors();
         executorService = Executors.newFixedThreadPool(numThreads);
@@ -179,12 +179,12 @@ public final class Engine {
 //        printMoves(game);
 //        printBoardState(game);
 
-        
-        
-        
-        
-        
-        
+
+
+
+
+
+
 //          game = new Game(input);
 //          evaluate(game);
 //          Move move = new Move(4,6,4,4, "Moved_Twice", "", 4,5, "");;
@@ -200,6 +200,7 @@ public final class Engine {
         for(int i=0; i<8;i++) {
             updateMoves(game,i);
         }
+        printMoves(game);
         double lowestValue = -100000.0;
         double highestValue = 100000.0;
         findBestMove(game,0,lowestValue,highestValue);
@@ -216,12 +217,12 @@ public final class Engine {
 
 
     }
-    
-    
+
+
     public void startSearch( Game game) {
         // Submit tasks for parallel execution
 
-        
+
         for(int i=0; i<8;i++) {
             updateMoves(game,i);
         }
@@ -234,7 +235,7 @@ public final class Engine {
         Future<?> future6 = executorService.submit(() -> updateMoves(game, 5));
         Future<?> future7 = executorService.submit(() -> updateMoves(game, 6));
         Future<?> future8 = executorService.submit(() -> updateMoves(game, 7));
-        
+
 
         // Wait for tasks to complete
         try {
@@ -249,7 +250,7 @@ public final class Engine {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
         */
     }
 
@@ -261,61 +262,77 @@ public final class Engine {
 
     // Algorithmic Functions:
     public double evaluate(Game game) {
-        
+
         Piece[][] board = game.getBoard();
-        
+
+        int whitePosition = 0;
+        int blackPosition = 0;
+
         int whiteMaterial = 0;
         int blackMaterial = 0;
 
         for(int i=0; i<8;i++) {
             for(int j=0; j<8;j++){
+                movesIndexed++;
                 Piece piece = board[j][i];
                 switch(piece.getName()) {
 
                     case "pawn" -> {
                         if(piece.getColor() == 'w') {
-                            whiteMaterial += whitePawnPST[i][j];
+                            whitePosition += whitePawnPST[i][j];
+                            whiteMaterial += piece.getValue();
                         } else {
-                            blackMaterial += blackPawnPST[i][j];
+                            blackPosition += blackPawnPST[i][j];
+                            blackMaterial += piece.getValue();
                         }
                     } // End case pawn
 
                     case "knight" -> {
                         if(piece.getColor() == 'w') {
-                            whiteMaterial += whiteKnightPST[i][j];
+                            whitePosition += whiteKnightPST[i][j];
+                            whiteMaterial += piece.getValue();
                         } else {
-                            blackMaterial += blackKnightPST[i][j];
+                            blackPosition += blackKnightPST[i][j];
+                            blackMaterial += piece.getValue();
                         }
                     } // End case knight
 
                     case "bishop" -> {
                         if(piece.getColor() == 'w') {
-                            whiteMaterial += whiteBishopPST[i][j];
+                            whitePosition += whiteBishopPST[i][j];
+                            whiteMaterial += piece.getValue();
                         } else {
+                            blackPosition += blackBishopPST[i][j];
+                            blackMaterial += piece.getValue();
                         }
                     } // End case bishop
 
                     case "rook" -> {
                         if(piece.getColor() == 'w') {
-                            whiteMaterial += whiteRookPST[i][j];
+                            whitePosition += whiteRookPST[i][j];
+                            whiteMaterial += piece.getValue();
                         } else {
-                            blackMaterial += blackRookPST[i][j];
+                            blackPosition += blackRookPST[i][j];
+                            blackMaterial += piece.getValue();
                         }
                     } // End case rook
 
                     case "queen" -> {
                         if(piece.getColor() == 'w') {
-                            whiteMaterial += whiteQueenPST[i][j];
+                            whitePosition += whiteQueenPST[i][j];
+                            whiteMaterial += piece.getValue();
                         } else {
-                            blackMaterial += blackQueenPST[i][j];
+                            blackPosition += blackQueenPST[i][j];
+                            blackMaterial += piece.getValue();
                         }
                     } // End case queen
 
                     case "king" -> {
                         if(piece.getColor() == 'w') {
-                            whiteMaterial += whiteKingPST[i][j];
+                            whitePosition += whiteKingPST[i][j];
+
                         } else {
-                            blackMaterial += blackKingPST[i][j];
+                            blackPosition += blackKingPST[i][j];
                         }
                     } // End case king
 
@@ -325,37 +342,10 @@ public final class Engine {
         } // End outerloop
 
 
-//        for(int i=0; i<8; i++) {
-//            for(int j=0; j<8;j++) {
-//                movesIndexed++;
-//                switch(board[i][j].getColor()) {
-//
-//                    case 'w' -> {
-//                        if(!board[i][j].getName().equals("king")) {
-//                            whiteMaterial += board[i][j].getValue();
-//                        }
-//                        break;
-//                    }
-//
-//                    case 'b' -> {
-//                        if(!board[i][j].getName().equals("king")) {
-//                            blackMaterial += board[i][j].getValue();
-//                        }
-//                        break;
-//                    }
-//                }
-//
-//            }
-//        }
-//        //System.out.println("white: " + whiteMaterial);
-//        //System.out.println("black: " + blackMaterial);
-//        // Value is between 1 and -1
-//        double whiteCalc = (double) whiteMaterial  / 39.0;
-//        double blackCalc = (double) blackMaterial  / 39.0;
-//        game.setEvaluation(whiteCalc - blackCalc);
+        //Value is between 1 and -1
+        double doubleWhiteMaterial = (double) whiteMaterial  / 39.0;
+        double doubleBlackMaterial = (double) blackMaterial  / 39.0;
 
-//        System.out.println(whiteMaterial);
-//        System.out.println(blackMaterial);
 
         double whiteCalc = (double) whiteMaterial;
         double blackCalc = (double) blackMaterial;
@@ -367,34 +357,34 @@ public final class Engine {
     public void updateMoves(Game game, int row) {
        /*
             OKIE FLOW CHART FOR HOW MOVES ARE DETERMINED
-        
+
         1) GIVEN THE ACTIVE PLAYER ARE YOU IN CHECK? (yes -> 2) (no -> )
         2) DO YOU HAVE ANY PIECES THAT CAN BLOCK AN ATTACKER (implies not a double attack) (yes -> 3) ( no -> 4)
         3) ADD PIECE BLOCKS (be careful of double attacks) GO TO 4
         4) CHECK AND ADD FOR KING MOVES (yes-> DONE) ( no-> 5 )
         5) CHECKMATE - EVALUATION IS 1.0 or -1.0
-        
+
         6) CHECK FOR ANY PIECES THAT DOESN'T PUT KING IN CHECK:
-        
-        PAWNS: 
+
+        PAWNS:
             MOVE FORWARD OR MOVE FORWARD x 2
             ATTACK DIAGONALLY
             PROMOTE (move AND attack)
             EN PASSANT
-        
+
         ROOK / KNIGHT / BISHOP / QUEEN:
             MOVE / CAPTURE
-        
+
         KING:
             MOVE
             ATTACK < Cannot attack into check >
-        
+
         EVERY SINGLE PIECE WILL HAVE THEIR possibleMoves ArrayList Checked
         */
         // Firstly we update every single piece's possible moves
         // If any of the possible moves intersect the active player's king,
         // It is CHECK
-        
+
         Piece[][] board = game.getBoard();
         char activeColor = game.getActiveColor();
         int enPassantX = game.getEnPassantX();
@@ -404,7 +394,7 @@ public final class Engine {
         boolean blackCastleKingSide = game.getBlackCastleKingSide();
         boolean blackCastleQueenSide = game.getBlackCastleQueenSide();
         ArrayList<Move> moves = game.getMoveList();
-        
+
         int i = row;
         for(int j=0; j<8; j++) {
             movesIndexed++;
@@ -414,7 +404,7 @@ public final class Engine {
 
             if(activeColor == color) {
 
-            switch(pieceName) {
+                switch(pieceName) {
 
                     case "pawn" -> {
                         if(activeColor == color) {
@@ -521,7 +511,7 @@ public final class Engine {
                                             moves.add(move4);
                                         }
 
-                                    }   
+                                    }
                                 }
 
                                 // Promote via capturing to the left (A pawn cannot attack left)
@@ -711,9 +701,9 @@ public final class Engine {
                                         Move move4 = new Move(i,j,x,y, "Promote_Capture", enemyName, x,y, "knight");
                                         if(checkIfMoveIsValid(game,move1)) {
                                             moves.add(move1);
-                                            
+
                                         }
-                                        
+
                                         if(checkIfMoveIsValid(game,move2)) {
                                             moves.add(move2);
                                         }
@@ -741,7 +731,7 @@ public final class Engine {
                             x++;
                             y++;
                             if(board[x][y].isEmpty()) {
-                                 Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
+                                Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
                                 if(checkIfMoveIsValid(game,move)) {
                                     moves.add(move);
                                 }
@@ -776,9 +766,9 @@ public final class Engine {
                                 if(board[x][y].isEnemy(color)) {
                                     String enemyName = board[x][y].getName();
                                     Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
+                                    if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                                     break; // break as there is a piece blocking
                                 } else {
                                     break; // block as there is a friendly piece blocking
@@ -801,9 +791,9 @@ public final class Engine {
                                 if(board[x][y].isEnemy(color)) {
                                     String enemyName = board[x][y].getName();
                                     Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
+                                    if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                                     break; // break as there is a piece blocking
                                 } else {
                                     break; // block as there is a friendly piece blocking
@@ -827,9 +817,9 @@ public final class Engine {
                                 if(board[x][y].isEnemy(color)) {
                                     String enemyName = board[x][y].getName();
                                     Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
+                                    if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                                     break; // break as there is a piece blocking
                                 } else {
                                     break; // block as there is a friendly piece blocking
@@ -972,7 +962,7 @@ public final class Engine {
                             } else if(board[x][y].isEnemy(color)) {
                                 String enemyName = board[x][y].getName();
                                 Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                 if(checkIfMoveIsValid(game,move)) {
+                                if(checkIfMoveIsValid(game,move)) {
                                     moves.add(move);
                                 }
                             }
@@ -1039,10 +1029,10 @@ public final class Engine {
                                 // Piece blocks rook's way
                                 if(board[x][y].isEnemy(color)) {
                                     String enemyName = board[x][y].getName();
-                                Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
+                                    Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
                                     if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
+                                        moves.add(move);
+                                    }
                                     break; // break as there is a piece blocking
                                 } else {
                                     break; // block as there is a friendly piece blocking
@@ -1065,9 +1055,9 @@ public final class Engine {
                                 if(board[x][y].isEnemy(color)) {
                                     String enemyName = board[x][y].getName();
                                     Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                   if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
+                                    if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                                     break; // break as there is a piece blocking
                                 } else {
                                     break; // block as there is a friendly piece blocking
@@ -1081,7 +1071,7 @@ public final class Engine {
                         while(y < 7) {
                             y++;
                             if(board[x][y].isEmpty()) {
-                               Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
+                                Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
                                 if(checkIfMoveIsValid(game,move)) {
                                     moves.add(move);
                                 }
@@ -1091,8 +1081,8 @@ public final class Engine {
                                     String enemyName = board[x][y].getName();
                                     Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
                                     if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
+                                        moves.add(move);
+                                    }
                                     break; // break as there is a piece blocking
                                 } else {
                                     break; // block as there is a friendly piece blocking
@@ -1115,8 +1105,8 @@ public final class Engine {
                                     String enemyName = board[x][y].getName();
                                     Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
                                     if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
+                                        moves.add(move);
+                                    }
                                     break; // break as there is a piece blocking
                                 } else {
                                     break; // block as there is a friendly piece blocking
@@ -1145,8 +1135,8 @@ public final class Engine {
                                     String enemyName = board[x][y].getName();
                                     Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
                                     if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
+                                        moves.add(move);
+                                    }
                                     break; // break as there is a piece blocking
                                 } else {
                                     break; // block as there is a friendly piece blocking
@@ -1169,9 +1159,9 @@ public final class Engine {
                                 if(board[x][y].isEnemy(color)) {
                                     String enemyName = board[x][y].getName();
                                     Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                   if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
+                                    if(checkIfMoveIsValid(game,move)) {
+                                        moves.add(move);
+                                    }
                                     break; // break as there is a piece blocking
                                 } else {
                                     break; // block as there is a friendly piece blocking
@@ -1195,8 +1185,8 @@ public final class Engine {
                                     String enemyName = board[x][y].getName();
                                     Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
                                     if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
+                                        moves.add(move);
+                                    }
                                     break; // break as there is a piece blocking
                                 } else {
                                     break; // block as there is a friendly piece blocking
@@ -1219,8 +1209,8 @@ public final class Engine {
                                     String enemyName = board[x][y].getName();
                                     Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
                                     if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
+                                        moves.add(move);
+                                    }
                                     break; // break as there is a piece blocking
                                 } else {
                                     break; // block as there is a friendly piece blocking
@@ -1248,8 +1238,8 @@ public final class Engine {
                                     String enemyName = board[x][y].getName();
                                     Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
                                     if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
+                                        moves.add(move);
+                                    }
                                     break; // break as there is a piece blocking
                                 } else {
                                     break; // block as there is a friendly piece blocking
@@ -1274,8 +1264,8 @@ public final class Engine {
                                     String enemyName = board[x][y].getName();
                                     Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
                                     if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
+                                        moves.add(move);
+                                    }
                                     break; // break as there is a piece blocking
                                 } else {
                                     break; // block as there is a friendly piece blocking
@@ -1299,8 +1289,8 @@ public final class Engine {
                                     String enemyName = board[x][y].getName();
                                     Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
                                     if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
+                                        moves.add(move);
+                                    }
                                     break; // break as there is a piece blocking
                                 } else {
                                     break; // block as there is a friendly piece blocking
@@ -1325,8 +1315,8 @@ public final class Engine {
                                     String enemyName = board[x][y].getName();
                                     Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
                                     if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
+                                        moves.add(move);
+                                    }
                                     break; // break as there is a piece blocking
                                 } else {
                                     break; // block as there is a friendly piece blocking
@@ -1354,23 +1344,23 @@ public final class Engine {
                         // 4 horizontal axis
                         x++;
                         if( x <= 7 ) {
-                            
-                            
+
+
                             if(board[x][y].isEmpty()) {
                                 Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
                                 if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
+                                    moves.add(move);
                                 }
                             }
-                            
+
                             if(board[x][y].isEnemy(color)) {
                                 String enemyName = board[x][y].getName();
                                 Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
                                 if(checkIfMoveIsValid(game,move)) {
-                                            moves.add(move);
+                                    moves.add(move);
                                 }
                             }
-                            
+
 
                         }
 
@@ -1381,18 +1371,18 @@ public final class Engine {
                             if(board[x][y].isEmpty()) {
                                 Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
                                 if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
+                                    moves.add(move);
                                 }
                             }
-                            
+
                             if(board[x][y].isEnemy(color)) {
                                 String enemyName = board[x][y].getName();
                                 Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
                                 if(checkIfMoveIsValid(game,move)) {
-                                            moves.add(move);
+                                    moves.add(move);
                                 }
                             }
-                            
+
                         }
 
                         x = i;
@@ -1402,18 +1392,18 @@ public final class Engine {
                             if(board[x][y].isEmpty()) {
                                 Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
                                 if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
+                                    moves.add(move);
                                 }
                             }
-                            
+
                             if(board[x][y].isEnemy(color)) {
                                 String enemyName = board[x][y].getName();
                                 Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
                                 if(checkIfMoveIsValid(game,move)) {
-                                            moves.add(move);
+                                    moves.add(move);
                                 }
                             }
-                            
+
                         }
 
                         x = i;
@@ -1423,18 +1413,18 @@ public final class Engine {
                             if(board[x][y].isEmpty()) {
                                 Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
                                 if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
+                                    moves.add(move);
                                 }
                             }
-                            
+
                             if(board[x][y].isEnemy(color)) {
                                 String enemyName = board[x][y].getName();
                                 Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
                                 if(checkIfMoveIsValid(game,move)) {
-                                            moves.add(move);
+                                    moves.add(move);
                                 }
                             }
-                            
+
                         }
 
                         // Diagonals
@@ -1449,18 +1439,18 @@ public final class Engine {
                             if(board[x][y].isEmpty()) {
                                 Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
                                 if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
+                                    moves.add(move);
                                 }
                             }
-                            
+
                             if(board[x][y].isEnemy(color)) {
                                 String enemyName = board[x][y].getName();
                                 Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
                                 if(checkIfMoveIsValid(game,move)) {
-                                            moves.add(move);
+                                    moves.add(move);
                                 }
                             }
-                            
+
                         }
 
                         // TOP LEFT
@@ -1472,18 +1462,18 @@ public final class Engine {
                             if(board[x][y].isEmpty()) {
                                 Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
                                 if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
+                                    moves.add(move);
                                 }
                             }
-                            
+
                             if(board[x][y].isEnemy(color)) {
                                 String enemyName = board[x][y].getName();
                                 Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
                                 if(checkIfMoveIsValid(game,move)) {
-                                            moves.add(move);
+                                    moves.add(move);
                                 }
                             }
-                            
+
                         }
 
                         // Bottom RIGHT
@@ -1495,18 +1485,18 @@ public final class Engine {
                             if(board[x][y].isEmpty()) {
                                 Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
                                 if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
+                                    moves.add(move);
                                 }
                             }
-                            
+
                             if(board[x][y].isEnemy(color)) {
                                 String enemyName = board[x][y].getName();
                                 Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
                                 if(checkIfMoveIsValid(game,move)) {
-                                            moves.add(move);
+                                    moves.add(move);
                                 }
                             }
-                            
+
                         }
                         // Bottom LEFT
                         x = i;
@@ -1517,18 +1507,18 @@ public final class Engine {
                             if(board[x][y].isEmpty()) {
                                 Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
                                 if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
+                                    moves.add(move);
                                 }
                             }
-                            
+
                             if(board[x][y].isEnemy(color)) {
                                 String enemyName = board[x][y].getName();
                                 Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
                                 if(checkIfMoveIsValid(game,move)) {
-                                            moves.add(move);
+                                    moves.add(move);
                                 }
                             }
-                            
+
                         }
                         // CASTLING RIGHTS
                         if(color == 'w') {
@@ -1537,17 +1527,17 @@ public final class Engine {
                                 if(board[5][0].isEmpty() && board[6][0].isEmpty()) {
 
                                     if(!isSquareInCheck(game,4,0) && !isSquareInCheck(game,5,0) &&
-                                    !isSquareInCheck(game,6,0) ) {
+                                            !isSquareInCheck(game,6,0) ) {
                                         Move move = new Move(4,0,6,0,"Castle_KingSide", "", -1, -1, "");
                                         moves.add(move);
                                     }
 
                                 }
-                            }   
+                            }
                             if(whiteCastleQueenSide) {
                                 if(board[3][0].isEmpty() && board[2][0].isEmpty() && board[1][0].isEmpty()) {
                                     if( !isSquareInCheck(game,1,0) &&
-                                    !isSquareInCheck(game,2,0) && !isSquareInCheck(game,3,0) && !isSquareInCheck(game,4,0)) {
+                                            !isSquareInCheck(game,2,0) && !isSquareInCheck(game,3,0) && !isSquareInCheck(game,4,0)) {
                                         Move move = new Move(4,0,2,0,"Castle_QueenSide", "", -1, -1, "");
                                         moves.add(move);
                                     }
@@ -1558,21 +1548,21 @@ public final class Engine {
                             if(blackCastleKingSide) {
                                 if(board[5][7].isEmpty() && board[6][7].isEmpty()) {
                                     if(!isSquareInCheck(game,4,7) && !isSquareInCheck(game,5,7) &&
-                                        !isSquareInCheck(game,6,7)) {
-                                            Move move = new Move(4,7,6,7,"Castle_KingSide", "", -1, -1, "");
-                                            moves.add(move);
-                                        }
+                                            !isSquareInCheck(game,6,7)) {
+                                        Move move = new Move(4,7,6,7,"Castle_KingSide", "", -1, -1, "");
+                                        moves.add(move);
+                                    }
                                 }
                             }
                             if(blackCastleQueenSide) {
                                 if(board[3][7].isEmpty() && board[2][7].isEmpty() && board[1][7].isEmpty()) {
                                     if(!isSquareInCheck(game,1,7) &&
-                                    !isSquareInCheck(game,2,7) && !isSquareInCheck(game,3,7) && !isSquareInCheck(game,4,7)) {
+                                            !isSquareInCheck(game,2,7) && !isSquareInCheck(game,3,7) && !isSquareInCheck(game,4,7)) {
                                         Move move = new Move(4,7,2,7,"Castle_QueenSide", "", -1, -1, "");
                                         moves.add(move);
                                     }
+                                }
                             }
-                        }
                         }
 
                     } // End case kING
@@ -1582,8 +1572,8 @@ public final class Engine {
         } // END INNERLOOP
         checkGameState(game);
     } // END UPDATEMOVES multithreading
-    
-    
+
+
     public boolean checkIfMoveIsValid(Game game, Move move) {
 
         boolean isInCheck = isInCheck(makeMove(game,move));
@@ -1591,21 +1581,21 @@ public final class Engine {
         return !isInCheck; // valid if not in check
     } // checkIfMoveIsValid
     public boolean isInCheck(Game game) {
-        
+
         Piece[][] board = game.getBoard();
         char activeColor = game.getActiveColor();
         /********************
-         * 
+         *
          * This method checks the entire opposite color
          * to see if there is a check on your king
          * returns true if the king is under check
          * returns false if the king isn't under check
-         * 
+         *
          * very similar to the updatemoves function
-        ********************/
+         ********************/
         boolean isKingInCheck = false;
         int kingX = -1, kingY = -1;
-        
+
         for(int i=0; i<8; i++) {
             for(int j=0; j<8; j++) {
                 movesIndexed++;
@@ -1613,7 +1603,7 @@ public final class Engine {
                     kingX = i; kingY = j;
                     break;
                 }
-            } // End inner loop 
+            } // End inner loop
         }// End Outerloop
         // Wanting to see the enemy attacks
         char enemyColor;
@@ -1622,7 +1612,7 @@ public final class Engine {
         } else {
             enemyColor = 'w';
         }
-        
+
         outerLoop:
         for(int i=0; i<8; i++) {
             for(int j=0; j<8; j++) {
@@ -1632,50 +1622,50 @@ public final class Engine {
 
                         case("pawn") -> {
                             if(enemyColor == 'w') {
-                                    // Attacking to the left (A pawn cannot attack left)
-                                    // Includes if it can attack the en passant square
-                                    if( i>0) {
-                                        int x = i-1, y = j+1; // coords interested in
-                                        if(x == kingX && y == kingY) {
-                                            isKingInCheck = true;
-                                            break outerLoop;
-                                        }
+                                // Attacking to the left (A pawn cannot attack left)
+                                // Includes if it can attack the en passant square
+                                if( i>0) {
+                                    int x = i-1, y = j+1; // coords interested in
+                                    if(x == kingX && y == kingY) {
+                                        isKingInCheck = true;
+                                        break outerLoop;
+                                    }
+                                }
+
+                                //Attacking to the right (H pawn cannot attack right)
+                                // Includes if it can attack the en passant
+                                if( i<7) {
+                                    int x = i+1, y = j+1; // coords interested in
+                                    if(x == kingX && y == kingY) {
+                                        isKingInCheck = true;
+                                        break outerLoop;
+                                    }
+                                }
+                            }  else {
+                                // Attacking to the left (A pawn cannot attack to the left) (from white perspective)
+                                // Includes if it can attack the en passant square
+                                if(i > 0) {
+                                    int x = i-1, y = j-1; // coords interested in
+                                    if(x == kingX && y == kingY) {
+                                        isKingInCheck = true;
+                                        break outerLoop;
+                                    }
+                                }
+
+                                // Attacking to the right (H pawn cannot attack to the right) (from white perspective)
+                                // Includes it if can attack the en passant square
+                                if(i < 7) {
+                                    int x = i+1, y = j-1;
+                                    if(x == kingX && y == kingY) {
+                                        isKingInCheck = true;
+                                        break outerLoop;
                                     }
 
-                                    //Attacking to the right (H pawn cannot attack right)
-                                    // Includes if it can attack the en passant
-                                    if( i<7) {
-                                        int x = i+1, y = j+1; // coords interested in
-                                        if(x == kingX && y == kingY) {
-                                            isKingInCheck = true;
-                                            break outerLoop;
-                                        }
-                                    }
-                        }  else {
-                                    // Attacking to the left (A pawn cannot attack to the left) (from white perspective)
-                                    // Includes if it can attack the en passant square
-                                    if(i > 0) {
-                                        int x = i-1, y = j-1; // coords interested in
-                                        if(x == kingX && y == kingY) {
-                                            isKingInCheck = true;
-                                            break outerLoop;
-                                        }
-                                    }
-
-                                    // Attacking to the right (H pawn cannot attack to the right) (from white perspective)
-                                    // Includes it if can attack the en passant square
-                                    if(i < 7) {
-                                        int x = i+1, y = j-1;
-                                        if(x == kingX && y == kingY) {
-                                            isKingInCheck = true;
-                                            break outerLoop;
-                                        }
-
-                                    }
+                                }
                             }
                             break;
                         } // end Case pawn
-                        
+
                         case("bishop") -> {
                             // 4 Diagonals:
 
@@ -1692,9 +1682,9 @@ public final class Engine {
                                         break outerLoop;
                                     }
                                     break; // break as piece blocks
-                                    
-                                    
-                                } 
+
+
+                                }
                             }
 
                             // Top Left
@@ -1709,7 +1699,7 @@ public final class Engine {
                                         break outerLoop;
                                     }
                                     break; // break as piece blocks
-                                } 
+                                }
                             }
                             // Bottom Right
                             x = i;
@@ -1723,7 +1713,7 @@ public final class Engine {
                                         break outerLoop;
                                     }
                                     break; // break as piece blocks
-                                } 
+                                }
                             }
 
                             // Bottom Left
@@ -1738,11 +1728,11 @@ public final class Engine {
                                         break outerLoop;
                                     }
                                     break; // break as piece blocks
-                                } 
+                                }
                             }
                             break;
                         } // end case bishop
-                        
+
                         case("knight") -> {
 
                             // Knight has 8 possible attacks
@@ -1827,7 +1817,7 @@ public final class Engine {
                             y--;
                             if( x <=7 && y >= 0) {
 
-                                 if(x == kingX && y == kingY) {
+                                if(x == kingX && y == kingY) {
                                     isKingInCheck = true;
                                     break outerLoop;
                                 }
@@ -1840,7 +1830,7 @@ public final class Engine {
                             y++;
                             if( x >= 0  && y <= 7) {
 
-                                  if(x == kingX && y == kingY) {
+                                if(x == kingX && y == kingY) {
                                     isKingInCheck = true;
                                     break outerLoop;
                                 }
@@ -1860,7 +1850,7 @@ public final class Engine {
                             }
                             break;
                         } // end case knight
-                        
+
                         case("rook") -> {
                             // 4 DIRECTIONS:
                             // POSITIVE X
@@ -1874,20 +1864,20 @@ public final class Engine {
                                         break outerLoop;
                                     }
                                     break; // break as piece blocks
-                                } 
+                                }
                             }
                             // NEGATIVE X
                             x = i;
                             y = j;
                             while(x > 0) {
                                 x--;
-                                 if(!board[x][y].isEmpty()) {
+                                if(!board[x][y].isEmpty()) {
                                     if(x == kingX && y == kingY) {
                                         isKingInCheck = true;
                                         break outerLoop;
                                     }
                                     break; // break as piece blocks
-                                } 
+                                }
                             }
 
                             // POSITIVE Y
@@ -1895,13 +1885,13 @@ public final class Engine {
                             y = j;
                             while(y < 7) {
                                 y++;
-                                 if(!board[x][y].isEmpty()) {
+                                if(!board[x][y].isEmpty()) {
                                     if(x == kingX && y == kingY) {
                                         isKingInCheck = true;
                                         break outerLoop;
                                     }
                                     break; // break as piece blocks
-                                } 
+                                }
                             }
                             // NEGATIVE Y
                             x = i;
@@ -1914,11 +1904,11 @@ public final class Engine {
                                         break outerLoop;
                                     }
                                     break; // break as piece blocks
-                                } 
+                                }
                             }
                             break;
                         } // end case rook
-                        
+
                         case("queen") -> {
                             // 4 Diagonals:
 
@@ -1935,7 +1925,7 @@ public final class Engine {
                                         break outerLoop;
                                     }
                                     break; // break as piece blocks
-                                } 
+                                }
                             }
 
                             // Top Left
@@ -1950,7 +1940,7 @@ public final class Engine {
                                         break outerLoop;
                                     }
                                     break; // break as piece blocks
-                                } 
+                                }
                             }
                             // Bottom Right
                             x = i;
@@ -1964,7 +1954,7 @@ public final class Engine {
                                         break outerLoop;
                                     }
                                     break; // break as piece blocks
-                                } 
+                                }
                             }
 
                             // Bottom Left
@@ -1979,10 +1969,10 @@ public final class Engine {
                                         break outerLoop;
                                     }
                                     break; // break as piece blocks
-                                } 
+                                }
                             }
-                            
-                           // 4 DIRECTIONS:
+
+                            // 4 DIRECTIONS:
                             // POSITIVE X
                             x = i;
                             y = j;
@@ -1994,20 +1984,20 @@ public final class Engine {
                                         break outerLoop;
                                     }
                                     break; // break as piece blocks
-                                } 
+                                }
                             }
                             // NEGATIVE X
                             x = i;
                             y = j;
                             while(x > 0) {
                                 x--;
-                                 if(!board[x][y].isEmpty()) {
+                                if(!board[x][y].isEmpty()) {
                                     if(x == kingX && y == kingY) {
                                         isKingInCheck = true;
                                         break outerLoop;
                                     }
                                     break; // break as piece blocks
-                                } 
+                                }
                             }
 
                             // POSITIVE Y
@@ -2015,163 +2005,163 @@ public final class Engine {
                             y = j;
                             while(y < 7) {
                                 y++;
-                                 if(!board[x][y].isEmpty()) {
-                                    if(x == kingX && y == kingY) {
-                                        isKingInCheck = true;
-                                        break outerLoop;
-                                    }
-                                    break; // break as piece blocks
-                                } 
-                            }
-                            // NEGATIVE Y
-                            x = i;
-                            y = j;
-                            while(y > 0) {
-                                y--;
-                                
                                 if(!board[x][y].isEmpty()) {
                                     if(x == kingX && y == kingY) {
                                         isKingInCheck = true;
                                         break outerLoop;
                                     }
                                     break; // break as piece blocks
-                                } 
+                                }
+                            }
+                            // NEGATIVE Y
+                            x = i;
+                            y = j;
+                            while(y > 0) {
+                                y--;
+
+                                if(!board[x][y].isEmpty()) {
+                                    if(x == kingX && y == kingY) {
+                                        isKingInCheck = true;
+                                        break outerLoop;
+                                    }
+                                    break; // break as piece blocks
+                                }
                             }
                             break;
                         } // end case queen
-                        
+
                         case ("king") -> {
-                            
-                        /****************************************
-                         * Special Notes:
-                         * The king cannot take a piece under check
-                         * However, I think due to the minimax algorithm, it should
-                         * be able to avoid that unless it is at the terminated depth
-                         * 
-                         * King also has the ability to castle
-                         ****************************************/
 
-                        int x = i;
-                        int y = j;
+                            /****************************************
+                             * Special Notes:
+                             * The king cannot take a piece under check
+                             * However, I think due to the minimax algorithm, it should
+                             * be able to avoid that unless it is at the terminated depth
+                             *
+                             * King also has the ability to castle
+                             ****************************************/
 
-                        // 4 horizontal axis
-                        x++;
-                        if( x <= 7) {
-                            if(x == kingX && y == kingY) {
+                            int x = i;
+                            int y = j;
+
+                            // 4 horizontal axis
+                            x++;
+                            if( x <= 7) {
+                                if(x == kingX && y == kingY) {
                                     isKingInCheck = true;
                                     break outerLoop;
                                 }
-                        }
+                            }
 
-                        x = i;
-                        y = j;
-                        x--;
-                        if(x >= 0 ) {
-                            if(x == kingX && y == kingY) {
+                            x = i;
+                            y = j;
+                            x--;
+                            if(x >= 0 ) {
+                                if(x == kingX && y == kingY) {
                                     isKingInCheck = true;
                                     break outerLoop;
                                 }
-                        }
+                            }
 
-                        x = i;
-                        y = j;
-                        y++;
-                        if( y <= 7) {
-                            if(x == kingX && y == kingY) {
+                            x = i;
+                            y = j;
+                            y++;
+                            if( y <= 7) {
+                                if(x == kingX && y == kingY) {
                                     isKingInCheck = true;
                                     break outerLoop;
                                 }
-                        }
+                            }
 
-                        x = i;
-                        y = j;
-                        y--;
-                        if( y>=0   ) {
-                            if(x == kingX && y == kingY) {
+                            x = i;
+                            y = j;
+                            y--;
+                            if( y>=0   ) {
+                                if(x == kingX && y == kingY) {
                                     isKingInCheck = true;
                                     break outerLoop;
                                 }
-                        }
+                            }
 
-                        // Diagonals
+                            // Diagonals
 
-                        x = i;
-                        y = j;
+                            x = i;
+                            y = j;
 
-                        // TOP RIGHT
-                        x++;
-                        y++;
-                        if(x <= 7 && y <= 7) {
-                            if(x == kingX && y == kingY) {
+                            // TOP RIGHT
+                            x++;
+                            y++;
+                            if(x <= 7 && y <= 7) {
+                                if(x == kingX && y == kingY) {
                                     isKingInCheck = true;
                                     break outerLoop;
                                 }
-                        }
+                            }
 
-                        // TOP LEFT
-                        x = i;
-                        y = j;
-                        x--;
-                        y++;
-                        if(x >= 0 && y <=7) {
-                            if(x == kingX && y == kingY) {
+                            // TOP LEFT
+                            x = i;
+                            y = j;
+                            x--;
+                            y++;
+                            if(x >= 0 && y <=7) {
+                                if(x == kingX && y == kingY) {
                                     isKingInCheck = true;
                                     break outerLoop;
                                 }
-                        }
+                            }
 
-                        // Bottom RIGHT
-                        x = i;
-                        y = j;
-                        x++;
-                        y--;
-                        if( (x<=7 && y >= 0)) {
-                            if(x == kingX && y == kingY) {
+                            // Bottom RIGHT
+                            x = i;
+                            y = j;
+                            x++;
+                            y--;
+                            if( (x<=7 && y >= 0)) {
+                                if(x == kingX && y == kingY) {
                                     isKingInCheck = true;
                                     break outerLoop;
                                 }
-                        }
-                        // Bottom LEFT
-                        x = i;
-                        y = j;
-                        x--;
-                        y--;
-                        if(x>= 0 && y>=0) {
-                            if(x == kingX && y == kingY) {
+                            }
+                            // Bottom LEFT
+                            x = i;
+                            y = j;
+                            x--;
+                            y--;
+                            if(x>= 0 && y>=0) {
+                                if(x == kingX && y == kingY) {
                                     isKingInCheck = true;
                                     break outerLoop;
                                 }
-                        }
+                            }
 
-                    } // End case kING
+                        } // End case kING
                     } // End switch
                 }
             } // End inner loop
         } // End outer loop
-        
-        
-        
-        
-        
+
+
+
+
+
         return isKingInCheck;
     } // end IsInCheck
-    
+
 
     public boolean isSquareInCheck(Game game, int targetX, int targetY) {
-        
+
         Piece[][] board = game.getBoard();
         char activeColor = game.getActiveColor();
         /********************
-         * 
+         *
          * This method checks the entire opposite color
          * to see if there is a check on your king
          * returns true if the king is under check
          * returns false if the king isn't under check
-         * 
+         *
          * very similar to the updatemoves function
-        ********************/
+         ********************/
         int kingX = targetX, kingY = targetY;
-        
+
         // Wanting to see the enemy attacks
         char enemyColor;
         if(activeColor == 'w') {
@@ -2179,7 +2169,7 @@ public final class Engine {
         } else {
             enemyColor = 'w';
         }
-        
+
         outerLoop:
         for(int i=0; i<8; i++) {
             for(int j=0; j<8; j++) {
@@ -2190,46 +2180,46 @@ public final class Engine {
 
                         case("pawn") -> {
                             if(enemyColor == 'w') {
-                                    // Attacking to the left (A pawn cannot attack left)
-                                    // Includes if it can attack the en passant square
-                                    if( i>0) {
-                                        int x = i-1, y = j+1; // coords interested in
-                                        if(x == kingX && y == kingY) {
-                                            return true;
-                                        }
-                                    }
-
-                                    //Attacking to the right (H pawn cannot attack right)
-                                    // Includes if it can attack the en passant
-                                    if( i<7) {
-                                        int x = i+1, y = j+1; // coords interested in
-                                        if(x == kingX && y == kingY) {
-                                            return true;
-                                        }
-                                    }
-                        }  else {
-                                    // Attacking to the left (A pawn cannot attack to the left) (from white perspective)
-                                    // Includes if it can attack the en passant square
-                                    if(i > 0) {
-                                        int x = i-1, y = j-1; // coords interested in
-                                        if(x == kingX && y == kingY) {
-                                            return true;
-                                        }
-                                    }
-
-                                    // Attacking to the right (H pawn cannot attack to the right) (from white perspective)
-                                    // Includes it if can attack the en passant square
-                                    if(i < 7) {
-                                        int x = i+1, y = j-1;
-                                        if(x == kingX && y == kingY) {
+                                // Attacking to the left (A pawn cannot attack left)
+                                // Includes if it can attack the en passant square
+                                if( i>0) {
+                                    int x = i-1, y = j+1; // coords interested in
+                                    if(x == kingX && y == kingY) {
                                         return true;
-                                        }
-
                                     }
+                                }
+
+                                //Attacking to the right (H pawn cannot attack right)
+                                // Includes if it can attack the en passant
+                                if( i<7) {
+                                    int x = i+1, y = j+1; // coords interested in
+                                    if(x == kingX && y == kingY) {
+                                        return true;
+                                    }
+                                }
+                            }  else {
+                                // Attacking to the left (A pawn cannot attack to the left) (from white perspective)
+                                // Includes if it can attack the en passant square
+                                if(i > 0) {
+                                    int x = i-1, y = j-1; // coords interested in
+                                    if(x == kingX && y == kingY) {
+                                        return true;
+                                    }
+                                }
+
+                                // Attacking to the right (H pawn cannot attack to the right) (from white perspective)
+                                // Includes it if can attack the en passant square
+                                if(i < 7) {
+                                    int x = i+1, y = j-1;
+                                    if(x == kingX && y == kingY) {
+                                        return true;
+                                    }
+
+                                }
                             }
                             break;
                         } // end Case pawn
-                        
+
                         case("bishop") -> {
                             // 4 Diagonals:
 
@@ -2243,10 +2233,10 @@ public final class Engine {
                                 if(x == kingX && y == kingY) {
                                     return true;
                                 }
-                                
+
                                 if(!board[x][y].isEmpty()) {
                                     break; // break as piece blocks
-                                } 
+                                }
                             }
 
                             // Top Left
@@ -2258,10 +2248,10 @@ public final class Engine {
                                 if(x == kingX && y == kingY) {
                                     return true;
                                 }
-                                
+
                                 if(!board[x][y].isEmpty()) {
                                     break; // break as piece blocks
-                                } 
+                                }
                             }
                             // Bottom Right
                             x = i;
@@ -2272,7 +2262,7 @@ public final class Engine {
                                 if(x == kingX && y == kingY) {
                                     return true;
                                 }
-                                
+
                                 if(!board[x][y].isEmpty()) {
                                     break; // break as piece blocks
                                 }
@@ -2287,14 +2277,14 @@ public final class Engine {
                                 if(x == kingX && y == kingY) {
                                     return true;
                                 }
-                                
+
                                 if(!board[x][y].isEmpty()) {
                                     break; // break as piece blocks
-                                } 
+                                }
                             }
                             break;
                         } // end case bishop
-                        
+
                         case("knight") -> {
 
                             // Knight has 8 possible attacks
@@ -2312,7 +2302,7 @@ public final class Engine {
                             if( x <= 7 && y<= 7) {
 
                                 if(x == kingX && y == kingY) {
-                                        return true;
+                                    return true;
                                 }
                             }
 
@@ -2325,7 +2315,7 @@ public final class Engine {
                             if( x >= 0 && y<= 7) {
 
                                 if(x == kingX && y == kingY) {
-                                        return true;
+                                    return true;
                                 }
                             }
 
@@ -2339,7 +2329,7 @@ public final class Engine {
                             if( x <= 7  && y>=0) {
 
                                 if(x == kingX && y == kingY) {
-                                        return true;
+                                    return true;
                                 }
                             }
 
@@ -2350,7 +2340,7 @@ public final class Engine {
                             y-=2;
                             if( x >= 0 && y >= 0) {
                                 if(x == kingX && y == kingY) {
-                                        return true;
+                                    return true;
                                 }
                             }
 
@@ -2363,7 +2353,7 @@ public final class Engine {
                             if( x <= 7  && y <= 7) {
 
                                 if(x == kingX && y == kingY) {
-                                        return true;
+                                    return true;
                                 }
                             }
 
@@ -2374,8 +2364,8 @@ public final class Engine {
                             y--;
                             if( x <=7 && y >= 0) {
 
-                                 if(x == kingX && y == kingY) {
-                                        return true;
+                                if(x == kingX && y == kingY) {
+                                    return true;
                                 }
                             }
                             // TWO LEFT (UP/DOWN)
@@ -2386,8 +2376,8 @@ public final class Engine {
                             y++;
                             if( x >= 0  && y <= 7) {
 
-                                  if(x == kingX && y == kingY) {
-                                        return true;
+                                if(x == kingX && y == kingY) {
+                                    return true;
                                 }
                             }
 
@@ -2399,12 +2389,12 @@ public final class Engine {
                             if( x >= 0 && y >= 0) {
 
                                 if(x == kingX && y == kingY) {
-                                        return true;
+                                    return true;
                                 }
                             }
                             break;
                         } // end case knight
-                        
+
                         case("rook") -> {
                             // 4 DIRECTIONS:
                             // POSITIVE X
@@ -2415,10 +2405,10 @@ public final class Engine {
                                 if(x == kingX && y == kingY) {
                                     return true;
                                 }
-                                
+
                                 if(!board[x][y].isEmpty()) {
                                     break; // break as piece blocks
-                                } 
+                                }
                             }
                             // NEGATIVE X
                             x = i;
@@ -2428,10 +2418,10 @@ public final class Engine {
                                 if(x == kingX && y == kingY) {
                                     return true;
                                 }
-                                
+
                                 if(!board[x][y].isEmpty()) {
                                     break; // break as piece blocks
-                                } 
+                                }
                             }
 
                             // POSITIVE Y
@@ -2442,10 +2432,10 @@ public final class Engine {
                                 if(x == kingX && y == kingY) {
                                     return true;
                                 }
-                                
+
                                 if(!board[x][y].isEmpty()) {
                                     break; // break as piece blocks
-                                } 
+                                }
                             }
                             // NEGATIVE Y
                             x = i;
@@ -2455,14 +2445,14 @@ public final class Engine {
                                 if(x == kingX && y == kingY) {
                                     return true;
                                 }
-                                
+
                                 if(!board[x][y].isEmpty()) {
                                     break; // break as piece blocks
-                                } 
+                                }
                             }
                             break;
                         } // end case rook
-                        
+
                         case("queen") -> {
                             // 4 Diagonals:
 
@@ -2476,10 +2466,10 @@ public final class Engine {
                                 if(x == kingX && y == kingY) {
                                     return true;
                                 }
-                                
+
                                 if(!board[x][y].isEmpty()) {
                                     break; // break as piece blocks
-                                } 
+                                }
                             }
 
                             // Top Left
@@ -2491,7 +2481,7 @@ public final class Engine {
                                 if(x == kingX && y == kingY) {
                                     return true;
                                 }
-                                
+
                                 if(!board[x][y].isEmpty()) {
                                     break; // break as piece blocks
                                 }
@@ -2505,10 +2495,10 @@ public final class Engine {
                                 if(x == kingX && y == kingY) {
                                     return true;
                                 }
-                                
+
                                 if(!board[x][y].isEmpty()) {
                                     break; // break as piece blocks
-                                } 
+                                }
                             }
 
                             // Bottom Left
@@ -2520,13 +2510,13 @@ public final class Engine {
                                 if(x == kingX && y == kingY) {
                                     return true;
                                 }
-                                
+
                                 if(!board[x][y].isEmpty()) {
                                     break; // break as piece blocks
-                                } 
+                                }
                             }
-                            
-                           // 4 DIRECTIONS:
+
+                            // 4 DIRECTIONS:
                             // POSITIVE X
                             x = i;
                             y = j;
@@ -2535,10 +2525,10 @@ public final class Engine {
                                 if(x == kingX && y == kingY) {
                                     return true;
                                 }
-                                
+
                                 if(!board[x][y].isEmpty()) {
                                     break; // break as piece blocks
-                                } 
+                                }
                             }
                             // NEGATIVE X
                             x = i;
@@ -2548,10 +2538,10 @@ public final class Engine {
                                 if(x == kingX && y == kingY) {
                                     return true;
                                 }
-                                
+
                                 if(!board[x][y].isEmpty()) {
                                     break; // break as piece blocks
-                                } 
+                                }
                             }
 
                             // POSITIVE Y
@@ -2562,10 +2552,10 @@ public final class Engine {
                                 if(x == kingX && y == kingY) {
                                     return true;
                                 }
-                                
+
                                 if(!board[x][y].isEmpty()) {
                                     break; // break as piece blocks
-                                } 
+                                }
                             }
                             // NEGATIVE Y
                             x = i;
@@ -2575,34 +2565,34 @@ public final class Engine {
                                 if(x == kingX && y == kingY) {
                                     return true;
                                 }
-                                
+
                                 if(!board[x][y].isEmpty()) {
                                     break; // break as piece blocks
-                                } 
+                                }
                             }
                             break;
                         } // end case queen
-                        
+
                     } // End switch
                 }
             } // End inner loop
         } // End outer loop
-        
-        
-        
-        
-        
+
+
+
+
+
         return false;
     }
-    
+
     public Game makeMove(Game game, Move move) {
-        
+
         Piece[][] newBoard = game.getBoard();
         char color = game.getActiveColor();
-        
+
 
         String moveType = move.getMoveType();
-        
+
         // Saving some states of the game before executing them
 
         if(color == 'w') {
@@ -2614,7 +2604,7 @@ public final class Engine {
 
         }
 
-        
+
 
         move.setPreviousEnPassantX(game.getEnPassantX());
         move.setPreviousEnPassantY(game.getEnPassantY());
@@ -2624,147 +2614,147 @@ public final class Engine {
         game.setEnPassantX(-1);
         game.setEnPassantX(-1);
 
-        
+
         // Dichotmy of moves
-        
+
         int startX = move.getStartX();
         int startY = move.getStartY();
         int endX = move.getEndX();
         int endY = move.getEndY();
-        
-                switch(moveType) {
 
-                    case "Move" -> {
-                        newBoard[endX][endY].copyPiece(newBoard[startX][startY]);
-                        newBoard[startX][startY] = new Piece();
-                        //Extra special rules:
-                        
-                        // If the king moves, then it can no longer castle
-                        if(newBoard[startX][startY].getName().equals("king")) {
-                            if(newBoard[startX][startY].getColor() == 'w') {
-                                // save the states in the move object first
+        switch(moveType) {
 
-                                
-                                game.setWhiteCastleKingSide(false);
-                                game.setWhiteCastleQueenSide(false);
-                            } else {
+            case "Move" -> {
+                newBoard[endX][endY].copyPiece(newBoard[startX][startY]);
+                newBoard[startX][startY] = new Piece();
+                //Extra special rules:
 
-                                
-                                game.setBlackCastleKingSide(false);
-                                game.setBlackCastleQueenSide(false);
-                            }
-                        }
+                // If the king moves, then it can no longer castle
+                if(newBoard[startX][startY].getName().equals("king")) {
+                    if(newBoard[startX][startY].getColor() == 'w') {
+                        // save the states in the move object first
 
-                         // if rooks move from their starting square then they cannot castle   
-                        if(newBoard[startX][startY].getName().equals("rook")) {
-                                // WHITE ROOKS
-                                if (startX == 7 && startY == 0) {
-                                    game.setWhiteCastleKingSide(false);
-                                } else if(startX == 0 && startY == 0) {
-                                    game.setWhiteCastleQueenSide(false);
-                                }
 
-                            // BLACK ROOKS
-                                if(startX == 7 && startY == 7) {
+                        game.setWhiteCastleKingSide(false);
+                        game.setWhiteCastleQueenSide(false);
+                    } else {
 
-                                    game.setBlackCastleKingSide(false);
-                                } else if (startX == 0 && startY == 7) {
-                                    game.setBlackCastleQueenSide(false);
-                                }
-                            }
 
-                        
-                        break;
+                        game.setBlackCastleKingSide(false);
+                        game.setBlackCastleQueenSide(false);
+                    }
+                }
+
+                // if rooks move from their starting square then they cannot castle
+                if(newBoard[startX][startY].getName().equals("rook")) {
+                    // WHITE ROOKS
+                    if (startX == 7 && startY == 0) {
+                        game.setWhiteCastleKingSide(false);
+                    } else if(startX == 0 && startY == 0) {
+                        game.setWhiteCastleQueenSide(false);
                     }
 
-                    case "Moved_Twice" -> {
-                        newBoard[endX][endY].copyPiece(newBoard[startX][startY]);
-                        newBoard[startX][startY] = new Piece();
-                        game.setEnPassantXY(move.getEnPassantX(), move.getEnPassantY());
-                        game.setEnPassantX(move.getEnPassantX());
-                        game.setEnPassantY(move.getEnPassantY());
-                        break;
+                    // BLACK ROOKS
+                    if(startX == 7 && startY == 7) {
+
+                        game.setBlackCastleKingSide(false);
+                    } else if (startX == 0 && startY == 7) {
+                        game.setBlackCastleQueenSide(false);
                     }
+                }
 
-                    case "Capture" -> {
-                        newBoard[endX][endY].copyPiece(newBoard[startX][startY]);
-                        newBoard[startX][startY] = new Piece();
-                        break;
-                    }
 
-                    case "En_Passant_Capture" -> {
-                        newBoard[endX][endY].copyPiece(newBoard[startX][startY]);
-                        newBoard[startX][startY] = new Piece();
+                break;
+            }
 
-                        // information about the enemy pawn is not stored
+            case "Moved_Twice" -> {
+                newBoard[endX][endY].copyPiece(newBoard[startX][startY]);
+                newBoard[startX][startY] = new Piece();
+                game.setEnPassantXY(move.getEnPassantX(), move.getEnPassantY());
+                game.setEnPassantX(move.getEnPassantX());
+                game.setEnPassantY(move.getEnPassantY());
+                break;
+            }
 
-                        if(color == 'w') {
-                            newBoard[endX][endY-1] = new Piece();
-                        } else {
-                            newBoard[endX][endY+1] = new Piece();
-                        }
+            case "Capture" -> {
+                newBoard[endX][endY].copyPiece(newBoard[startX][startY]);
+                newBoard[startX][startY] = new Piece();
+                break;
+            }
 
-                        game.setHalfMoveClock(-1);
-                        break;
-                    }
+            case "En_Passant_Capture" -> {
+                newBoard[endX][endY].copyPiece(newBoard[startX][startY]);
+                newBoard[startX][startY] = new Piece();
 
-                    case "Promote" -> {
-                        newBoard[endX][endY] = new Piece(move.getPromotePieceTo(), color);
-                        newBoard[startX][startY] = new Piece();
-                        break;
-                    }
+                // information about the enemy pawn is not stored
 
-                    case "Promote_Capture" -> {
-                        newBoard[endX][endY] = new Piece(move.getPromotePieceTo(), color);
-                        newBoard[startX][startY] = new Piece();
-                        break;
-                    }
+                if(color == 'w') {
+                    newBoard[endX][endY-1] = new Piece();
+                } else {
+                    newBoard[endX][endY+1] = new Piece();
+                }
 
-                    case "Castle_KingSide" -> {
-                        if(color == 'w') {
-                            newBoard[4][0] = new Piece();
-                            newBoard[7][0] = new Piece();
-                            newBoard[6][0] = new Piece("king",'w');
-                            newBoard[5][0] = new Piece("rook", 'w');
-                            game.setWhiteCastleKingSide(false);
-                            game.setWhiteCastleQueenSide(false);
-                        } else {
-                            newBoard[4][7] = new Piece();
-                            newBoard[7][7] = new Piece();
-                            newBoard[6][7] = new Piece("king",'b');
-                            newBoard[5][7] = new Piece("rook", 'b');
-                            game.setBlackCastleKingSide(false);
-                            game.setBlackCastleQueenSide(false);
-                        }
-                        break;
-                    }
+                game.setHalfMoveClock(-1);
+                break;
+            }
 
-                    case "Castle_QueenSide" -> {
-                        if(color == 'w') {
-                            newBoard[4][0] = new Piece();
-                            newBoard[0][0] = new Piece();
-                            newBoard[2][0] = new Piece("king", 'w');
-                            newBoard[3][0] = new Piece("rook", 'w');
-                            game.setWhiteCastleQueenSide(false);
-                            game.setWhiteCastleKingSide(false);
-                        } else {
-                            newBoard[4][7] = new Piece();
-                            newBoard[0][7] = new Piece();
-                            newBoard[2][7] = new Piece("king", 'b');
-                            newBoard[3][7] = new Piece("rook", 'b');
-                            game.setBlackCastleKingSide(false);
-                            game.setBlackCastleQueenSide(false);
-                        }
-                        break;
-                    }
+            case "Promote" -> {
+                newBoard[endX][endY] = new Piece(move.getPromotePieceTo(), color);
+                newBoard[startX][startY] = new Piece();
+                break;
+            }
 
-                    default-> {
-                        System.out.println("Error unrecognized move");
-                        break;
-                    }
-                } // End switch
+            case "Promote_Capture" -> {
+                newBoard[endX][endY] = new Piece(move.getPromotePieceTo(), color);
+                newBoard[startX][startY] = new Piece();
+                break;
+            }
 
-        
+            case "Castle_KingSide" -> {
+                if(color == 'w') {
+                    newBoard[4][0] = new Piece();
+                    newBoard[7][0] = new Piece();
+                    newBoard[6][0] = new Piece("king",'w');
+                    newBoard[5][0] = new Piece("rook", 'w');
+                    game.setWhiteCastleKingSide(false);
+                    game.setWhiteCastleQueenSide(false);
+                } else {
+                    newBoard[4][7] = new Piece();
+                    newBoard[7][7] = new Piece();
+                    newBoard[6][7] = new Piece("king",'b');
+                    newBoard[5][7] = new Piece("rook", 'b');
+                    game.setBlackCastleKingSide(false);
+                    game.setBlackCastleQueenSide(false);
+                }
+                break;
+            }
+
+            case "Castle_QueenSide" -> {
+                if(color == 'w') {
+                    newBoard[4][0] = new Piece();
+                    newBoard[0][0] = new Piece();
+                    newBoard[2][0] = new Piece("king", 'w');
+                    newBoard[3][0] = new Piece("rook", 'w');
+                    game.setWhiteCastleQueenSide(false);
+                    game.setWhiteCastleKingSide(false);
+                } else {
+                    newBoard[4][7] = new Piece();
+                    newBoard[0][7] = new Piece();
+                    newBoard[2][7] = new Piece("king", 'b');
+                    newBoard[3][7] = new Piece("rook", 'b');
+                    game.setBlackCastleKingSide(false);
+                    game.setBlackCastleQueenSide(false);
+                }
+                break;
+            }
+
+            default-> {
+                System.out.println("Error unrecognized move");
+                break;
+            }
+        } // End switch
+
+
         // swap the turns
 
         game.incrementHalfMoveClock();
@@ -2788,132 +2778,132 @@ public final class Engine {
         int endX = move.getEndX();
         int endY = move.getEndY();
         // Dichotmy of moves
-        
-        
-                switch(moveType) {
 
-                    case "Move" -> {
-                        newBoard[startX][startY].copyPiece(newBoard[endX][endY]);
-                        newBoard[endX][endY] = new Piece();
-                        //Extra special rules:
-                        
-                        //Castling rights for reverting moves?
-                        // If the king moves, then it can no longer castle
-                        if(newBoard[startX][startY].getName().equals("king")) {
-                            if(newBoard[startX][startY].getColor() == 'w') {
-                                game.setWhiteCastleKingSide(move.getPreviousKingCastleState());
-                                game.setWhiteCastleQueenSide(move.getPreviousQueenCastleState());
-                            } else {
-                                game.setBlackCastleKingSide(move.getPreviousKingCastleState());
-                                game.setBlackCastleQueenSide(move.getPreviousQueenCastleState());
-                            }
-                        }
 
-                         // if rooks move from their starting square then they cannot castle   
-                        if(newBoard[startX][startY].getName().equals("rook")) {
-                                // WHITE ROOKS
-                                if (startX == 7 && startY == 0) {
-                                    game.setWhiteCastleKingSide(move.getPreviousKingCastleState());
-                                } else if(startX == 0 && startY == 0) {
-                                    game.setWhiteCastleQueenSide(move.getPreviousQueenCastleState());
-                                }
+        switch(moveType) {
 
-                            // BLACK ROOKS
-                                if(startX == 7 && startY == 7) {
+            case "Move" -> {
+                newBoard[startX][startY].copyPiece(newBoard[endX][endY]);
+                newBoard[endX][endY] = new Piece();
+                //Extra special rules:
 
-                                    game.setBlackCastleKingSide(move.getPreviousKingCastleState());
-                                } else if (startX == 0 && startY == 7) {
-                                    game.setBlackCastleQueenSide(move.getPreviousQueenCastleState());
-                                }
-                            }
+                //Castling rights for reverting moves?
+                // If the king moves, then it can no longer castle
+                if(newBoard[startX][startY].getName().equals("king")) {
+                    if(newBoard[startX][startY].getColor() == 'w') {
+                        game.setWhiteCastleKingSide(move.getPreviousKingCastleState());
+                        game.setWhiteCastleQueenSide(move.getPreviousQueenCastleState());
+                    } else {
+                        game.setBlackCastleKingSide(move.getPreviousKingCastleState());
+                        game.setBlackCastleQueenSide(move.getPreviousQueenCastleState());
+                    }
+                }
 
-                        
-                        break;
+                // if rooks move from their starting square then they cannot castle
+                if(newBoard[startX][startY].getName().equals("rook")) {
+                    // WHITE ROOKS
+                    if (startX == 7 && startY == 0) {
+                        game.setWhiteCastleKingSide(move.getPreviousKingCastleState());
+                    } else if(startX == 0 && startY == 0) {
+                        game.setWhiteCastleQueenSide(move.getPreviousQueenCastleState());
                     }
 
-                    case "Moved_Twice" -> {
-                        newBoard[startX][startY].copyPiece(newBoard[endX][endY]);
-                        newBoard[endX][endY] = new Piece();
+                    // BLACK ROOKS
+                    if(startX == 7 && startY == 7) {
 
-                        break;
+                        game.setBlackCastleKingSide(move.getPreviousKingCastleState());
+                    } else if (startX == 0 && startY == 7) {
+                        game.setBlackCastleQueenSide(move.getPreviousQueenCastleState());
                     }
+                }
 
-                    case "Capture" -> {
-                        newBoard[startX][startY].copyPiece(newBoard[endX][endY]);
-                        newBoard[endX][endY] = new Piece(move.getCapturedPiece(),enemyColor);
 
-                        break;
-                    }
+                break;
+            }
 
-                    case "En_Passant_Capture" -> {
-                        newBoard[startX][startY].copyPiece(newBoard[endX][endY]);
-                        newBoard[endX][endY] = new Piece();
+            case "Moved_Twice" -> {
+                newBoard[startX][startY].copyPiece(newBoard[endX][endY]);
+                newBoard[endX][endY] = new Piece();
 
-                        // information about the enemy pawn is not stored
+                break;
+            }
 
-                        if(color == 'w') {
-                            newBoard[endX][endY-1] = new Piece("pawn",'b');
-                        } else {
-                            newBoard[endX][endY+1] = new Piece("pawn",'w');
-                        }
+            case "Capture" -> {
+                newBoard[startX][startY].copyPiece(newBoard[endX][endY]);
+                newBoard[endX][endY] = new Piece(move.getCapturedPiece(),enemyColor);
 
-                        game.setHalfMoveClock(-1);
-                        break;
-                    }
+                break;
+            }
 
-                    case "Promote" -> {
-                        newBoard[endX][endY] = new Piece();
-                        newBoard[startX][startY] = new Piece("pawn", color);
-                        break;
-                    }
+            case "En_Passant_Capture" -> {
+                newBoard[startX][startY].copyPiece(newBoard[endX][endY]);
+                newBoard[endX][endY] = new Piece();
 
-                    case "Promote_Capture" -> {
-                        newBoard[endX][endY] = new Piece(move.getCapturedPiece(),enemyColor);
-                        newBoard[startX][startY] = new Piece("pawn", color);
-                        break;
-                    }
+                // information about the enemy pawn is not stored
 
-                    case "Castle_KingSide" -> {
-                        if(color == 'w') {
-                            newBoard[4][0] = new Piece("king",'w');
-                            newBoard[7][0] = new Piece("rook", 'w');
-                            newBoard[6][0] = new Piece();
-                            newBoard[5][0] = new Piece();
-                            game.setWhiteCastleKingSide(move.getPreviousKingCastleState());
-                            game.setWhiteCastleQueenSide(move.getPreviousQueenCastleState());
-                        } else {
-                            newBoard[4][7] = new Piece("king",'b');
-                            newBoard[7][7] = new Piece("rook", 'b');
-                            newBoard[6][7] = new Piece();
-                            newBoard[5][7] = new Piece();
-                            game.setBlackCastleKingSide(move.getPreviousKingCastleState());
-                            game.setBlackCastleQueenSide(move.getPreviousQueenCastleState());
-                        }
-                        break;
-                    }
+                if(color == 'w') {
+                    newBoard[endX][endY-1] = new Piece("pawn",'b');
+                } else {
+                    newBoard[endX][endY+1] = new Piece("pawn",'w');
+                }
 
-                    case "Castle_QueenSide" -> {
-                        if(color == 'w') {
-                            newBoard[4][0] = new Piece("king", 'w');
-                            newBoard[0][0] = new Piece("rook", 'w');
-                            newBoard[2][0] = new Piece();
-                            newBoard[3][0] = new Piece();
+                game.setHalfMoveClock(-1);
+                break;
+            }
 
-                        } else {
-                            newBoard[4][7] = new Piece("king", 'b');
-                            newBoard[0][7] = new Piece("rook", 'b');
-                            newBoard[2][7] = new Piece();
-                            newBoard[3][7] = new Piece();
+            case "Promote" -> {
+                newBoard[endX][endY] = new Piece();
+                newBoard[startX][startY] = new Piece("pawn", color);
+                break;
+            }
 
-                        }
-                        break;
-                    }
+            case "Promote_Capture" -> {
+                newBoard[endX][endY] = new Piece(move.getCapturedPiece(),enemyColor);
+                newBoard[startX][startY] = new Piece("pawn", color);
+                break;
+            }
 
-                    default-> {
-                        System.out.println("Error unrecognized move");
-                        break;
-                    }
-                } // End switch
+            case "Castle_KingSide" -> {
+                if(color == 'w') {
+                    newBoard[4][0] = new Piece("king",'w');
+                    newBoard[7][0] = new Piece("rook", 'w');
+                    newBoard[6][0] = new Piece();
+                    newBoard[5][0] = new Piece();
+                    game.setWhiteCastleKingSide(move.getPreviousKingCastleState());
+                    game.setWhiteCastleQueenSide(move.getPreviousQueenCastleState());
+                } else {
+                    newBoard[4][7] = new Piece("king",'b');
+                    newBoard[7][7] = new Piece("rook", 'b');
+                    newBoard[6][7] = new Piece();
+                    newBoard[5][7] = new Piece();
+                    game.setBlackCastleKingSide(move.getPreviousKingCastleState());
+                    game.setBlackCastleQueenSide(move.getPreviousQueenCastleState());
+                }
+                break;
+            }
+
+            case "Castle_QueenSide" -> {
+                if(color == 'w') {
+                    newBoard[4][0] = new Piece("king", 'w');
+                    newBoard[0][0] = new Piece("rook", 'w');
+                    newBoard[2][0] = new Piece();
+                    newBoard[3][0] = new Piece();
+
+                } else {
+                    newBoard[4][7] = new Piece("king", 'b');
+                    newBoard[0][7] = new Piece("rook", 'b');
+                    newBoard[2][7] = new Piece();
+                    newBoard[3][7] = new Piece();
+
+                }
+                break;
+            }
+
+            default-> {
+                System.out.println("Error unrecognized move");
+                break;
+            }
+        } // End switch
 
         // Restore any states from the move being executed
 
@@ -2935,15 +2925,15 @@ public final class Engine {
         game.revertFullMoveClock();
         return game;
     } // End revertMove
-    
-    
+
+
     public Game copyGame(Game game, Game copy) {
         copy = new Game("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
         Piece[][] board = game.getBoard();
-        
+
         for(int i=0; i<8; i++) {
             for(int j=0; j<8; j++) {
-                copy.setBoard(game.getBoard()); // copy over the contents 
+                copy.setBoard(game.getBoard()); // copy over the contents
             }
         }
         copy.initFlippedBoard();
@@ -2957,14 +2947,14 @@ public final class Engine {
         copy.setEnPassantY(game.getEnPassantY());
         copy.setHalfMoveClock(game.getHalfMoveClock());
         copy.setFullMoveClock(game.getFullMoveClock());
-        
+
         return copy;
     }
-    
-    
+
+
     public void checkGameState(Game game) {
-        
-        
+
+
 //        if(isInCheck(game) && game.moves.isEmpty()) {
 //            System.out.println("Checkmate!");
 //            if(game.getActiveColor() == 'w') {
@@ -2977,8 +2967,8 @@ public final class Engine {
 //            game.setEvaluation(0);
 //        }
     } // end checkGame
-    
-    
+
+
     public double findBestMove(Game game, int depth, double alpha, double beta) {
         gamesSearched++;
         if(depth == maxDepth) {
@@ -3030,26 +3020,26 @@ public final class Engine {
         }
 
     } // end findBestMove
-    
-    
-    
-    
+
+
+
+
     // Testing Functions:
     public void printBoardState(Game game) {
-        
-        
+
+
         Piece[][] board = game.getBoard();
         char activeColor = game.getActiveColor();
         int halfMoveClock = game.getHalfMoveClock();
         int fullMoveClock = game.getFullMoveClock();
         String enPassant = game.getEnPassant();
-        
+
         boolean whiteCastleKingSide = game.getWhiteCastleKingSide();
         boolean whiteCastleQueenSide = game.getWhiteCastleQueenSide();
         boolean blackCastleKingSide = game.getBlackCastleKingSide();
         boolean blackCastleQueenSide = game.getBlackCastleQueenSide();
-        
-        
+
+
         System.out.println("Complete Board");
         for(int i=0; i<8; i++) {
             for(int j=0; j<8; j++) {
@@ -3075,10 +3065,10 @@ public final class Engine {
     public void printMoves(Game game) {
         Piece[][] board = game.getBoard();
         ArrayList<Move> moves = game.getMoveList();
-        
+
         System.out.println("VALID MOVES: " + moves.size());
-        
-        if(moves.isEmpty()) { 
+
+        if(moves.isEmpty()) {
             System.out.println("Game has ended");
         } else {
             for(int i=0; i<moves.size(); i++) {
@@ -3180,6 +3170,6 @@ public final class Engine {
     public char getActiveColor() { return game.getActiveColor(); }
     public int getHalfMoveClock() { return game.getHalfMoveClock(); }
     public int getFullMoveClock() { return game.getFullMoveClock(); }
-    
-    
+
+
 } // END ENGINE
