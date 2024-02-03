@@ -10,10 +10,18 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 
-// import ayy lmao
 public final class Engine {
 
     private final Game game;
+
+    private final int maxDepth = 3;
+    private int movesIndexed = 0;
+    private int gamesSearched = 0;
+    private int bestMoveIndex = 0;
+
+    // Multi threading
+    private final ExecutorService executorService;
+
 
     //Piece-Square Tables from
     // https://www.chessprogramming.org/PeSTO%27s_Evaluation_Function
@@ -30,8 +38,6 @@ public final class Engine {
             {98, 134,  61,  95,  68, 126, 34, -11},
             { 0,   0,   0,   0,   0,   0,  0,   0},
     };
-
-
     private final int[][] blackPawnPST = {
             { 0,   0,   0,   0,   0,   0,  0,   0},
             {98, 134,  61,  95,  68, 126, 34, -11},
@@ -52,7 +58,6 @@ public final class Engine {
             {-73, -41,  72,  36,  23,  62,   7,  -17},
             {-167, -89, -34, -49,  61, -97, -15, -107},
     };
-
     private final int[][] blackKnightPST = {
             {-167, -89, -34, -49,  61, -97, -15, -107},
             {-73, -41,  72,  36,  23,  62,   7,  -17},
@@ -63,7 +68,6 @@ public final class Engine {
             {-29, -53, -12,  -3,  -1,  18, -14,  -19},
             {-105, -21, -58, -33, -17, -28, -19,  -23},
     };
-
     private final int[][] whiteBishopPST = {
             {-33,  -3, -14, -21, -13, -12, -39, -21},
             {4,  15,  16,   0,   7,  21,  33,   1},
@@ -74,7 +78,6 @@ public final class Engine {
             {-26,  16, -18, -13,  30,  59,  18, -47},
             {-29,   4, -82, -37, -25, -42,   7,  -8},
     };
-
     private final int[][] blackBishopPST = {
             {-29,   4, -82, -37, -25, -42,   7,  -8},
             {-26,  16, -18, -13,  30,  59,  18, -47},
@@ -95,7 +98,6 @@ public final class Engine {
             {27,  32,  58,  62, 80, 67,  26,  44},
             {32,  42,  32,  51, 63,  9,  31,  43},
     };
-
     private final int[][] blackRookPST = {
             {32,  42,  32,  51, 63,  9,  31,  43},
             {27,  32,  58,  62, 80, 67,  26,  44},
@@ -116,7 +118,6 @@ public final class Engine {
             {-24, -39,  -5,   1, -16,  57,  28,  54},
             {-28,   0,  29,  12,  59,  44,  43,  45},
     };
-
     private final int[][]  blackQueenPST= {
             {-28,   0,  29,  12,  59,  44,  43,  45},
             {-24, -39,  -5,   1, -16,  57,  28,  54},
@@ -137,7 +138,6 @@ public final class Engine {
             {29,  -1, -20,  -7,  -8,  -4, -38, -29},
             {-65,  23,  16, -15, -56, -34,   2,  13},
     };
-
     private final int[][] blackKingPST = {
             {-65,  23,  16, -15, -56, -34,   2,  13},
             {29,  -1, -20,  -7,  -8,  -4, -38, -29},
@@ -148,17 +148,6 @@ public final class Engine {
             {1,   7,  -8, -64, -43, -16,   9,   8},
             {-15,  36,  12, -54,   8, -28,  24,  14},
     };
-
-    private final int maxDepth = 1;
-    private int movesIndexed = 0;
-    private int gamesSearched = 0;
-    private int bestMoveIndex = 0;
-
-    // Multi threading
-    private final ExecutorService executorService;
-
-
-
     public Engine(String input) {
 
         // Create a thread pool with a fixed number of threads
@@ -168,8 +157,10 @@ public final class Engine {
 //        game = new Game(input);
 //        evaluate(game);
 //        printBoardState(game);
+
+
 //        double timeStart = System.currentTimeMillis();
-////        startSearch(game);
+//        game.moves = updateMoves(game):
 //        for(int i=0; i<8; i++) {
 //            updateMoves(game,i);
 //        }
@@ -180,32 +171,16 @@ public final class Engine {
 //        printBoardState(game);
 
 
-
-
-
-
-
-//          game = new Game(input);
-//          evaluate(game);
-//          Move move = new Move(4,6,4,4, "Moved_Twice", "", 4,5, "");;
-//          makeMove(game, move);
-//          printBoardState(game);
-//          revertMove(game,move)
-//          printMoves(game);
-//
-
         game = new Game(input);
         double timeStart = System.currentTimeMillis();
-
-        for(int i=0; i<8;i++) {
-            updateMoves(game,i);
-        }
+        game.moves = updateMoves(game);
         printMoves(game);
         double lowestValue = -100000.0;
         double highestValue = 100000.0;
-        findBestMove(game,0,lowestValue,highestValue);
+        findBestMove(game,0,lowestValue,highestValue, true);
+        System.out.println("Games searched: " + gamesSearched );
         double timeEnd = System.currentTimeMillis();
-        double totalTime = timeEnd - timeStart;
+        double totalTime = (timeEnd - timeStart) / 1000;
         System.out.println("Total Time: " + totalTime + " seconds for " + gamesSearched + " games");
 
 
@@ -222,10 +197,6 @@ public final class Engine {
     public void startSearch( Game game) {
         // Submit tasks for parallel execution
 
-
-        for(int i=0; i<8;i++) {
-            updateMoves(game,i);
-        }
         /*
         Future<?> future1 = executorService.submit(() -> updateMoves(game, 0));
         Future<?> future2 = executorService.submit(() -> updateMoves(game, 1));
@@ -270,6 +241,7 @@ public final class Engine {
 
         int whiteMaterial = 0;
         int blackMaterial = 0;
+        int totalMaterial = 0;
 
         for(int i=0; i<8;i++) {
             for(int j=0; j<8;j++){
@@ -281,9 +253,11 @@ public final class Engine {
                         if(piece.getColor() == 'w') {
                             whitePosition += whitePawnPST[i][j];
                             whiteMaterial += piece.getValue();
+                            totalMaterial += piece.getValue();
                         } else {
                             blackPosition += blackPawnPST[i][j];
                             blackMaterial += piece.getValue();
+                            totalMaterial += piece.getValue();
                         }
                     } // End case pawn
 
@@ -291,9 +265,11 @@ public final class Engine {
                         if(piece.getColor() == 'w') {
                             whitePosition += whiteKnightPST[i][j];
                             whiteMaterial += piece.getValue();
+                            totalMaterial += piece.getValue();
                         } else {
                             blackPosition += blackKnightPST[i][j];
                             blackMaterial += piece.getValue();
+                            totalMaterial += piece.getValue();
                         }
                     } // End case knight
 
@@ -301,9 +277,11 @@ public final class Engine {
                         if(piece.getColor() == 'w') {
                             whitePosition += whiteBishopPST[i][j];
                             whiteMaterial += piece.getValue();
+                            totalMaterial += piece.getValue();
                         } else {
                             blackPosition += blackBishopPST[i][j];
                             blackMaterial += piece.getValue();
+                            totalMaterial += piece.getValue();
                         }
                     } // End case bishop
 
@@ -311,9 +289,11 @@ public final class Engine {
                         if(piece.getColor() == 'w') {
                             whitePosition += whiteRookPST[i][j];
                             whiteMaterial += piece.getValue();
+                            totalMaterial += piece.getValue();
                         } else {
                             blackPosition += blackRookPST[i][j];
                             blackMaterial += piece.getValue();
+                            totalMaterial += piece.getValue();
                         }
                     } // End case rook
 
@@ -321,9 +301,11 @@ public final class Engine {
                         if(piece.getColor() == 'w') {
                             whitePosition += whiteQueenPST[i][j];
                             whiteMaterial += piece.getValue();
+                            totalMaterial += piece.getValue();
                         } else {
                             blackPosition += blackQueenPST[i][j];
                             blackMaterial += piece.getValue();
+                            totalMaterial += piece.getValue();
                         }
                     } // End case queen
 
@@ -342,19 +324,58 @@ public final class Engine {
         } // End outerloop
 
 
-        //Value is between 1 and -1
-        double doubleWhiteMaterial = (double) whiteMaterial  / 39.0;
-        double doubleBlackMaterial = (double) blackMaterial  / 39.0;
+        // Evaluation
+
+        double materialWeight = 0.4;
+        double positionWeight = 0.6;
+
+        int materialDifference = whiteMaterial - blackMaterial;
+        // Dynamic weighting based on material imbalance
+        // Calculating the weightage
+        // The bigger the material difference, the less the position matters
+        // The smaller the material difference, the more position matters
+        if (materialDifference > 8 || materialDifference < -8) { // material difference for > 8 points difference
+            materialWeight = 0.9;
+            positionWeight = 0.1;
+        } else if (materialDifference > 6 || materialDifference < -6) { // material difference for > 6 points difference
+            materialWeight = 0.7;
+            positionWeight = 0.3;
+        } else if (materialDifference > 4 || materialDifference < -4) { // material difference for > 4 points difference
+            materialWeight = 0.5;
+            positionWeight = 0.5;
+        } else if (materialDifference > 1 || materialDifference < -1) { // material difference for > 1 points difference
+            materialWeight = 0.3;
+            positionWeight = 0.7;
+        }
 
 
-        double whiteCalc = (double) whiteMaterial;
-        double blackCalc = (double) blackMaterial;
-        game.setEvaluation(whiteCalc - blackCalc);
+        // Calculating material difference values
+        // Sigmoid function:
+        // y = 1/(1.1 + e^(-x+4)) { 40 > x > 0 }
+        double materialValue;
+         if(materialDifference > 0) {                                           // POSITIVE Material Diff
+            materialValue = 1.0 / (1.1 + Math.exp(-(materialDifference) + 4));
+        } else if(materialDifference < 0) {
+             materialDifference *= -1;                                          // NEGATIVE Material Diff
+             materialValue = 1.0 / (1.1 + Math.exp(-(materialDifference) + 4));
+             materialValue *= -1.0;
+        } else {                                                               // EQUAL Material Diff
+                materialValue = 0.0;
+        }
+        materialValue *= materialWeight;
+
+        // Calculating the positional difference values
+        final double positionScalar = 1169.0; // this is the highest amount of points possible given a full board
+        double whitePositionValue = (double) (whitePosition / positionScalar) * positionWeight;
+        double blackPositionValue = (double) (blackPosition / positionScalar) * positionWeight;
+        double evaluation = (whitePositionValue - blackPositionValue + materialValue);
+
+        game.setEvaluation(evaluation);
         return game.getEvaluation();
     } // end evaluate
 
     // multithreading function
-    public void updateMoves(Game game, int row) {
+    public ArrayList<Move> updateMoves(Game game) {
        /*
             OKIE FLOW CHART FOR HOW MOVES ARE DETERMINED
 
@@ -393,21 +414,21 @@ public final class Engine {
         boolean whiteCastleQueenSide = game.getWhiteCastleQueenSide();
         boolean blackCastleKingSide = game.getBlackCastleKingSide();
         boolean blackCastleQueenSide = game.getBlackCastleQueenSide();
-        ArrayList<Move> moves = game.getMoveList();
+        ArrayList<Move> moves = new ArrayList<>();
 
-        int i = row;
-        for(int j=0; j<8; j++) {
-            movesIndexed++;
-            Piece piece = board[i][j];
-            String pieceName = piece.getName();
-            char color = piece.getColor();
+        for(int i=0; i<8 ;i++) {
+            for (int j = 0; j < 8; j++) {
+                movesIndexed++;
+                Piece piece = board[i][j];
+                String pieceName = piece.getName();
+                char color = piece.getColor();
 
-            if(activeColor == color) {
+                if (activeColor == color) {
 
-                switch(pieceName) {
+                    switch (pieceName) {
 
-                    case "pawn" -> {
-                        if(activeColor == color) {
+                        case "pawn" -> {
+                            if (activeColor == color) {
 
                             /*
                             Pawns are the only uni-directional piece depending on the
@@ -415,1163 +436,1160 @@ public final class Engine {
                             White and black
 
                             */
-                            /**********************************************/
-                            /************** WHITE PAWN MOVING**************/
-                            /**********************************************/
+                                // ***************************** White Pawn moving *****************************
 
-                            if(color == 'w') {
+                                if (color == 'w') {
 
-                                // Forward one
-                                if( j<6 /*promote is a different check*/) {
-                                    int x = i, y = j+1; // coords interested in
-                                    if(board[x][y].isEmpty()) {
-                                        // Can move forward one
-                                        Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
-                                        if(checkIfMoveIsValid(game,move)) {
-                                            moves.add(move);
+                                    // Forward one
+                                    if (j < 6 /*promote is a different check*/) {
+                                        int x = i, y = j + 1; // coords interested in
+                                        if (board[x][y].isEmpty()) {
+                                            // Can move forward one
+                                            Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                                            if (checkIfMoveIsValid(game, move)) {
+                                                moves.add(move);
+                                            }
                                         }
                                     }
-                                }
-                                // Forward two if on the starting position
-                                if( j<6 && j == 1 /*promote is a different check*/) {
-                                    int x = i, y = j+2; // coords interested in
-                                    if(board[i][j+1].isEmpty() && board[x][y].isEmpty()) {
-                                        // Can move forward two
-                                        Move move = new Move(i,j,x,y, "Moved_Twice", "", i,(j+y)/2, "");
-                                        if(checkIfMoveIsValid(game,move)) {
-                                            moves.add(move);
+                                    // Forward two if on the starting position
+                                    if (j < 6 && j == 1 /*promote is a different check*/) {
+                                        int x = i, y = j + 2; // coords interested in
+                                        if (board[i][j + 1].isEmpty() && board[x][y].isEmpty()) {
+                                            // Can move forward two
+                                            Move move = new Move(i, j, x, y, "Moved_Twice", "", i, (j + y) / 2, "");
+                                            if (checkIfMoveIsValid(game, move)) {
+                                                moves.add(move);
+                                            }
                                         }
                                     }
-                                }
 
-                                // Attacking to the left (A pawn cannot attack left)
-                                // Includes if it can attack the en passant square
-                                if( i>0 && j<6 /*Promote is a different case*/ ) {
-                                    int x = i-1, y = j+1; // coords interested in
-                                    if(board[x][y].isEnemy(color)) {
-                                        // Can attack left
+                                    // Attacking to the left (A pawn cannot attack left)
+                                    // Includes if it can attack the en passant square
+                                    if (i > 0 && j < 6 /*Promote is a different case*/) {
+                                        int x = i - 1, y = j + 1; // coords interested in
+                                        if (board[x][y].isEnemy(color)) {
+                                            // Can attack left
+                                            String enemyName = board[x][y].getName();
+                                            Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                                            if (checkIfMoveIsValid(game, move)) {
+                                                moves.add(move);
+                                            }
+                                        }
+
+                                        if (enPassantX == (x) && enPassantY == (y) && board[x][y].isEnemy(color)) {
+                                            Move move = new Move(i, j, x, y, "En_Passant_Capture", "pawn", x, y, "");
+                                            if (checkIfMoveIsValid(game, move)) {
+                                                moves.add(move);
+
+                                            }
+                                        }
+
+                                    }
+
+                                    //Attacking to the right (H pawn cannot attack right)
+                                    // Includes if it can attack the en passant
+                                    if (i < 7 && j < 6) {
+                                        int x = i + 1, y = j + 1; // coords interested in
+                                        if (board[x][y].isEnemy(color)) {
+                                            String enemyName = board[x][y].getName();
+                                            Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                                            if (checkIfMoveIsValid(game, move)) {
+                                                moves.add(move);
+                                            }
+                                        }
+                                        if (enPassantX == (x) && enPassantY == (y)) {
+
+                                            Move move = new Move(i, j, x, y, "En_Passant_Capture", "pawn", x, y, "");
+                                            if (checkIfMoveIsValid(game, move)) {
+                                                moves.add(move);
+                                            } else {
+                                            }
+                                        }
+                                    }
+
+                                    // Promote via moving
+                                    if (j == 6) {
+                                        int x = i, y = j + 1; // coords interested in
+                                        if (board[x][y].isEmpty()) {
+                                            // Can promote to queen, rook, bishop, knight
+                                            Move move1 = new Move(i, j, x, y, "Promote", "", x, y, "queen");
+                                            Move move2 = new Move(i, j, x, y, "Promote", "", x, y, "rook");
+                                            Move move3 = new Move(i, j, x, y, "Promote", "", x, y, "bishop");
+                                            Move move4 = new Move(i, j, x, y, "Promote", "", x, y, "knight");
+
+                                            if (checkIfMoveIsValid(game, move1)) {
+                                                moves.add(move1);
+                                            }
+                                            if (checkIfMoveIsValid(game, move2)) {
+                                                moves.add(move2);
+                                            }
+                                            if (checkIfMoveIsValid(game, move3)) {
+                                                moves.add(move3);
+                                            }
+                                            if (checkIfMoveIsValid(game, move4)) {
+                                                moves.add(move4);
+                                            }
+
+                                        }
+                                    }
+
+                                    // Promote via capturing to the left (A pawn cannot attack left)
+                                    if (i > 0 && j == 6) {
+                                        int x = i - 1, y = j + 1; // coords interested in
+                                        if (board[x][y].isEnemy(color)) {
+                                            // Can attack left
+                                            String enemyName = board[x][y].getName();
+                                            Move move1 = new Move(i, j, x, y, "Promote_Capture", enemyName, x, y, "queen");
+                                            Move move2 = new Move(i, j, x, y, "Promote_Capture", enemyName, x, y, "rook");
+                                            Move move3 = new Move(i, j, x, y, "Promote_Capture", enemyName, x, y, "bishop");
+                                            Move move4 = new Move(i, j, x, y, "Promote_Capture", enemyName, x, y, "knight");
+                                            if (checkIfMoveIsValid(game, move1)) {
+                                                moves.add(move1);
+                                            }
+                                            if (checkIfMoveIsValid(game, move2)) {
+                                                moves.add(move2);
+                                            }
+                                            if (checkIfMoveIsValid(game, move3)) {
+                                                moves.add(move3);
+                                            }
+                                            if (checkIfMoveIsValid(game, move4)) {
+                                                moves.add(move4);
+                                            }
+                                        }
+                                    }
+
+                                    // Promote via capturing to the right (H pawn cannot attack right)
+                                    //Attacking to the right (H pawn cannot attack right)
+                                    if (i < 7 && j == 6) {
+                                        int x = i + 1, y = j + 1; // coords interested in
+                                        if (board[x][y].isEnemy(color)) {
+                                            // Can attack right
+                                            String enemyName = board[x][y].getName();
+                                            Move move1 = new Move(i, j, x, y, "Promote_Capture", enemyName, x, y, "queen");
+                                            Move move2 = new Move(i, j, x, y, "Promote_Capture", enemyName, x, y, "rook");
+                                            Move move3 = new Move(i, j, x, y, "Promote_Capture", enemyName, x, y, "bishop");
+                                            Move move4 = new Move(i, j, x, y, "Promote_Capture", enemyName, x, y, "knight");
+                                            if (checkIfMoveIsValid(game, move1)) {
+                                                moves.add(move1);
+                                            }
+                                            if (checkIfMoveIsValid(game, move2)) {
+                                                moves.add(move2);
+                                            }
+                                            if (checkIfMoveIsValid(game, move3)) {
+                                                moves.add(move3);
+                                            }
+                                            if (checkIfMoveIsValid(game, move4)) {
+                                                moves.add(move4);
+                                            }
+                                        }
+                                    }
+
+                                    // END White Pawn's code
+                                } else {
+
+                                    // ***************************** Black Pawn moving *****************************
+
+                                    // Forward one
+                                    if (j > 1 /*promote is a different check */) {
+                                        int x = i, y = j - 1; // coords interested in
+                                        if (board[x][y].isEmpty()) {
+                                            // can move forward one
+                                            Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                                            if (checkIfMoveIsValid(game, move)) {
+                                                moves.add(move);
+                                            }
+                                        }
+                                    }
+
+                                    // Forward two if on the starting position
+                                    if (j > 1 && j == 6) {
+                                        int x = i, y = j - 2; // coords interested in
+                                        if (board[i][j - 1].isEmpty() && board[x][y].isEmpty()) {
+                                            // can move forward two
+                                            Move move = new Move(i, j, x, y, "Moved_Twice", "", i, (j + y) / 2, "");
+                                            if (checkIfMoveIsValid(game, move)) {
+                                                moves.add(move);
+                                            }
+                                        }
+                                    }
+
+                                    // Attacking to the left (A pawn cannot attack to the left) (from white perspective)
+                                    // Includes if it can attack the en passant square
+                                    if (i > 0 && j > 1) {
+                                        int x = i - 1, y = j - 1; // coords interested in
+                                        if (board[x][y].isEnemy(color)) {
+                                            // can attack left
+                                            String enemyName = board[x][y].getName();
+                                            Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                                            if (checkIfMoveIsValid(game, move)) {
+                                                moves.add(move);
+                                            }
+                                        }
+
+                                        if (enPassantX == (x) && enPassantY == (y)) {
+                                            Move move = new Move(i, j, x, y, "En_Passant_Capture", "pawn", x, y, "");
+                                            if (checkIfMoveIsValid(game, move)) {
+                                                moves.add(move);
+                                            }
+                                        }
+                                    }
+
+                                    // Attacking to the right (H pawn cannot attack to the right) (from white perspective)
+                                    // Includes it if can attack the en passant square
+
+                                    if (i < 7 && j > 1) {
+                                        int x = i + 1, y = j - 1;
+                                        if (board[x][y].isEnemy(color)) {
+                                            // can attack right
+                                            String enemyName = board[x][y].getName();
+                                            Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                                            if (checkIfMoveIsValid(game, move)) {
+                                                moves.add(move);
+                                            }
+                                        }
+
+                                        if (enPassantX == (x) && enPassantY == (y)) {
+                                            Move move = new Move(i, j, x, y, "En_Passant_Capture", "pawn", x, y, "");
+                                            if (checkIfMoveIsValid(game, move)) {
+                                                moves.add(move);
+                                            }
+                                        }
+                                    }
+
+                                    // Promote via moving
+
+                                    if (j == 1) {
+                                        int x = i, y = j - 1;
+                                        if (board[x][y].isEmpty()) {
+                                            // Can promote to queen ,rock, bishop knight
+                                            Move move1 = new Move(i, j, x, y, "Promote", "", x, y, "queen");
+                                            Move move2 = new Move(i, j, x, y, "Promote", "", x, y, "rook");
+                                            Move move3 = new Move(i, j, x, y, "Promote", "", x, y, "bishop");
+                                            Move move4 = new Move(i, j, x, y, "Promote", "", x, y, "knight");
+                                            if (checkIfMoveIsValid(game, move1)) {
+                                                moves.add(move1);
+                                            }
+                                            if (checkIfMoveIsValid(game, move2)) {
+                                                moves.add(move2);
+                                            }
+                                            if (checkIfMoveIsValid(game, move3)) {
+                                                moves.add(move3);
+                                            }
+                                            if (checkIfMoveIsValid(game, move4)) {
+                                                moves.add(move4);
+                                            }
+                                        }
+                                    }
+
+                                    // Promote via capturing to the left (A pawn cannot attack to the left)
+                                    if (i > 0 && j == 1) {
+                                        int x = i - 1, y = j - 1; // coords interested in
+                                        if (board[x][y].isEnemy(color)) {
+                                            // can attack left to promote
+                                            String enemyName = board[x][y].getName();
+                                            Move move1 = new Move(i, j, x, y, "Promote_Capture", enemyName, x, y, "queen");
+                                            Move move2 = new Move(i, j, x, y, "Promote_Capture", enemyName, x, y, "rook");
+                                            Move move3 = new Move(i, j, x, y, "Promote_Capture", enemyName, x, y, "bishop");
+                                            Move move4 = new Move(i, j, x, y, "Promote_Capture", enemyName, x, y, "knight");
+                                            if (checkIfMoveIsValid(game, move1)) {
+                                                moves.add(move1);
+                                            }
+                                            if (checkIfMoveIsValid(game, move2)) {
+                                                moves.add(move2);
+                                            }
+                                            if (checkIfMoveIsValid(game, move3)) {
+                                                moves.add(move3);
+                                            }
+                                            if (checkIfMoveIsValid(game, move4)) {
+                                                moves.add(move4);
+                                            }
+                                        }
+                                    }
+
+
+                                    // Promote via capturing to the right (H pawn cannot attack to the right) (White's perspective)
+                                    if (i > 0 && j == 1) {
+                                        int x = i + 1, y = j - 1; // coords interested in
+                                        if ( x >= 0 && x <=7 && y >=0 && y <= 7 && board[x][y].isEnemy(color)) {
+                                            // can attack right to promote
+                                            String enemyName = board[x][y].getName();
+                                            Move move1 = new Move(i, j, x, y, "Promote_Capture", enemyName, x, y, "queen");
+                                            Move move2 = new Move(i, j, x, y, "Promote_Capture", enemyName, x, y, "rook");
+                                            Move move3 = new Move(i, j, x, y, "Promote_Capture", enemyName, x, y, "bishop");
+                                            Move move4 = new Move(i, j, x, y, "Promote_Capture", enemyName, x, y, "knight");
+                                            if (checkIfMoveIsValid(game, move1)) {
+                                                moves.add(move1);
+
+                                            }
+
+                                            if (checkIfMoveIsValid(game, move2)) {
+                                                moves.add(move2);
+                                            }
+                                            if (checkIfMoveIsValid(game, move3)) {
+                                                moves.add(move3);
+                                            }
+                                            if (checkIfMoveIsValid(game, move4)) {
+                                                moves.add(move4);
+                                            }
+                                        }
+                                    }
+                                } // End BLACK's pawn code
+                            }
+                            break;
+                        } // End case pawn
+
+                        case "bishop" -> {
+                            // 4 Diagonals:
+
+                            int x = i;
+                            int y = j;
+
+                            // Top Right
+                            while (x < 7 && y < 7) {
+                                x++;
+                                y++;
+                                if (board[x][y].isEmpty()) {
+                                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                } else {
+                                    // Piece blocks bishop's way
+                                    if (board[x][y].isEnemy(color)) {
                                         String enemyName = board[x][y].getName();
-                                        Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                        if(checkIfMoveIsValid(game,move)) {
+                                        Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                                        if (checkIfMoveIsValid(game, move)) {
                                             moves.add(move);
                                         }
+                                        break; // break as there is a piece blocking
+                                    } else {
+                                        break; // block as there is a friendly piece blocking
                                     }
-
-                                    if(enPassantX == (x) && enPassantY == (y)) {
-                                        Move move = new Move(i,j,x,y, "En_Passant_Capture", "pawn", x,y, "");
-                                        if(checkIfMoveIsValid(game,move)) {
-                                            moves.add(move);
-
-                                        }
-                                    }
-
                                 }
+                            }
 
-                                //Attacking to the right (H pawn cannot attack right)
-                                // Includes if it can attack the en passant
-                                if( i<7 && j<6) {
-                                    int x = i+1, y = j+1; // coords interested in
-                                    if(board[x][y].isEnemy(color)) {
+                            // Top Left
+                            x = i;
+                            y = j;
+                            while (x > 0 && y < 7) {
+                                x--;
+                                y++;
+                                if (board[x][y].isEmpty()) {
+                                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                } else {
+                                    // Piece blocks bishop's way
+                                    if (board[x][y].isEnemy(color)) {
                                         String enemyName = board[x][y].getName();
-                                        Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                        if(checkIfMoveIsValid(game,move)) {
+                                        Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                                        if (checkIfMoveIsValid(game, move)) {
                                             moves.add(move);
                                         }
-                                    }
-                                    if(enPassantX == (x) && enPassantY == (y)) {
-
-                                        Move move = new Move(i,j,x,y, "En_Passant_Capture", "pawn", x,y, "");
-                                        if(checkIfMoveIsValid(game,move)) {
-                                            moves.add(move);
-                                        } else {
-                                        }
+                                        break; // break as there is a piece blocking
+                                    } else {
+                                        break; // block as there is a friendly piece blocking
                                     }
                                 }
-
-                                // Promote via moving
-                                if(j == 6) {
-                                    int x = i, y = j+1; // coords interested in
-                                    if(board[x][y].isEmpty()) {
-                                        // Can promote to queen, rook, bishop, knight
-                                        Move move1 = new Move(i,j,x,y, "Promote", "", x,y, "queen");
-                                        Move move2 = new Move(i,j,x,y, "Promote", "", x,y, "rook");
-                                        Move move3 = new Move(i,j,x,y, "Promote", "", x,y, "bishop");
-                                        Move move4 = new Move(i,j,x,y, "Promote", "", x,y, "knight");
-
-                                        if(checkIfMoveIsValid(game,move1)) {
-                                            moves.add(move1);
-                                        }
-                                        if(checkIfMoveIsValid(game,move2)) {
-                                            moves.add(move2);
-                                        }
-                                        if(checkIfMoveIsValid(game,move3)) {
-                                            moves.add(move3);
-                                        }
-                                        if(checkIfMoveIsValid(game,move4)) {
-                                            moves.add(move4);
-                                        }
-
+                            }
+                            // Bottom Right
+                            x = i;
+                            y = j;
+                            while (x < 7 && y > 0) {
+                                x++;
+                                y--;
+                                if (board[x][y].isEmpty()) {
+                                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
                                     }
-                                }
-
-                                // Promote via capturing to the left (A pawn cannot attack left)
-                                if( i>0 && j == 6) {
-                                    int x = i-1, y = j+1; // coords interested in
-                                    if(board[x][y].isEnemy(color)) {
-                                        // Can attack left
+                                } else {
+                                    // Piece blocks bishop's way
+                                    if (board[x][y].isEnemy(color)) {
                                         String enemyName = board[x][y].getName();
-                                        Move move1 = new Move(i,j,x,y, "Promote_Capture", enemyName, x,y, "queen");
-                                        Move move2 = new Move(i,j,x,y, "Promote_Capture", enemyName, x,y, "rook");
-                                        Move move3 = new Move(i,j,x,y, "Promote_Capture", enemyName, x,y, "bishop");
-                                        Move move4 = new Move(i,j,x,y, "Promote_Capture", enemyName, x,y, "knight");
-                                        if(checkIfMoveIsValid(game,move1)) {
-                                            moves.add(move1);
+                                        Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                                        if (checkIfMoveIsValid(game, move)) {
+                                            moves.add(move);
                                         }
-                                        if(checkIfMoveIsValid(game,move2)) {
-                                            moves.add(move2);
-                                        }
-                                        if(checkIfMoveIsValid(game,move3)) {
-                                            moves.add(move3);
-                                        }
-                                        if(checkIfMoveIsValid(game,move4)) {
-                                            moves.add(move4);
-                                        }
+                                        break; // break as there is a piece blocking
+                                    } else {
+                                        break; // block as there is a friendly piece blocking
                                     }
                                 }
+                            }
 
-                                // Promote via capturing to the right (H pawn cannot attack right)
-                                //Attacking to the right (H pawn cannot attack right)
-                                if( i<7 && j==6) {
-                                    int x = i+1, y = j+1; // coords interested in
-                                    if(board[x][y].isEnemy(color)) {
-                                        // Can attack right
+                            // Bottom Left
+                            x = i;
+                            y = j;
+                            while (x > 0 && y > 0) {
+                                x--;
+                                y--;
+                                if (board[x][y].isEmpty()) {
+                                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                } else {
+                                    // Piece blocks bishop's way
+                                    if (board[x][y].isEnemy(color)) {
                                         String enemyName = board[x][y].getName();
-                                        Move move1 = new Move(i,j,x,y, "Promote_Capture", enemyName, x,y, "queen");
-                                        Move move2 = new Move(i,j,x,y, "Promote_Capture", enemyName, x,y, "rook");
-                                        Move move3 = new Move(i,j,x,y, "Promote_Capture", enemyName, x,y, "bishop");
-                                        Move move4 = new Move(i,j,x,y, "Promote_Capture", enemyName, x,y, "knight");
-                                        if(checkIfMoveIsValid(game,move1)) {
-                                            moves.add(move1);
-                                        }
-                                        if(checkIfMoveIsValid(game,move2)) {
-                                            moves.add(move2);
-                                        }
-                                        if(checkIfMoveIsValid(game,move3)) {
-                                            moves.add(move3);
-                                        }
-                                        if(checkIfMoveIsValid(game,move4)) {
-                                            moves.add(move4);
-                                        }
-                                    }
-                                }
-
-                                // END White Pawn's code
-                            } else {
-                                /**********************************************/
-                                /************** BLACK PAWN MOVING**************/
-                                /**********************************************/
-
-                                // Forward one
-                                if(j>1 /*promote is a different check */) {
-                                    int x = i, y = j-1; // coords interested in
-                                    if(board[x][y].isEmpty()) {
-                                        // can move forward one
-                                        Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
-                                        if(checkIfMoveIsValid(game,move)) {
+                                        Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                                        if (checkIfMoveIsValid(game, move)) {
                                             moves.add(move);
                                         }
+                                        break; // break as there is a piece blocking
+                                    } else {
+                                        break; // block as there is a friendly piece blocking
                                     }
                                 }
+                            }
+                            break;
+                        } // End case bishop
 
-                                // Forward two if on the starting position
-                                if(j>1 && j == 6) {
-                                    int x = i, y = j-2; // coords interested in
-                                    if(board[i][j-1].isEmpty() && board[x][y].isEmpty()) {
-                                        // can move forward two
-                                        Move move = new Move(i,j,x,y, "Moved_Twice", "", i,(j+y)/2, "");
-                                        if(checkIfMoveIsValid(game,move)) {
-                                            moves.add(move);
-                                        }
+                        case "knight" -> {
+
+                            // Knight has 8 possible attacks
+
+
+                            int x = i;
+                            int y = j;
+
+                            // TWO UP (LEFT / RIGHT)
+
+                            // Right
+                            x++;
+                            y += 2;
+                            if (x <= 7 && y <= 7) {
+
+                                if (board[x][y].isEmpty()) {
+                                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                } else if (board[x][y].isEnemy(color)) {
+                                    String enemyName = board[x][y].getName();
+                                    Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
                                     }
                                 }
+                            }
 
-                                // Attacking to the left (A pawn cannot attack to the left) (from white perspective)
-                                // Includes if it can attack the en passant square
-                                if(i > 0 && j>1) {
-                                    int x = i-1, y = j-1; // coords interested in
-                                    if(board[x][y].isEnemy(color)) {
-                                        // can attack left
+
+                            // Left
+                            x = i;
+                            y = j;
+                            x--;
+                            y += 2;
+                            if (x >= 0 && y <= 7) {
+
+                                if (board[x][y].isEmpty()) {
+                                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                } else if (board[x][y].isEnemy(color)) {
+                                    String enemyName = board[x][y].getName();
+                                    Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                }
+                            }
+
+
+                            // TWO DOWN (LEFT / RIGHT)
+                            x = i;
+                            y = j;
+                            // Right
+                            x++;
+                            y -= 2;
+                            if (x <= 7 && y >= 0) {
+
+                                if (board[x][y].isEmpty()) {
+                                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                } else if (board[x][y].isEnemy(color)) {
+                                    String enemyName = board[x][y].getName();
+                                    Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                }
+                            }
+
+                            // Left
+                            x = i;
+                            y = j;
+                            x--;
+                            y -= 2;
+                            if (x >= 0 && y >= 0) {
+
+                                if (board[x][y].isEmpty()) {
+                                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                } else if (board[x][y].isEnemy(color)) {
+                                    String enemyName = board[x][y].getName();
+                                    Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                }
+                            }
+
+                            // TWO RIGHT (UP/DOWN)
+                            x = i;
+                            y = j;
+                            // up
+                            x += 2;
+                            y++;
+                            if (x <= 7 && y <= 7) {
+
+                                if (board[x][y].isEmpty()) {
+                                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                } else if (board[x][y].isEnemy(color)) {
+                                    String enemyName = board[x][y].getName();
+                                    Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                }
+                            }
+
+                            // down
+                            x = i;
+                            y = j;
+                            x += 2;
+                            y--;
+                            if (x <= 7 && y >= 0) {
+
+                                if (board[x][y].isEmpty()) {
+                                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                } else if (board[x][y].isEnemy(color)) {
+                                    String enemyName = board[x][y].getName();
+                                    Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                }
+                            }
+                            // TWO LEFT (UP/DOWN)
+                            x = i;
+                            y = j;
+                            // up
+                            x -= 2;
+                            y++;
+                            if (x >= 0 && y <= 7) {
+
+                                if (board[x][y].isEmpty()) {
+                                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                } else if (board[x][y].isEnemy(color)) {
+                                    String enemyName = board[x][y].getName();
+                                    Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                }
+                            }
+
+                            // down
+                            x = i;
+                            y = j;
+                            x -= 2;
+                            y--;
+                            if (x >= 0 && y >= 0) {
+
+                                if (board[x][y].isEmpty()) {
+                                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                } else if (board[x][y].isEnemy(color)) {
+                                    String enemyName = board[x][y].getName();
+                                    Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                }
+                            }
+                            break;
+                        } // End case knight
+
+                        case "rook" -> {
+
+                            // 4 DIRECTIONS:
+                            // POSITIVE X
+                            int x = i;
+                            int y = j;
+                            while (x < 7) {
+                                x++;
+                                if (board[x][y].isEmpty()) {
+                                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                } else {
+                                    // Piece blocks rook's way
+                                    if (board[x][y].isEnemy(color)) {
                                         String enemyName = board[x][y].getName();
-                                        Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                        if(checkIfMoveIsValid(game,move)) {
+                                        Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                                        if (checkIfMoveIsValid(game, move)) {
                                             moves.add(move);
                                         }
-                                    }
-
-                                    if(enPassantX == (x) && enPassantY == (y)) {
-                                        Move move = new Move(i,j,x,y, "En_Passant_Capture", "pawn", x,y, "");
-                                        if(checkIfMoveIsValid(game,move)) {
-                                            moves.add(move);
-                                        }
+                                        break; // break as there is a piece blocking
+                                    } else {
+                                        break; // block as there is a friendly piece blocking
                                     }
                                 }
+                            }
+                            // NEGATIVE X
+                            x = i;
+                            y = j;
+                            while (x > 0) {
+                                x--;
+                                if (board[x][y].isEmpty()) {
+                                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
 
-                                // Attacking to the right (H pawn cannot attack to the right) (from white perspective)
-                                // Includes it if can attack the en passant square
-
-                                if(i < 7 && j>1) {
-                                    int x = i+1, y = j-1;
-                                    if(board[x][y].isEnemy(color)) {
-                                        // can attack right
+                                } else {
+                                    // Piece blocks rook's way
+                                    if (board[x][y].isEnemy(color)) {
                                         String enemyName = board[x][y].getName();
-                                        Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                        if(checkIfMoveIsValid(game,move)) {
+                                        Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                                        if (checkIfMoveIsValid(game, move)) {
                                             moves.add(move);
                                         }
+                                        break; // break as there is a piece blocking
+                                    } else {
+                                        break; // block as there is a friendly piece blocking
                                     }
+                                }
+                            }
 
-                                    if(enPassantX == (x) && enPassantY == (y)) {
-                                        Move move = new Move(i,j,x,y, "En_Passant_Capture", "pawn", x,y, "");
-                                        if(checkIfMoveIsValid(game,move)) {
+                            // POSITIVE Y
+                            x = i;
+                            y = j;
+                            while (y < 7) {
+                                y++;
+                                if (board[x][y].isEmpty()) {
+                                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                } else {
+                                    // Piece blocks rook's way
+                                    if (board[x][y].isEnemy(color)) {
+                                        String enemyName = board[x][y].getName();
+                                        Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                                        if (checkIfMoveIsValid(game, move)) {
                                             moves.add(move);
                                         }
+                                        break; // break as there is a piece blocking
+                                    } else {
+                                        break; // block as there is a friendly piece blocking
                                     }
                                 }
-
-                                // Promote via moving
-
-                                if(j == 1) {
-                                    int x = i, y = j-1;
-                                    if(board[x][y].isEmpty()) {
-                                        // Can promote to queen ,rock, bishop knight
-                                        Move move1 = new Move(i,j,x,y, "Promote", "", x,y, "queen");
-                                        Move move2 = new Move(i,j,x,y, "Promote", "", x,y, "rook");
-                                        Move move3 = new Move(i,j,x,y, "Promote", "", x,y, "bishop");
-                                        Move move4 = new Move(i,j,x,y, "Promote", "", x,y, "knight");
-                                        if(checkIfMoveIsValid(game,move1)) {
-                                            moves.add(move1);
-                                        }
-                                        if(checkIfMoveIsValid(game,move2)) {
-                                            moves.add(move2);
-                                        }
-                                        if(checkIfMoveIsValid(game,move3)) {
-                                            moves.add(move3);
-                                        }
-                                        if(checkIfMoveIsValid(game,move4)) {
-                                            moves.add(move4);
-                                        }
+                            }
+                            // NEGATIVE Y
+                            x = i;
+                            y = j;
+                            while (y > 0) {
+                                y--;
+                                if (board[x][y].isEmpty()) {
+                                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
                                     }
-                                }
-
-                                // Promote via capturing to the left (A pawn cannot attack to the left)
-                                if(i > 0 && j==1) {
-                                    int x = i-1, y = j-1; // coords interested in
-                                    if(board[x][y].isEnemy(color)) {
-                                        // can attack left to promote
+                                } else {
+                                    // Piece blocks bishop's way
+                                    if (board[x][y].isEnemy(color)) {
                                         String enemyName = board[x][y].getName();
-                                        Move move1 = new Move(i,j,x,y, "Promote_Capture", enemyName, x,y, "queen");
-                                        Move move2 = new Move(i,j,x,y, "Promote_Capture", enemyName, x,y, "rook");
-                                        Move move3 = new Move(i,j,x,y, "Promote_Capture", enemyName, x,y, "bishop");
-                                        Move move4 = new Move(i,j,x,y, "Promote_Capture", enemyName, x,y, "knight");
-                                        if(checkIfMoveIsValid(game,move1)) {
-                                            moves.add(move1);
+                                        Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                                        if (checkIfMoveIsValid(game, move)) {
+                                            moves.add(move);
                                         }
-                                        if(checkIfMoveIsValid(game,move2)) {
-                                            moves.add(move2);
-                                        }
-                                        if(checkIfMoveIsValid(game,move3)) {
-                                            moves.add(move3);
-                                        }
-                                        if(checkIfMoveIsValid(game,move4)) {
-                                            moves.add(move4);
-                                        }
+                                        break; // break as there is a piece blocking
+                                    } else {
+                                        break; // block as there is a friendly piece blocking
                                     }
                                 }
+                            }
+                            break;
+                        } // END case rook
 
+                        case "queen" -> {
 
-                                // Promote via capturing to the right (H pawn cannot attack to the right) (White's perspective)
-                                if(i > 0 && j==1) {
-                                    int x = i+1, y = j-1; // coords interested in
-                                    if(board[x][y].isEnemy(color)) {
-                                        // can attack right to promote
+                            // 4 AXIS:
+                            // POSITIVE X
+                            int x = i;
+                            int y = j;
+                            while (x < 7) {
+                                x++;
+                                if (board[x][y].isEmpty()) {
+                                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                } else {
+                                    // Piece blocks rook's way
+                                    if (board[x][y].isEnemy(color)) {
                                         String enemyName = board[x][y].getName();
-                                        Move move1 = new Move(i,j,x,y, "Promote_Capture", enemyName, x,y, "queen");
-                                        Move move2 = new Move(i,j,x,y, "Promote_Capture", enemyName, x,y, "rook");
-                                        Move move3 = new Move(i,j,x,y, "Promote_Capture", enemyName, x,y, "bishop");
-                                        Move move4 = new Move(i,j,x,y, "Promote_Capture", enemyName, x,y, "knight");
-                                        if(checkIfMoveIsValid(game,move1)) {
-                                            moves.add(move1);
-
+                                        Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                                        if (checkIfMoveIsValid(game, move)) {
+                                            moves.add(move);
                                         }
-
-                                        if(checkIfMoveIsValid(game,move2)) {
-                                            moves.add(move2);
-                                        }
-                                        if(checkIfMoveIsValid(game,move3)) {
-                                            moves.add(move3);
-                                        }
-                                        if(checkIfMoveIsValid(game,move4)) {
-                                            moves.add(move4);
-                                        }
+                                        break; // break as there is a piece blocking
+                                    } else {
+                                        break; // block as there is a friendly piece blocking
                                     }
                                 }
-                            } // End BLACK's pawn code
-                        }
-                        break;
-                    } // End case pawn
+                            }
+                            // NEGATIVE X
+                            x = i;
+                            y = j;
+                            while (x > 0) {
+                                x--;
+                                if (board[x][y].isEmpty()) {
+                                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
 
-                    case "bishop" -> {
-                        // 4 Diagonals:
+                                } else {
+                                    // Piece blocks rook's way
+                                    if (board[x][y].isEnemy(color)) {
+                                        String enemyName = board[x][y].getName();
+                                        Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                                        if (checkIfMoveIsValid(game, move)) {
+                                            moves.add(move);
+                                        }
+                                        break; // break as there is a piece blocking
+                                    } else {
+                                        break; // block as there is a friendly piece blocking
+                                    }
+                                }
+                            }
 
-                        int x = i;
-                        int y = j;
+                            // POSITIVE Y
+                            x = i;
+                            y = j;
+                            while (y < 7) {
+                                y++;
+                                if (board[x][y].isEmpty()) {
+                                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                } else {
+                                    // Piece blocks rook's way
+                                    if (board[x][y].isEnemy(color)) {
+                                        String enemyName = board[x][y].getName();
+                                        Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                                        if (checkIfMoveIsValid(game, move)) {
+                                            moves.add(move);
+                                        }
+                                        break; // break as there is a piece blocking
+                                    } else {
+                                        break; // block as there is a friendly piece blocking
+                                    }
+                                }
+                            }
+                            // NEGATIVE Y
+                            x = i;
+                            y = j;
+                            while (y > 0) {
+                                y--;
+                                if (board[x][y].isEmpty()) {
+                                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                } else {
+                                    // Piece blocks bishop's way
+                                    if (board[x][y].isEnemy(color)) {
+                                        String enemyName = board[x][y].getName();
+                                        Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                                        if (checkIfMoveIsValid(game, move)) {
+                                            moves.add(move);
+                                        }
+                                        break; // break as there is a piece blocking
+                                    } else {
+                                        break; // block as there is a friendly piece blocking
+                                    }
+                                }
+                            }
 
-                        // Top Right
-                        while(x < 7 && y < 7) {
+                            // 4 Diagonals:
+
+                            x = i;
+                            y = j;
+
+                            // Top Right
+                            while (x < 7 && y < 7) {
+                                x++;
+                                y++;
+                                if (board[x][y].isEmpty()) {
+                                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                } else {
+                                    // Piece blocks bishop's way
+                                    if (board[x][y].isEnemy(color)) {
+                                        String enemyName = board[x][y].getName();
+                                        Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                                        if (checkIfMoveIsValid(game, move)) {
+                                            moves.add(move);
+                                        }
+                                        break; // break as there is a piece blocking
+                                    } else {
+                                        break; // block as there is a friendly piece blocking
+                                    }
+                                }
+                            }
+
+                            // Top Left
+                            x = i;
+                            y = j;
+                            while (x > 0 && y < 7) {
+                                x--;
+                                y++;
+                                if (board[x][y].isEmpty()) {
+                                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                } else {
+                                    // Piece blocks bishop's way
+                                    if (board[x][y].isEnemy(color)) {
+                                        String enemyName = board[x][y].getName();
+                                        Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                                        if (checkIfMoveIsValid(game, move)) {
+                                            moves.add(move);
+                                        }
+                                        break; // break as there is a piece blocking
+                                    } else {
+                                        break; // block as there is a friendly piece blocking
+                                    }
+                                }
+                            }
+                            // Bottom Right
+                            x = i;
+                            y = j;
+                            while (x < 7 && y > 0) {
+                                x++;
+                                y--;
+                                if (board[x][y].isEmpty()) {
+                                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                } else {
+                                    // Piece blocks bishop's way
+                                    if (board[x][y].isEnemy(color)) {
+                                        String enemyName = board[x][y].getName();
+                                        Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                                        if (checkIfMoveIsValid(game, move)) {
+                                            moves.add(move);
+                                        }
+                                        break; // break as there is a piece blocking
+                                    } else {
+                                        break; // block as there is a friendly piece blocking
+                                    }
+                                }
+                            }
+
+                            // Bottom Left
+                            x = i;
+                            y = j;
+                            while (x > 0 && y > 0) {
+                                x--;
+                                y--;
+                                if (board[x][y].isEmpty()) {
+                                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                } else {
+                                    // Piece blocks bishop's way
+                                    if (board[x][y].isEnemy(color)) {
+                                        String enemyName = board[x][y].getName();
+                                        Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                                        if (checkIfMoveIsValid(game, move)) {
+                                            moves.add(move);
+                                        }
+                                        break; // break as there is a piece blocking
+                                    } else {
+                                        break; // block as there is a friendly piece blocking
+                                    }
+                                }
+                            }
+
+                            break;
+                        } // End case queen
+
+                        case "king" -> {
+
+                            /****************************************
+                             * Special Notes:
+                             * The king cannot take a piece under check
+                             * However, I think due to the minimax algorithm, it should
+                             * be able to avoid that unless it is at the terminated depth
+                             *
+                             * King also has the ability to castle
+                             ****************************************/
+
+                            int x = i;
+                            int y = j;
+
+                            // 4 horizontal axis
+                            x++;
+                            if (x <= 7) {
+
+
+                                if (board[x][y].isEmpty()) {
+                                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                }
+
+                                if (board[x][y].isEnemy(color)) {
+                                    String enemyName = board[x][y].getName();
+                                    Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                }
+
+
+                            }
+
+                            x = i;
+                            y = j;
+                            x--;
+                            if (x >= 0 && (board[x][y].isEmpty() || board[x][y].isEnemy(color))) {
+                                if (board[x][y].isEmpty()) {
+                                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                }
+
+                                if (board[x][y].isEnemy(color)) {
+                                    String enemyName = board[x][y].getName();
+                                    Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                }
+
+                            }
+
+                            x = i;
+                            y = j;
+                            y++;
+                            if (y <= 7) {
+                                if (board[x][y].isEmpty()) {
+                                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                }
+
+                                if (board[x][y].isEnemy(color)) {
+                                    String enemyName = board[x][y].getName();
+                                    Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                }
+
+                            }
+
+                            x = i;
+                            y = j;
+                            y--;
+                            if (y >= 0) {
+                                if (board[x][y].isEmpty()) {
+                                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                }
+
+                                if (board[x][y].isEnemy(color)) {
+                                    String enemyName = board[x][y].getName();
+                                    Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                }
+
+                            }
+
+                            // Diagonals
+
+                            x = i;
+                            y = j;
+
+                            // TOP RIGHT
                             x++;
                             y++;
-                            if(board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            } else {
-                                // Piece blocks bishop's way
-                                if(board[x][y].isEnemy(color)) {
-                                    String enemyName = board[x][y].getName();
-                                    Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                    if(checkIfMoveIsValid(game,move)) {
+                            if (x <= 7 && y <= 7) {
+                                if (board[x][y].isEmpty()) {
+                                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
                                         moves.add(move);
                                     }
-                                    break; // break as there is a piece blocking
-                                } else {
-                                    break; // block as there is a friendly piece blocking
                                 }
-                            }
-                        }
 
-                        // Top Left
-                        x = i;
-                        y = j;
-                        while(x > 0 && y < 7) {
+                                if (board[x][y].isEnemy(color)) {
+                                    String enemyName = board[x][y].getName();
+                                    Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                }
+
+                            }
+
+                            // TOP LEFT
+                            x = i;
+                            y = j;
                             x--;
                             y++;
-                            if(board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            } else {
-                                // Piece blocks bishop's way
-                                if(board[x][y].isEnemy(color)) {
-                                    String enemyName = board[x][y].getName();
-                                    Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                    if(checkIfMoveIsValid(game,move)) {
+                            if (x >= 0 && y <= 7) {
+                                if (board[x][y].isEmpty()) {
+                                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
                                         moves.add(move);
                                     }
-                                    break; // break as there is a piece blocking
-                                } else {
-                                    break; // block as there is a friendly piece blocking
                                 }
+
+                                if (board[x][y].isEnemy(color)) {
+                                    String enemyName = board[x][y].getName();
+                                    Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                }
+
                             }
-                        }
-                        // Bottom Right
-                        x = i;
-                        y = j;
-                        while(x < 7 && y > 0) {
+
+                            // Bottom RIGHT
+                            x = i;
+                            y = j;
                             x++;
                             y--;
-                            if(board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            } else {
-                                // Piece blocks bishop's way
-                                if(board[x][y].isEnemy(color)) {
-                                    String enemyName = board[x][y].getName();
-                                    Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                    if(checkIfMoveIsValid(game,move)) {
+                            if ((x <= 7 && y >= 0)) {
+                                if (board[x][y].isEmpty()) {
+                                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
                                         moves.add(move);
                                     }
-                                    break; // break as there is a piece blocking
-                                } else {
-                                    break; // block as there is a friendly piece blocking
                                 }
-                            }
-                        }
 
-                        // Bottom Left
-                        x = i;
-                        y = j;
-                        while(x > 0 && y > 0) {
+                                if (board[x][y].isEnemy(color)) {
+                                    String enemyName = board[x][y].getName();
+                                    Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                }
+
+                            }
+                            // Bottom LEFT
+                            x = i;
+                            y = j;
                             x--;
                             y--;
-                            if(board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
+                            if (x >= 0 && y >= 0) {
+                                if (board[x][y].isEmpty()) {
+                                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                }
+
+                                if (board[x][y].isEnemy(color)) {
+                                    String enemyName = board[x][y].getName();
+                                    Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                                    if (checkIfMoveIsValid(game, move)) {
+                                        moves.add(move);
+                                    }
+                                }
+
+                            }
+                            // CASTLING RIGHTS
+                            if (color == 'w') {
+
+                                if (whiteCastleKingSide) {
+                                    if (board[5][0].isEmpty() && board[6][0].isEmpty()) {
+
+                                        if (!isSquareInCheck(game, 4, 0) && !isSquareInCheck(game, 5, 0) &&
+                                                !isSquareInCheck(game, 6, 0)) {
+                                            Move move = new Move(4, 0, 6, 0, "Castle_KingSide", "", -1, -1, "");
+                                            moves.add(move);
+                                        }
+
+                                    }
+                                }
+                                if (whiteCastleQueenSide) {
+                                    if (board[3][0].isEmpty() && board[2][0].isEmpty() && board[1][0].isEmpty()) {
+                                        if (!isSquareInCheck(game, 1, 0) &&
+                                                !isSquareInCheck(game, 2, 0) && !isSquareInCheck(game, 3, 0) && !isSquareInCheck(game, 4, 0)) {
+                                            Move move = new Move(4, 0, 2, 0, "Castle_QueenSide", "", -1, -1, "");
+                                            moves.add(move);
+                                        }
+                                    }
                                 }
                             } else {
-                                // Piece blocks bishop's way
-                                if(board[x][y].isEnemy(color)) {
-                                    String enemyName = board[x][y].getName();
-                                    Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
+
+                                if (blackCastleKingSide) {
+                                    if (board[5][7].isEmpty() && board[6][7].isEmpty()) {
+                                        if (!isSquareInCheck(game, 4, 7) && !isSquareInCheck(game, 5, 7) &&
+                                                !isSquareInCheck(game, 6, 7)) {
+                                            Move move = new Move(4, 7, 6, 7, "Castle_KingSide", "", -1, -1, "");
+                                            moves.add(move);
+                                        }
                                     }
-                                    break; // break as there is a piece blocking
-                                } else {
-                                    break; // block as there is a friendly piece blocking
                                 }
-                            }
-                        }
-                        break;
-                    } // End case bishop
-
-                    case "knight" -> {
-
-                        // Knight has 8 possible attacks
-
-
-
-                        int x = i;
-                        int y = j;
-
-                        // TWO UP (LEFT / RIGHT)
-
-                        // Right
-                        x++;
-                        y+=2;
-                        if( x <= 7 && y<= 7) {
-
-                            if(board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            } else if(board[x][y].isEnemy(color)) {
-                                String enemyName = board[x][y].getName();
-                                Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            }
-                        }
-
-
-                        // Left
-                        x = i;
-                        y = j;
-                        x--;
-                        y+=2;
-                        if( x >= 0 && y<= 7) {
-
-                            if(board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            } else if(board[x][y].isEnemy(color)) {
-                                String enemyName = board[x][y].getName();
-                                Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            }
-                        }
-
-
-                        // TWO DOWN (LEFT / RIGHT)
-                        x = i;
-                        y = j;
-                        // Right
-                        x++;
-                        y-=2;
-                        if( x <= 7  && y>=0) {
-
-                            if(board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            } else if(board[x][y].isEnemy(color)) {
-                                String enemyName = board[x][y].getName();
-                                Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            }
-                        }
-
-                        // Left
-                        x = i;
-                        y = j;
-                        x--;
-                        y-=2;
-                        if( x >= 0 && y >= 0) {
-
-                            if(board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            } else if(board[x][y].isEnemy(color)) {
-                                String enemyName = board[x][y].getName();
-                                Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            }
-                        }
-
-                        // TWO RIGHT (UP/DOWN)
-                        x = i;
-                        y = j;
-                        // up
-                        x+=2;
-                        y++;
-                        if( x <= 7  && y <= 7) {
-
-                            if(board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            } else if(board[x][y].isEnemy(color)) {
-                                String enemyName = board[x][y].getName();
-                                Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            }
-                        }
-
-                        // down
-                        x = i;
-                        y = j;
-                        x+=2;
-                        y--;
-                        if( x <=7 && y >= 0) {
-
-                            if(board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            } else if(board[x][y].isEnemy(color)) {
-                                String enemyName = board[x][y].getName();
-                                Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            }
-                        }
-                        // TWO LEFT (UP/DOWN)
-                        x = i;
-                        y = j;
-                        // up
-                        x-=2;
-                        y++;
-                        if( x >= 0  && y <= 7) {
-
-                            if(board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            } else if(board[x][y].isEnemy(color)) {
-                                String enemyName = board[x][y].getName();
-                                Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            }
-                        }
-
-                        // down
-                        x = i;
-                        y = j;
-                        x-=2;
-                        y--;
-                        if( x >= 0 && y >= 0) {
-
-                            if(board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            } else if(board[x][y].isEnemy(color)) {
-                                String enemyName = board[x][y].getName();
-                                Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            }
-                        }
-                        break;
-                    } // End case knight
-
-                    case "rook" -> {
-
-                        // 4 DIRECTIONS:
-                        // POSITIVE X
-                        int x = i;
-                        int y = j;
-                        while(x < 7) {
-                            x++;
-                            if(board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            } else {
-                                // Piece blocks rook's way
-                                if(board[x][y].isEnemy(color)) {
-                                    String enemyName = board[x][y].getName();
-                                    Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                    break; // break as there is a piece blocking
-                                } else {
-                                    break; // block as there is a friendly piece blocking
-                                }
-                            }
-                        }
-                        // NEGATIVE X
-                        x = i;
-                        y = j;
-                        while(x > 0) {
-                            x--;
-                            if(board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-
-                            } else {
-                                // Piece blocks rook's way
-                                if(board[x][y].isEnemy(color)) {
-                                    String enemyName = board[x][y].getName();
-                                    Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                    break; // break as there is a piece blocking
-                                } else {
-                                    break; // block as there is a friendly piece blocking
-                                }
-                            }
-                        }
-
-                        // POSITIVE Y
-                        x = i;
-                        y = j;
-                        while(y < 7) {
-                            y++;
-                            if(board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            } else {
-                                // Piece blocks rook's way
-                                if(board[x][y].isEnemy(color)) {
-                                    String enemyName = board[x][y].getName();
-                                    Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                    break; // break as there is a piece blocking
-                                } else {
-                                    break; // block as there is a friendly piece blocking
-                                }
-                            }
-                        }
-                        // NEGATIVE Y
-                        x = i;
-                        y = j;
-                        while(y > 0) {
-                            y--;
-                            if(board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            } else {
-                                // Piece blocks bishop's way
-                                if(board[x][y].isEnemy(color)) {
-                                    String enemyName = board[x][y].getName();
-                                    Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                    break; // break as there is a piece blocking
-                                } else {
-                                    break; // block as there is a friendly piece blocking
-                                }
-                            }
-                        }
-                        break;
-                    } // END case rook
-
-                    case "queen" -> {
-
-                        // 4 AXIS:
-                        // POSITIVE X
-                        int x = i;
-                        int y = j;
-                        while(x < 7) {
-                            x++;
-                            if(board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            } else {
-                                // Piece blocks rook's way
-                                if(board[x][y].isEnemy(color)) {
-                                    String enemyName = board[x][y].getName();
-                                    Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                    break; // break as there is a piece blocking
-                                } else {
-                                    break; // block as there is a friendly piece blocking
-                                }
-                            }
-                        }
-                        // NEGATIVE X
-                        x = i;
-                        y = j;
-                        while(x > 0) {
-                            x--;
-                            if(board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-
-                            } else {
-                                // Piece blocks rook's way
-                                if(board[x][y].isEnemy(color)) {
-                                    String enemyName = board[x][y].getName();
-                                    Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                    break; // break as there is a piece blocking
-                                } else {
-                                    break; // block as there is a friendly piece blocking
-                                }
-                            }
-                        }
-
-                        // POSITIVE Y
-                        x = i;
-                        y = j;
-                        while(y < 7) {
-                            y++;
-                            if(board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            } else {
-                                // Piece blocks rook's way
-                                if(board[x][y].isEnemy(color)) {
-                                    String enemyName = board[x][y].getName();
-                                    Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                    break; // break as there is a piece blocking
-                                } else {
-                                    break; // block as there is a friendly piece blocking
-                                }
-                            }
-                        }
-                        // NEGATIVE Y
-                        x = i;
-                        y = j;
-                        while(y > 0) {
-                            y--;
-                            if(board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            } else {
-                                // Piece blocks bishop's way
-                                if(board[x][y].isEnemy(color)) {
-                                    String enemyName = board[x][y].getName();
-                                    Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                    break; // break as there is a piece blocking
-                                } else {
-                                    break; // block as there is a friendly piece blocking
-                                }
-                            }
-                        }
-
-                        // 4 Diagonals:
-
-                        x = i;
-                        y = j;
-
-                        // Top Right
-                        while(x < 7 && y < 7) {
-                            x++;
-                            y++;
-                            if(board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            } else {
-                                // Piece blocks bishop's way
-                                if(board[x][y].isEnemy(color)) {
-                                    String enemyName = board[x][y].getName();
-                                    Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                    break; // break as there is a piece blocking
-                                } else {
-                                    break; // block as there is a friendly piece blocking
-                                }
-                            }
-                        }
-
-                        // Top Left
-                        x = i;
-                        y = j;
-                        while(x > 0 && y < 7) {
-                            x--;
-                            y++;
-                            if(board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            } else {
-                                // Piece blocks bishop's way
-                                if(board[x][y].isEnemy(color)) {
-                                    String enemyName = board[x][y].getName();
-                                    Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                    break; // break as there is a piece blocking
-                                } else {
-                                    break; // block as there is a friendly piece blocking
-                                }
-                            }
-                        }
-                        // Bottom Right
-                        x = i;
-                        y = j;
-                        while(x < 7 && y > 0) {
-                            x++;
-                            y--;
-                            if(board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            } else {
-                                // Piece blocks bishop's way
-                                if(board[x][y].isEnemy(color)) {
-                                    String enemyName = board[x][y].getName();
-                                    Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                    break; // break as there is a piece blocking
-                                } else {
-                                    break; // block as there is a friendly piece blocking
-                                }
-                            }
-                        }
-
-                        // Bottom Left
-                        x = i;
-                        y = j;
-                        while(x > 0 && y > 0) {
-                            x--;
-                            y--;
-                            if(board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            } else {
-                                // Piece blocks bishop's way
-                                if(board[x][y].isEnemy(color)) {
-                                    String enemyName = board[x][y].getName();
-                                    Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                    if(checkIfMoveIsValid(game,move)) {
-                                        moves.add(move);
-                                    }
-                                    break; // break as there is a piece blocking
-                                } else {
-                                    break; // block as there is a friendly piece blocking
-                                }
-                            }
-                        }
-
-                        break;
-                    } // End case queen
-
-                    case "king" -> {
-
-                        /****************************************
-                         * Special Notes:
-                         * The king cannot take a piece under check
-                         * However, I think due to the minimax algorithm, it should
-                         * be able to avoid that unless it is at the terminated depth
-                         *
-                         * King also has the ability to castle
-                         ****************************************/
-
-                        int x = i;
-                        int y = j;
-
-                        // 4 horizontal axis
-                        x++;
-                        if( x <= 7 ) {
-
-
-                            if(board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            }
-
-                            if(board[x][y].isEnemy(color)) {
-                                String enemyName = board[x][y].getName();
-                                Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            }
-
-
-                        }
-
-                        x = i;
-                        y = j;
-                        x--;
-                        if(x >= 0 && (board[x][y].isEmpty() || board[x][y].isEnemy(color)) ) {
-                            if(board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            }
-
-                            if(board[x][y].isEnemy(color)) {
-                                String enemyName = board[x][y].getName();
-                                Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            }
-
-                        }
-
-                        x = i;
-                        y = j;
-                        y++;
-                        if( y <= 7) {
-                            if(board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            }
-
-                            if(board[x][y].isEnemy(color)) {
-                                String enemyName = board[x][y].getName();
-                                Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            }
-
-                        }
-
-                        x = i;
-                        y = j;
-                        y--;
-                        if( y>=0   ) {
-                            if(board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            }
-
-                            if(board[x][y].isEnemy(color)) {
-                                String enemyName = board[x][y].getName();
-                                Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            }
-
-                        }
-
-                        // Diagonals
-
-                        x = i;
-                        y = j;
-
-                        // TOP RIGHT
-                        x++;
-                        y++;
-                        if(x <= 7 && y <= 7) {
-                            if(board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            }
-
-                            if(board[x][y].isEnemy(color)) {
-                                String enemyName = board[x][y].getName();
-                                Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            }
-
-                        }
-
-                        // TOP LEFT
-                        x = i;
-                        y = j;
-                        x--;
-                        y++;
-                        if(x >= 0 && y <=7) {
-                            if(board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            }
-
-                            if(board[x][y].isEnemy(color)) {
-                                String enemyName = board[x][y].getName();
-                                Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            }
-
-                        }
-
-                        // Bottom RIGHT
-                        x = i;
-                        y = j;
-                        x++;
-                        y--;
-                        if( (x<=7 && y >= 0)) {
-                            if(board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            }
-
-                            if(board[x][y].isEnemy(color)) {
-                                String enemyName = board[x][y].getName();
-                                Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            }
-
-                        }
-                        // Bottom LEFT
-                        x = i;
-                        y = j;
-                        x--;
-                        y--;
-                        if(x>= 0 && y>=0) {
-                            if(board[x][y].isEmpty()) {
-                                Move move = new Move(i,j,x,y, "Move", "", -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            }
-
-                            if(board[x][y].isEnemy(color)) {
-                                String enemyName = board[x][y].getName();
-                                Move move = new Move(i,j,x,y, "Capture", enemyName, -1,-1, "");
-                                if(checkIfMoveIsValid(game,move)) {
-                                    moves.add(move);
-                                }
-                            }
-
-                        }
-                        // CASTLING RIGHTS
-                        if(color == 'w') {
-
-                            if(whiteCastleKingSide) {
-                                if(board[5][0].isEmpty() && board[6][0].isEmpty()) {
-
-                                    if(!isSquareInCheck(game,4,0) && !isSquareInCheck(game,5,0) &&
-                                            !isSquareInCheck(game,6,0) ) {
-                                        Move move = new Move(4,0,6,0,"Castle_KingSide", "", -1, -1, "");
-                                        moves.add(move);
-                                    }
-
-                                }
-                            }
-                            if(whiteCastleQueenSide) {
-                                if(board[3][0].isEmpty() && board[2][0].isEmpty() && board[1][0].isEmpty()) {
-                                    if( !isSquareInCheck(game,1,0) &&
-                                            !isSquareInCheck(game,2,0) && !isSquareInCheck(game,3,0) && !isSquareInCheck(game,4,0)) {
-                                        Move move = new Move(4,0,2,0,"Castle_QueenSide", "", -1, -1, "");
-                                        moves.add(move);
+                                if (blackCastleQueenSide) {
+                                    if (board[3][7].isEmpty() && board[2][7].isEmpty() && board[1][7].isEmpty()) {
+                                        if (!isSquareInCheck(game, 1, 7) &&
+                                                !isSquareInCheck(game, 2, 7) && !isSquareInCheck(game, 3, 7) && !isSquareInCheck(game, 4, 7)) {
+                                            Move move = new Move(4, 7, 2, 7, "Castle_QueenSide", "", -1, -1, "");
+                                            moves.add(move);
+                                        }
                                     }
                                 }
                             }
-                        } else {
 
-                            if(blackCastleKingSide) {
-                                if(board[5][7].isEmpty() && board[6][7].isEmpty()) {
-                                    if(!isSquareInCheck(game,4,7) && !isSquareInCheck(game,5,7) &&
-                                            !isSquareInCheck(game,6,7)) {
-                                        Move move = new Move(4,7,6,7,"Castle_KingSide", "", -1, -1, "");
-                                        moves.add(move);
-                                    }
-                                }
-                            }
-                            if(blackCastleQueenSide) {
-                                if(board[3][7].isEmpty() && board[2][7].isEmpty() && board[1][7].isEmpty()) {
-                                    if(!isSquareInCheck(game,1,7) &&
-                                            !isSquareInCheck(game,2,7) && !isSquareInCheck(game,3,7) && !isSquareInCheck(game,4,7)) {
-                                        Move move = new Move(4,7,2,7,"Castle_QueenSide", "", -1, -1, "");
-                                        moves.add(move);
-                                    }
-                                }
-                            }
-                        }
+                        } // End case kING
 
-                    } // End case kING
-
-                } // end switch
-            } // end if(activeColor)
-        } // END INNERLOOP
-        checkGameState(game);
-    } // END UPDATEMOVES multithreading
+                    } // end switch
+                } // end if(activeColor)
+            } // END INNERLOOP
+        } // END OUTERLOOP
+        return moves;
+    } // END UPDATEMOVES
 
 
     public boolean checkIfMoveIsValid(Game game, Move move) {
@@ -2151,7 +2169,7 @@ public final class Engine {
 
         Piece[][] board = game.getBoard();
         char activeColor = game.getActiveColor();
-        /********************
+        /*
          *
          * This method checks the entire opposite color
          * to see if there is a check on your king
@@ -2159,7 +2177,7 @@ public final class Engine {
          * returns false if the king isn't under check
          *
          * very similar to the updatemoves function
-         ********************/
+         */
         int kingX = targetX, kingY = targetY;
 
         // Wanting to see the enemy attacks
@@ -2601,10 +2619,7 @@ public final class Engine {
         } else {
             move.setPreviousKingCastleState(game.getBlackCastleKingSide());
             move.setPreviousQueenCastleState(game.getBlackCastleQueenSide());
-
         }
-
-
 
         move.setPreviousEnPassantX(game.getEnPassantX());
         move.setPreviousEnPassantY(game.getEnPassantY());
@@ -2662,9 +2677,6 @@ public final class Engine {
                         game.setBlackCastleQueenSide(false);
                     }
                 }
-
-
-                break;
             }
 
             case "Moved_Twice" -> {
@@ -2673,13 +2685,11 @@ public final class Engine {
                 game.setEnPassantXY(move.getEnPassantX(), move.getEnPassantY());
                 game.setEnPassantX(move.getEnPassantX());
                 game.setEnPassantY(move.getEnPassantY());
-                break;
             }
 
             case "Capture" -> {
                 newBoard[endX][endY].copyPiece(newBoard[startX][startY]);
                 newBoard[startX][startY] = new Piece();
-                break;
             }
 
             case "En_Passant_Capture" -> {
@@ -2695,19 +2705,16 @@ public final class Engine {
                 }
 
                 game.setHalfMoveClock(-1);
-                break;
             }
 
             case "Promote" -> {
                 newBoard[endX][endY] = new Piece(move.getPromotePieceTo(), color);
                 newBoard[startX][startY] = new Piece();
-                break;
             }
 
             case "Promote_Capture" -> {
                 newBoard[endX][endY] = new Piece(move.getPromotePieceTo(), color);
                 newBoard[startX][startY] = new Piece();
-                break;
             }
 
             case "Castle_KingSide" -> {
@@ -2726,7 +2733,6 @@ public final class Engine {
                     game.setBlackCastleKingSide(false);
                     game.setBlackCastleQueenSide(false);
                 }
-                break;
             }
 
             case "Castle_QueenSide" -> {
@@ -2745,17 +2751,14 @@ public final class Engine {
                     game.setBlackCastleKingSide(false);
                     game.setBlackCastleQueenSide(false);
                 }
-                break;
             }
 
             default-> {
                 System.out.println("Error unrecognized move");
-                break;
             }
         } // End switch
 
 
-        // swap the turns
 
         game.incrementHalfMoveClock();
         game.incrementFullMoveClock();
@@ -2767,9 +2770,11 @@ public final class Engine {
         char color = game.getActiveColor();
         char enemyColor;
         if(color == 'w') {
-            enemyColor = 'b';
-        } else {
+            color = 'b';
             enemyColor = 'w';
+        } else {
+            color = 'w';
+            enemyColor = 'b';
         }
 
         String moveType = move.getMoveType();
@@ -2817,22 +2822,18 @@ public final class Engine {
                     }
                 }
 
-
-                break;
             }
 
             case "Moved_Twice" -> {
                 newBoard[startX][startY].copyPiece(newBoard[endX][endY]);
                 newBoard[endX][endY] = new Piece();
 
-                break;
             }
 
             case "Capture" -> {
                 newBoard[startX][startY].copyPiece(newBoard[endX][endY]);
                 newBoard[endX][endY] = new Piece(move.getCapturedPiece(),enemyColor);
 
-                break;
             }
 
             case "En_Passant_Capture" -> {
@@ -2848,19 +2849,16 @@ public final class Engine {
                 }
 
                 game.setHalfMoveClock(-1);
-                break;
             }
 
             case "Promote" -> {
                 newBoard[endX][endY] = new Piece();
                 newBoard[startX][startY] = new Piece("pawn", color);
-                break;
             }
 
             case "Promote_Capture" -> {
                 newBoard[endX][endY] = new Piece(move.getCapturedPiece(),enemyColor);
                 newBoard[startX][startY] = new Piece("pawn", color);
-                break;
             }
 
             case "Castle_KingSide" -> {
@@ -2879,7 +2877,6 @@ public final class Engine {
                     game.setBlackCastleKingSide(move.getPreviousKingCastleState());
                     game.setBlackCastleQueenSide(move.getPreviousQueenCastleState());
                 }
-                break;
             }
 
             case "Castle_QueenSide" -> {
@@ -2896,12 +2893,10 @@ public final class Engine {
                     newBoard[3][7] = new Piece();
 
                 }
-                break;
             }
 
             default-> {
                 System.out.println("Error unrecognized move");
-                break;
             }
         } // End switch
 
@@ -2919,7 +2914,6 @@ public final class Engine {
         game.setEnPassantXY(move.getPreviousEnPassantX() ,move.getPreviousEnPassantY());
         game.setEnPassantX(move.getPreviousEnPassantX());
         game.setEnPassantY(move.getPreviousEnPassantY());
-
 
         game.revertHalfMoveClock();
         game.revertFullMoveClock();
@@ -2952,43 +2946,76 @@ public final class Engine {
     }
 
 
-    public void checkGameState(Game game) {
-
-
-//        if(isInCheck(game) && game.moves.isEmpty()) {
-//            System.out.println("Checkmate!");
-//            if(game.getActiveColor() == 'w') {
-//                game.setEvaluation(-1);
-//            } else {
-//                game.setEvaluation(1);
-//            }
-//        } else if(!isInCheck(game) && game.moves.isEmpty()) {
-//            System.out.println("Stalemate!");
-//            game.setEvaluation(0);
-//        }
+    public int isGameOver(Game game, ArrayList<Move> moves) {
+        // This function checks if the game is over
+        // It is built for the minimax algorithm
+        boolean isInCheck = isInCheck(game);
+        if(isInCheck && moves.isEmpty()) {
+            if(game.getActiveColor() == 'w') {
+                return -1;
+            } else {
+                return 1;
+            }
+        } else if(!isInCheck && moves.isEmpty()) {
+            System.out.println("Stalemate!");
+            return 0;
+        } else {
+            return 403; // terminatino code
+        }
     } // end checkGame
 
 
-    public double findBestMove(Game game, int depth, double alpha, double beta) {
+    public double findBestMove(Game game, int depth, double alpha, double beta, boolean isMaximising) {
+
         gamesSearched++;
+
+
         if(depth == maxDepth) {
+
             evaluate(game);
             return game.getEvaluation();
         }
 
-        ArrayList<Move> moves = game.moves;
-        startSearch(game);
-        if(game.getActiveColor() == 'w') {
+        ArrayList<Move> moves;
+        if(depth == 0) {
+            moves = game.moves;
+            // game.moves are the moves for the initial board state ONLY
+        } else {
+            moves = updateMoves(game);
+        }
+
+        // Checking if the leaf is a terminal node
+        int terminate = isGameOver(game,moves);
+        if(terminate != 403) {  // added a nested loop for added efficiency so there isn't always checks for the other 3 conditions
+            if( terminate == -1 || terminate == 0 || terminate == 1) {
+                return terminate;
+            }
+        }
+
+
+        // Minimax algorithm
+
+        if(isMaximising) {
 
             double bestValue = Double.NEGATIVE_INFINITY;
             for(int i=0; i<moves.size(); i++) {
+
+                Move a = moves.get(i);
+                //System.out.println("Best Move: " + game.getBoard()[a.getStartX()][a.getStartY()].getName() + " from " + a.toChar(a.getStartX()) + (a.getStartY()+1) + " moves to " + a.toChar(a.getEndX()) + (a.getEndY()+1));
                 makeMove(game,moves.get(i));
-                double tempValue  = findBestMove(game,depth+1, alpha, beta);
+                game.flipColor();
+//                printBoardState(game);
+
+
+                double tempValue  = findBestMove(game,depth+1, alpha, beta, false);
                 revertMove(game,moves.get(i));
 
                 if(tempValue >= bestValue) {
                     bestValue = tempValue;
-                    bestMoveIndex = i;
+                    if(depth == 0) {
+                        bestMoveIndex = i;
+                    }
+
                 }
 
                 if(alpha >= bestValue) {
@@ -3006,8 +3033,13 @@ public final class Engine {
         } else {
             double leastValue = Double.POSITIVE_INFINITY;
             for (int i = 0; i < moves.size(); i++) {
+
+                Move a = moves.get(i);
+                //System.out.println("Best Move: " + game.getBoard()[a.getStartX()][a.getStartY()].getName() + " from " + a.toChar(a.getStartX()) + (a.getStartY()+1) + " moves to " + a.toChar(a.getEndX()) + (a.getEndY()+1));
                 makeMove(game, moves.get(i));
-                double tempValue = findBestMove(game, depth + 1, alpha, beta);
+                game.flipColor();
+//                printBoardState(game);
+                double tempValue = findBestMove(game, depth + 1, alpha, beta, true);
                 revertMove(game,moves.get(i));
                 leastValue = Math.min(leastValue, tempValue);
                 beta = Math.min(beta, leastValue);
@@ -3111,47 +3143,38 @@ public final class Engine {
 
                     case "Move" -> {
                         System.out.println(pieceName + " " + startFile + startY  + " " + "moves to " + endFile + endY);
-                        break;
                     }
 
                     case "Moved_Twice" -> {
                         System.out.println(pieceName + " " + startFile + startY  + " " + "moves to " + endFile + endY);
-                        break;
                     }
 
                     case "Capture" -> {
                         System.out.println(pieceName + " " + startFile + startY + " " + "captures at " + endFile + endY);
-                        break;
                     }
 
                     case "En_Passant_Capture" -> {
                         System.out.println(pieceName + " " + startFile + startY + " " + "captures at " + endFile + endY + " (En Passant)");
-                        break;
                     }
 
                     case "Promote" -> {
                         System.out.println(pieceName + " " + startFile + startY + " " + "promotes to " + promotePieceTo + " " + endFile + endY);
-                        break;
                     }
 
                     case "Promote_Capture" -> {
                         System.out.println(pieceName + " " + startFile + startY + " " + "captures at " + endFile + endY + " and promotes to " + promotePieceTo);
-                        break;
                     }
 
                     case "Castle_KingSide" -> {
                         System.out.println("Castle King Side");
-                        break;
                     }
 
                     case "Castle_QueenSide" -> {
                         System.out.println("Castle Queen Side");
-                        break;
                     }
 
                     default-> {
                         System.out.println("Unrecognized Move");
-                        break;
                     }
                 } // End switch
             } // End loop
