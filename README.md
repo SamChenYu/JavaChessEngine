@@ -1,39 +1,44 @@
 # JavaChessEngine
 In-Progress Chess Engine Developed With The MiniMax Algorithm
+ 
+## Match History
+### Martin 250 Elo (www.chess.com)
+- 31/02/2024 Depth 1 Engine : LOSS ( Estimated Rating 100 )
+- 04/02/2024 Depth 4 Engine + Updated Evaluation: WIN> (Estimated Rating 1150)
 
-EVALUATION Method:  
-Piece Square Tables
+## EVALUATION Method  
+The evaluation takes into account two factors:  
+Position difference and Material Difference.
+The positional difference is calculated with piece square tables where each piece has assigned values on every square, determining on the strength of that position. The material difference is calculated with a sigmoid function. These two factors are weighted dynamically, where very similiar material will weigh position more, whilst bigger material difference will weigh position less.
 Sources  
-https://www.chessprogramming.org/PeSTO%27s_Evaluation_Function   
-http://www.talkchess.com/forum3/viewtopic.php?f=2&t=68311&start=19#
+[Link to PeSTO's Evaluation Function](https://www.chessprogramming.org/PeSTO%27s_Evaluation_Function)
+
+[Link to the TalkChess forum discussion](http://www.talkchess.com/forum3/viewtopic.php?f=2&t=68311&start=19#)
 
 
 
-
-
-ROADMAP:
-- GUI ✅ (10/01/24)
+## ROADMAP:
+- GUI ✅ (10/01/24) 
 - Input with FEN Notation✅ (07/01/24)
 - Basic Evaluate Function ✅ (08/01/24)
   
-Engine (IN PROGRESS)
+Engine ✅ (04/02/24)
 - Calculate Possible Moves Function ✅ (14/01/24) ✅  Overhauled (28/01/24)
 - isCheckmate Function ✅ (18/01/24)
 - MiniMax Algorithm ✅ (31/01/24)
-- Alpha-Beta Pruning
+- Alpha-Beta Pruning ✅ (03/02/24)
 
 
 - Make Move Function: ✅ (18/01/24)
-  Things to take note:
   Managing En Passant ✅
   Managing King Castling Rights ✅
   Checks / Checkmate ✅
-
-  
-- Proper Evaluate Function✅ Introduced Piece Square Tables(31/01/24) 
-
+- Proper Evaluate Function✅ Introduced Piece Square Tables(31/01/24)
+- 
 - OUPUT FEN NOTATION
 - Ability to Play Moves Directly On Panel
+
+- Introduce multi threading and transposition tables
 
 <div align="center">
   <img src="https://github.com/SamChenYu/JavaChessEngine/assets/150127006/f254d4b6-aa5b-4a99-8ab3-1cf218cc59eb" alt="Image Alt Text">
