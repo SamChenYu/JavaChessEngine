@@ -1,5 +1,6 @@
 # JavaChessEngine
 In-Progress Chess Engine Developed With The MiniMax Algorithm.
+
 Current Estimated Elo (Depth 4) at 1150
  
 ## Match History
