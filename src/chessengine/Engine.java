@@ -14,7 +14,7 @@ public final class Engine {
 
     private final Game game;
 
-    private final int maxDepth = 3;
+    private final int maxDepth = 4;
     private int movesIndexed = 0;
     private int gamesSearched = 0;
     private int bestMoveIndex = 0;
@@ -353,14 +353,14 @@ public final class Engine {
         // Sigmoid function:
         // y = 1/(1.1 + e^(-x+4)) { 40 > x > 0 }
         double materialValue;
-         if(materialDifference > 0) {                                           // POSITIVE Material Diff
+        if(materialDifference > 0) {                                           // POSITIVE Material Diff
             materialValue = 1.0 / (1.1 + Math.exp(-(materialDifference) + 4));
         } else if(materialDifference < 0) {
-             materialDifference *= -1;                                          // NEGATIVE Material Diff
-             materialValue = 1.0 / (1.1 + Math.exp(-(materialDifference) + 4));
-             materialValue *= -1.0;
+            materialDifference *= -1;                                          // NEGATIVE Material Diff
+            materialValue = 1.0 / (1.1 + Math.exp(-(materialDifference) + 4));
+            materialValue *= -1.0;
         } else {                                                               // EQUAL Material Diff
-                materialValue = 0.0;
+            materialValue = 0.0;
         }
         materialValue *= materialWeight;
 
@@ -497,7 +497,7 @@ public final class Engine {
                                                 moves.add(move);
                                             }
                                         }
-                                        if (enPassantX == (x) && enPassantY == (y)) {
+                                        if (enPassantX == (x) && enPassantY == (y) && board[x][y].isEnemy(color)) {
 
                                             Move move = new Move(i, j, x, y, "En_Passant_Capture", "pawn", x, y, "");
                                             if (checkIfMoveIsValid(game, move)) {
@@ -626,7 +626,7 @@ public final class Engine {
                                             }
                                         }
 
-                                        if (enPassantX == (x) && enPassantY == (y)) {
+                                        if (enPassantX == (x) && enPassantY == (y) && board[x][y].isEnemy(color)) {
                                             Move move = new Move(i, j, x, y, "En_Passant_Capture", "pawn", x, y, "");
                                             if (checkIfMoveIsValid(game, move)) {
                                                 moves.add(move);
@@ -648,7 +648,7 @@ public final class Engine {
                                             }
                                         }
 
-                                        if (enPassantX == (x) && enPassantY == (y)) {
+                                        if (enPassantX == (x) && enPassantY == (y) && board[x][y].isEnemy(color)) {
                                             Move move = new Move(i, j, x, y, "En_Passant_Capture", "pawn", x, y, "");
                                             if (checkIfMoveIsValid(game, move)) {
                                                 moves.add(move);
@@ -2769,12 +2769,11 @@ public final class Engine {
         Piece[][] newBoard = game.getBoard();
         char color = game.getActiveColor();
         char enemyColor;
+        // we assume that the correct color as already been flipped
         if(color == 'w') {
-            color = 'b';
-            enemyColor = 'w';
-        } else {
-            color = 'w';
             enemyColor = 'b';
+        } else {
+            enemyColor = 'w';
         }
 
         String moveType = move.getMoveType();
@@ -2971,9 +2970,7 @@ public final class Engine {
 
 
         if(depth == maxDepth) {
-
-            evaluate(game);
-            return game.getEvaluation();
+            return evaluate(game);
         }
 
         ArrayList<Move> moves;
@@ -2985,14 +2982,14 @@ public final class Engine {
         }
 
         // Checking if the leaf is a terminal node
-        int terminate = isGameOver(game,moves);
-        if(terminate != 403) {  // added a nested loop for added efficiency so there isn't always checks for the other 3 conditions
-            if( terminate == -1 || terminate == 0 || terminate == 1) {
-                return terminate;
+        if(moves.isEmpty()) {
+            int terminate = isGameOver(game, moves);
+            if (terminate != 403) {  // added a nested loop for added efficiency so there isn't always checks for the other 3 conditions
+                if (terminate == -1 || terminate == 0 || terminate == 1) {
+                    return terminate;
+                }
             }
         }
-
-
         // Minimax algorithm
 
         if(isMaximising) {
@@ -3005,19 +3002,15 @@ public final class Engine {
                 makeMove(game,moves.get(i));
                 game.flipColor();
 //                printBoardState(game);
-
-
                 double tempValue  = findBestMove(game,depth+1, alpha, beta, false);
+                game.flipColor();
                 revertMove(game,moves.get(i));
-
                 if(tempValue >= bestValue) {
                     bestValue = tempValue;
                     if(depth == 0) {
                         bestMoveIndex = i;
                     }
-
                 }
-
                 if(alpha >= bestValue) {
                     alpha = bestValue;
                 }
@@ -3025,9 +3018,10 @@ public final class Engine {
                 if(beta <= alpha) {
                     break;
                 }
-
             }
             return bestValue;
+
+
 
 
         } else {
@@ -3040,6 +3034,7 @@ public final class Engine {
                 game.flipColor();
 //                printBoardState(game);
                 double tempValue = findBestMove(game, depth + 1, alpha, beta, true);
+                game.flipColor();
                 revertMove(game,moves.get(i));
                 leastValue = Math.min(leastValue, tempValue);
                 beta = Math.min(beta, leastValue);
