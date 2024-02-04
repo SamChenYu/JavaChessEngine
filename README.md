@@ -23,7 +23,7 @@ The positional difference is calculated with piece square tables where each piec
 
 $y = \frac{1}{1.1 + e^{(-x+4)}} \quad \text{for} \quad 0 < x < 39$
 
-where x is the numerial material difference and y is the material evaluation
+where x is the numerial material difference and y is the material evaluation.
 These two factors are weighted dynamically, where very similiar material will weigh position more, whilst bigger material difference will weigh position less.  
 [Link to PeSTO's Evaluation Function](https://www.chessprogramming.org/PeSTO%27s_Evaluation_Function)
 
