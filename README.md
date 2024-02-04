@@ -8,7 +8,7 @@ In-Progress Chess Engine Developed With The MiniMax Algorithm
 
 ## EVALUATION Method  
 The evaluation takes into account two factors:  
-Position difference and Material Difference.
+Position difference and material difference.
 The positional difference is calculated with piece square tables where each piece has assigned values on every square, determining on the strength of that position. The material difference is calculated with a sigmoid function. These two factors are weighted dynamically, where very similiar material will weigh position more, whilst bigger material difference will weigh position less.  
 [Link to PeSTO's Evaluation Function](https://www.chessprogramming.org/PeSTO%27s_Evaluation_Function)
 
