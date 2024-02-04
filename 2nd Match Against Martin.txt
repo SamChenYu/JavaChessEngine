@@ -1,0 +1,53 @@
+[Event "vs Computer"]
+[Site "Chess.com"]
+[Date "2024.02.04"]
+[Round "-"]
+[White "CritPotatoxD"]
+[Black "Martin-BOT"]
+[Result "1-0"]
+[CurrentPosition "r1b1kb2/p4Q2/1pnR1Pp1/1B4Np/4P3/2n5/PP3PPP/5R1K b - - 7 26"]
+[Timezone "UTC"]
+[ECO "A00"]
+[ECOUrl "https://www.chess.com/openings/Van-Geet-Opening-Reversed-Nimzowitsch-Variation-2.Nf3-Nc6"]
+[UTCDate "2024.02.04"]
+[UTCTime "19:08:20"]
+[WhiteElo "1037"]
+[BlackElo "250"]
+[TimeControl "1/0"]
+[Termination "CritPotatoxD won by checkmate"]
+[StartTime "19:08:20"]
+[EndDate "2024.02.04"]
+[EndTime "20:59:13"]
+[Link "https://www.chess.com/game/computer/110172579"]
+[WhiteUrl "https://images.chesscomfiles.com/uploads/v1/user/90085386.d2fcf6fc.50x50o.99b0d061309b.jpg"]
+[WhiteCountry "125"]
+[WhiteTitle ""]
+[BlackUrl "https://images.chesscomfiles.com/uploads/v1/user/66746160.794c1e49.50x50o.54723cbc8f4a.png"]
+[BlackCountry "28"]
+[BlackTitle ""]
+
+1. Nc3 e5 2. Nf3 Nc6 3. Nd5 Bd6 4. e4 g6 5. d4 Nb8 6. dxe5 Be7 7. Bd3 h5 8. O-O
+Nc6 9. Be3 Bf8 10. Bg5 b6 11. Bxd8 Kxd8 12. Bb5 Nge7 13. Nxc7 Kxc7 14. Qd6+ Kd8
+15. Qf6 Nb4 16. Qxh8 Ke8 17. c3 f6 18. exf6 Nbc6 19. Rad1 d6 20. Ng5 Bb7 21.
+Rxd6 Nd5 22. Qg8 Nxc3 23. Qe6+ Be7 24. Kh1 Bc8 25. Qg8+ Bf8 26. Qf7# 1-0
+
+Game Review
+
+Moves Breakdown:
+
+Brilliant - 0
+Great Move - 0
+Best Move - 11
+Excellent - 9
+Good - 3
+Book - 2
+Inaccuracy - 1
+Mistake - 0
+Miss - 0
+Blunder - 0
+
+Rating Estimate - 1150 ELO
+
+Opening Accuracy - 85.9
+
+Overall Accuracy: 89.5
