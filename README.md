@@ -4,7 +4,7 @@ In-Progress Chess Engine Developed With The MiniMax Algorithm
 ## Match History
 ### Martin 250 Elo (www.chess.com)
 - 31/02/2024 Depth 1 Engine : LOSS ( Estimated Rating 100 )
-- 04/02/2024 Depth 4 Engine + Updated Evaluation: WIN> (Estimated Rating 1150)
+- 04/02/2024 Depth 4 Engine + Updated Evaluation: WIN (Estimated Rating 1150)
 
 ## EVALUATION Method  
 The evaluation takes into account two factors:  
