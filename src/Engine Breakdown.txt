@@ -1,41 +1,50 @@
 This document is designed to breakdown the engine class.
 
 
-Constructor:
-Creates the new game object with the user FEN input.
-
-
 Method Breakdown:
+
 evaluate()
 Evaluates the game state and who is winning.
+Returns a double between -1 and 1.
 
-checkIfMoveIsValid()
-Game game, Move move
-Creates a copy of the game, and executes the move.
-
-isInCheck()
-Given a board state, is the active player in check?
-
-isSquareInCheck()
-Given a square, are enemies covering this square?
-This function is used to check castling rights for the kings only.
-
-copyGame()
-Creates a copy of the game object.
-
-updateMoves():
+updateMoves()
 Loop through each square on the board, and depending on it's
 piece type, decides whether every single possible move it can play.
 
+checkIfMoveIsValid()
+If you make a move and you are still in check, then it the move is invalid
+and it will return false.
 
+isInCheck()
+Inputs a board state, and returns whether or not the player is in check
 
+isSquareInCheck()
+Inputs a board state, and returns where or not a particular square is attacked
+
+MakeMove()
+Given a board state and a Move object, it will execute the move onto the game state
+It also saves vital data such that the move can be perfectly reverted
+
+RevertMove()
+Given a board and already executed Move object, it will revert the move back to the original state.
+This method is vital for the minimax algorithm.
+
+isGameOver()
+Returns true if the current board state is checkmate or stalemate
+
+findBestMove()
+Implementation of the minimax algorithm.
 
 
 
 Structure of Engine:
-updateMoves() -> Move object is created for every single possible move
-checkIfMoveIsValid(game,move) -> Checks if move is valid with the following:
-makeMove(game, move) -> Move is executed on the board
-isInCheck(game) -> if FALSE move is valid if TRUE move is invalid
-revertMove(game,move) -> Move is reverted, and the next move is checked
+updateMoves() -> Every single move is generated. To check if it is legal, the board is execute
+checkIfMoveIsValid() by makeMove() and then isInCheck(). If it is in check, then it is an invalid move. revertMove() is called to revert back to original state.
+
+findBestMove()
+For every legal move generated, execute the move, and then updateMoves() until the desired
+depth is required. Evaluate the moves, and given the highest evaluation for the maximising
+player
+
+
 
