@@ -4,8 +4,7 @@ package GUI;
 
 
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
 
 import java.awt.Color;
 import java.awt.GridBagConstraints;
@@ -13,9 +12,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JTextField;
 
 import java.awt.Font;
 
@@ -45,6 +41,11 @@ public final class ControlPanel extends JFrame {
         setResizable(false);
         setTitle("Chess Engine Control Panel");
         inputTextField.setText("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+
+        ImageIcon icon = new ImageIcon("src/res/b-pawn.png");
+
+        // Set the icon for the JFrame
+        setIconImage(icon.getImage());
     }
     
     

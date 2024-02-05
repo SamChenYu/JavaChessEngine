@@ -14,7 +14,7 @@ public final class Engine {
 
     private final Game game;
 
-    private final int maxDepth = 4;
+    private final int maxDepth = 3;
     private int movesIndexed = 0;
     private int gamesSearched = 0;
     private int bestMoveIndex = 0;
@@ -154,11 +154,14 @@ public final class Engine {
         int numThreads = Runtime.getRuntime().availableProcessors();
         executorService = Executors.newFixedThreadPool(numThreads);
 
-//        game = new Game(input);
-//        evaluate(game);
-//        printBoardState(game);
+        game = new Game(input);
+        evaluate(game);
+        printBoardState(game);
 
+    }
 
+    public void startSearch() {
+        // finding legal moves
 //        double timeStart = System.currentTimeMillis();
 //        game.moves = updateMoves(game):
 //        for(int i=0; i<8; i++) {
@@ -171,7 +174,7 @@ public final class Engine {
 //        printBoardState(game);
 
 
-        game = new Game(input);
+        // Activates Minimax
         double timeStart = System.currentTimeMillis();
         game.moves = updateMoves(game);
         printMoves(game);
@@ -183,18 +186,17 @@ public final class Engine {
         double totalTime = (timeEnd - timeStart) / 1000;
         System.out.println("Total Time: " + totalTime + " seconds for " + gamesSearched + " games");
 
-
+        // Prints out best move
         Move bestMove = game.moves.get(bestMoveIndex);
         Piece[][] board = game.getBoard();
         String name = board[bestMove.getStartX()][bestMove.getStartY()].getName();
         System.out.println("Best Move: " + name + " from " + bestMove.toChar(bestMove.getStartX()) + (bestMove.getStartY()+1) + " moves to " + bestMove.toChar(bestMove.getEndX()) + (bestMove.getEndY()+1));
         shutdown();
 
-
+        evaluate(game);
     }
 
-
-    public void startSearch( Game game) {
+    public void parallel( Game game) {
         // Submit tasks for parallel execution
 
         /*
@@ -3188,6 +3190,7 @@ public final class Engine {
     public char getActiveColor() { return game.getActiveColor(); }
     public int getHalfMoveClock() { return game.getHalfMoveClock(); }
     public int getFullMoveClock() { return game.getFullMoveClock(); }
+    public String getGamesSearched() { return String.valueOf(gamesSearched); }
 
 
 } // END ENGINE
