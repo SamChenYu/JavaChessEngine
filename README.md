@@ -4,10 +4,10 @@ In-Progress Chess Engine Developed With The MiniMax Algorithm.
 Current Estimated Elo (Depth 4) at 1150
  
 ## Match History
-### Martin 250 Elo (www.chess.com)
+### Martin 250 Elo Bot (www.chess.com)
 - 31/02/2024 Depth 1 Engine : LOSS ( Estimated Rating 100 )
 - 04/02/2024 Depth 4 Engine + Updated Evaluation: WIN (Estimated Rating 1150)
-### Sven 1100 Elo (www.chess.com)
+### Sven 1100 Elo Bot (www.chess.com)
 - 08/02/2024 Depth 4 Engine: WIN (Estimated Rating 850)
 
 ## EVALUATION Method  
