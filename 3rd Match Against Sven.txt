@@ -1,0 +1,52 @@
+[Event "?"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "1-0"]
+
+1. Nc3 d5 {Defensive and positional is the way to go.} 2. e4 {Are you trying to
+break through my fortress $2} 2... e6 3. Nf3 Bd7 4. exd5 {I don't mind captures,
+as long as I can still defend.} 4... exd5 5. Nxd5 Nf6 {Can you break through my
+fortress $2} 6. Bc4 Nxd5 7. Bxd5 Qe7+ {I only attack if it works.} 8. Qe2 Qxe2+
+{You don't need that anymore.} 9. Kxe2 {I can defend without my queen.} 9... a6
+10. d4 Ra7 11. Ng5 Bd6 12. Bxf7+ {Check $2 That's ok, I'll just defend $1} 12... Kf8
+13. Rd1 h6 14. Ne4 Kxf7 15. Nxd6+ cxd6 16. Kf1 Kg8 17. Kg1 Bf5 {Can you break
+through my fortress $2} 18. Re1 Bxc2 {Defensive and positional is the way to go.}
+19. Re8+ {Check $2 That's ok, I'll just defend $1} 19... Kh7 20. Rxh8+ Kxh8 21. Bf4
+{Are you trying to break through my fortress $2} 21... b6 22. Re1 Rd7 23. Re8+ Kh7
+24. Rxb8 b5 25. Re8 g5 26. Bg3 Bb1 27. a4 Rc7 28. Re1 Kg7 29. Rxb1 bxa4 30. Bxd6
+{It looks like my positional style hasn't paid off in this game $1} 30... Rc2 31.
+Re1 h5 32. b4 axb3 33. Re7+ Kg8 34. Re1 Kg7 35. Re7+ Kf8 36. Re5+ Kf7 37. Re7+
+Kf6 38. h4 Rc1+ {I only attack if it works.} 39. Kh2 Rc2 40. hxg5+ Kxg5 41. Re5+
+Kh4 42. f3 {You have broken through my fortress $1} 42... Rxg2+ 43. Kxg2 a5 44.
+Kh2 a4 45. Kg2 b2 46. Kh2 b1=Q {If I'm getting a new queen, then something has
+gone wrong for you $1} 47. Be7# {Hmmm. You know something I don't. Can I have a
+rematch $2} 1-0
+
+8/4B3/8/4R2p/p2P3k/5P2/7K/1q6 b - - 1 47
+
+
+Game Review
+
+Moves Breakdown:
+
+Brilliant - 0
+Great Move - 2
+Best Move - 15
+Excellent - 9
+Good - 1
+Book - 3
+Inaccuracy - 6
+Mistake - 4
+Miss - 5
+Blunder - 1
+
+Rating Estimate - 850 ELO
+
+Opening Accuracy - 89.9
+Middlegame Accuracy - 58.8
+Endgame Accuracy - 55.5
+
+Overall Accuracy: 61.1
