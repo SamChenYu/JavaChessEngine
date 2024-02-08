@@ -7,6 +7,8 @@ Current Estimated Elo (Depth 4) at 1150
 ### Martin 250 Elo (www.chess.com)
 - 31/02/2024 Depth 1 Engine : LOSS ( Estimated Rating 100 )
 - 04/02/2024 Depth 4 Engine + Updated Evaluation: WIN (Estimated Rating 1150)
+### Sven 1100 Elo (www.chess.com)
+- 08/02/2024 Depth 4 Engine: WIN (Estimated Rating 850)
 
 ## EVALUATION Method  
 The evaluation method is between -1 and 0.
