@@ -1,26 +1,29 @@
 
 package chessengine;
 
+import GUI.EnginePanel;
 import Game.Piece;
 import Game.Game;
 import java.util.ArrayList;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 
 public final class Engine {
 
     private final Game game;
+    private final EnginePanel ep;
 
-    private final int maxDepth = 3;
+    private final int maxDepth = 4;
     private int movesIndexed = 0;
-    private int gamesSearched = 0;
+    private Integer gamesSearched = 0;
     private int bestMoveIndex = 0;
+    private Move move1;
 
     // Multi threading
     private final ExecutorService executorService;
+
 
 
     //Piece-Square Tables from
@@ -29,6 +32,7 @@ public final class Engine {
 
     // The Piece-Square Tables have been flipped to be consistent with the board
     private final int[][] whitePawnPST = {
+            // white side here
             { 0,   0,   0,   0,   0,   0,  0,   0},
             {-35,  -1, -20, -23, -15,  24, 38, -22},
             {-26,  -4,  -4, -10,   3,   3, 33, -12},
@@ -37,6 +41,7 @@ public final class Engine {
             {-6,   7,  26,  31,  65,  56, 25, -20},
             {98, 134,  61,  95,  68, 126, 34, -11},
             { 0,   0,   0,   0,   0,   0,  0,   0},
+            // black side here
     };
     private final int[][] blackPawnPST = {
             { 0,   0,   0,   0,   0,   0,  0,   0},
@@ -146,13 +151,14 @@ public final class Engine {
             {-49,  -1, -27, -39, -46, -44, -33, -51},
             {-14, -14, -22, -46, -44, -30, -15, -27},
             {1,   7,  -8, -64, -43, -16,   9,   8},
-            {-15,  36,  12, -54,   8, -28,  24,  14},
+            {-15,  36,  12, -54, 8, -28,  24,  14},
     };
-    public Engine(String input) {
 
+    public Engine(String input, EnginePanel ep) {
         // Create a thread pool with a fixed number of threads
         int numThreads = Runtime.getRuntime().availableProcessors();
         executorService = Executors.newFixedThreadPool(numThreads);
+        this.ep = ep;
 
         game = new Game(input);
         evaluate(game);
@@ -161,6 +167,7 @@ public final class Engine {
     }
 
     public void startSearch() {
+        gamesSearched = 0;
         // finding legal moves
 //        double timeStart = System.currentTimeMillis();
 //        game.moves = updateMoves(game):
@@ -180,18 +187,25 @@ public final class Engine {
         printMoves(game);
         double lowestValue = -100000.0;
         double highestValue = 100000.0;
-        findBestMove(game,0,lowestValue,highestValue, true);
+
+        if(game.getActiveColor() == 'w') {
+            findBestMove(game,0,lowestValue,highestValue, true);
+        } else {
+            findBestMove(game,0,lowestValue,highestValue, false);
+        }
+
+
         System.out.println("Games searched: " + gamesSearched );
         double timeEnd = System.currentTimeMillis();
         double totalTime = (timeEnd - timeStart) / 1000;
         System.out.println("Total Time: " + totalTime + " seconds for " + gamesSearched + " games");
 
         // Prints out best move
-        Move bestMove = game.moves.get(bestMoveIndex);
-        Piece[][] board = game.getBoard();
-        String name = board[bestMove.getStartX()][bestMove.getStartY()].getName();
-        System.out.println("Best Move: " + name + " from " + bestMove.toChar(bestMove.getStartX()) + (bestMove.getStartY()+1) + " moves to " + bestMove.toChar(bestMove.getEndX()) + (bestMove.getEndY()+1));
+        move1 = game.moves.get(bestMoveIndex);
+        System.out.println(sendMoveToPanel(move1));
+        ep.updateMove1(sendMoveToPanel(move1));
         shutdown();
+
 
         evaluate(game);
     }
@@ -2969,7 +2983,7 @@ public final class Engine {
     public double findBestMove(Game game, int depth, double alpha, double beta, boolean isMaximising) {
 
         gamesSearched++;
-
+        ep.updateGamesSearched(gamesSearched);
 
         if(depth == maxDepth) {
             return evaluate(game);
@@ -3003,10 +3017,12 @@ public final class Engine {
                 //System.out.println("Best Move: " + game.getBoard()[a.getStartX()][a.getStartY()].getName() + " from " + a.toChar(a.getStartX()) + (a.getStartY()+1) + " moves to " + a.toChar(a.getEndX()) + (a.getEndY()+1));
                 makeMove(game,moves.get(i));
                 game.flipColor();
-//                printBoardState(game);
+//               printBoardState(game);
                 double tempValue  = findBestMove(game,depth+1, alpha, beta, false);
                 game.flipColor();
                 revertMove(game,moves.get(i));
+
+
                 if(tempValue >= bestValue) {
                     bestValue = tempValue;
                     if(depth == 0) {
@@ -3031,14 +3047,19 @@ public final class Engine {
             for (int i = 0; i < moves.size(); i++) {
 
                 Move a = moves.get(i);
-                //System.out.println("Best Move: " + game.getBoard()[a.getStartX()][a.getStartY()].getName() + " from " + a.toChar(a.getStartX()) + (a.getStartY()+1) + " moves to " + a.toChar(a.getEndX()) + (a.getEndY()+1));
                 makeMove(game, moves.get(i));
                 game.flipColor();
-//                printBoardState(game);
                 double tempValue = findBestMove(game, depth + 1, alpha, beta, true);
                 game.flipColor();
                 revertMove(game,moves.get(i));
-                leastValue = Math.min(leastValue, tempValue);
+
+                if(tempValue <= leastValue) {
+                    leastValue = tempValue;
+                    if(depth == 0) {
+                        bestMoveIndex = i;
+                    }
+                }
+                //alpha = Math.max(alpha, leastValue); // not sure if this is the correct once so imma leave it here lol
                 beta = Math.min(beta, leastValue);
 
                 if(beta <= alpha) {
@@ -3177,6 +3198,97 @@ public final class Engine {
             } // End loop
         }
     } // End printMoves
+
+    // Functions used for enginepanel and gui and user interface
+    public String sendMoveToPanel(Move move) {
+        // this method sends out to the enginepanel to update
+
+        String startFile ="";
+        int startX = move.getStartX();
+        int startY = move.getStartY();
+
+        String endFile ="";
+        int endX = move.getEndX();
+        int endY = move.getEndY();
+
+        String pieceName = game.getBoard()[startX][startY].getName();
+        String promotePieceTo = move.getPromotePieceTo();
+
+        startY++; // array starts from 0,0
+        endY++; // chess board starts from 1,1
+        switch(startX) {
+            case 0 ->   startFile = "a";
+            case 1 ->   startFile = "b";
+            case 2 ->   startFile = "c";
+            case 3 ->   startFile = "d";
+            case 4 ->   startFile = "e";
+            case 5 ->   startFile = "f";
+            case 6 ->   startFile = "g";
+            case 7 ->   startFile = "h";
+        }
+        switch(endX) {
+            case 0 ->  endFile = "a";
+            case 1 ->  endFile = "b";
+            case 2 ->  endFile = "c";
+            case 3 ->  endFile = "d";
+            case 4 ->  endFile = "e";
+            case 5 ->  endFile = "f";
+            case 6 ->  endFile = "g";
+            case 7 ->  endFile = "h";
+        }
+
+        switch(move.getMoveType()) {
+
+            case "Move" -> {
+                return pieceName + " " + startFile + startY  + " " + "moves to " + endFile + endY;
+            }
+
+            case "Moved_Twice" -> {
+                return pieceName + " " + startFile + startY  + " " + "moves to " + endFile + endY;
+            }
+
+            case "Capture" -> {
+                return pieceName + " " + startFile + startY + " " + "captures at " + endFile + endY;
+            }
+
+            case "En_Passant_Capture" -> {
+                return pieceName + " " + startFile + startY + " " + "captures at " + endFile + endY + " (En Passant)";
+            }
+
+            case "Promote" -> {
+                return pieceName + " " + startFile + startY + " " + "promotes to " + promotePieceTo + " " + endFile + endY;
+            }
+
+            case "Promote_Capture" -> {
+                return pieceName + " " + startFile + startY + " " + "captures at " + endFile + endY + " and promotes to " + promotePieceTo;
+            }
+
+            case "Castle_KingSide" -> {
+                return "Castle King Side";
+            }
+
+            case "Castle_QueenSide" -> {
+                return "Castle Queen Side";
+            }
+
+            default-> {
+                return "Unrecognized Move";
+            }
+        } // End switch
+    }
+
+    public void makeMove1() {
+        if(move1 != null) {
+            makeMove(game,move1);
+            game.setEvaluation(evaluate(game));
+            game.flipColor();
+        }
+    }
+
+
+
+
+
     // Getters and Setters
     public double getEvaluation() { return game.getEvaluation(); }
     public double getTruncatedEvaluation() {
