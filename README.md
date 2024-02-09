@@ -64,7 +64,7 @@ Engine ✅ (04/02/24)
 
 
 <div style="text-align:center;">
-    <img src="https://github.com/SamChenYu/JavaChessEngine/assets/150127006/9d1ab68f-b761-415f-998b-391a4e9852b4" alt="EnginePanel">
+    <img src="https://github.com/SamChenYu/JavaChessEngine/assets/150127006/636edca8-6500-4606-a54a-9750253df657" alt="EnginePanel">
 </div>
 
 [Link to RyiSnow's Chess Pieces](https://ryisnow.itch.io/pixel-art-chess-piece-images)
