@@ -18,8 +18,8 @@ public final class Engine {
     private final int maxDepth = 4;
     private int movesIndexed = 0;
     private Integer gamesSearched = 0;
-    private int bestMoveIndex = 0;
-    private Move move1;
+    private int bestMoveIndex = -1, secondBestMoveIndex= -1, thirdBestMoveIndex = -1;
+    private Move move1, move2, move3;
 
     // Multi threading
     private final ExecutorService executorService;
@@ -168,6 +168,8 @@ public final class Engine {
 
     public void startSearch() {
         gamesSearched = 0;
+        game.moves.clear();
+
         // finding legal moves
 //        double timeStart = System.currentTimeMillis();
 //        game.moves = updateMoves(game):
@@ -202,9 +204,24 @@ public final class Engine {
 
         // Prints out best move
         move1 = game.moves.get(bestMoveIndex);
+        if(secondBestMoveIndex == -1) {
+            move2 = game.moves.get(bestMoveIndex);
+        } else {
+            move2 = game.moves.get(secondBestMoveIndex);
+        }
+        if(thirdBestMoveIndex == -1) {
+            move3 = game.moves.get(bestMoveIndex);
+        } else {
+            move3 = game.moves.get(thirdBestMoveIndex);
+        }
+
         System.out.println(sendMoveToPanel(move1));
+
         ep.updateMove1(sendMoveToPanel(move1));
-        shutdown();
+        ep.updateMove2(sendMoveToPanel(move2));
+        ep.updateMove3(sendMoveToPanel(move3));
+        bestMoveIndex = -1; secondBestMoveIndex = -1; thirdBestMoveIndex = -1;
+        //shutdown();
 
 
         evaluate(game);
@@ -264,6 +281,8 @@ public final class Engine {
                 movesIndexed++;
                 Piece piece = board[j][i];
                 switch(piece.getName()) {
+
+                    case "-" -> { continue; }
 
                     case "pawn" -> {
                         if(piece.getColor() == 'w') {
@@ -333,7 +352,6 @@ public final class Engine {
                             blackPosition += blackKingPST[i][j];
                         }
                     } // End case king
-
 
                 } // End switch
             } // End innerloop
@@ -442,6 +460,8 @@ public final class Engine {
                 if (activeColor == color) {
 
                     switch (pieceName) {
+
+                        case "-" -> { continue; }
 
                         case "pawn" -> {
                             if (activeColor == color) {
@@ -1654,6 +1674,8 @@ public final class Engine {
                 if(piece.getColor() == enemyColor) {
                     switch(piece.getName()) {
 
+                        case "-" -> { continue; }
+
                         case("pawn") -> {
                             if(enemyColor == 'w') {
                                 // Attacking to the left (A pawn cannot attack left)
@@ -2211,6 +2233,8 @@ public final class Engine {
                 Piece piece = board[i][j];
                 if(piece.getColor() == enemyColor) {
                     switch(piece.getName()) {
+
+                        case "-" -> { continue; }
 
                         case("pawn") -> {
                             if(enemyColor == 'w') {
@@ -3011,6 +3035,8 @@ public final class Engine {
         if(isMaximising) {
 
             double bestValue = Double.NEGATIVE_INFINITY;
+            double secondBestValue = Double.NEGATIVE_INFINITY + 1.0;
+            double thirdBestValue = Double.NEGATIVE_INFINITY + 2.0;
             for(int i=0; i<moves.size(); i++) {
 
                 Move a = moves.get(i);
@@ -3024,9 +3050,27 @@ public final class Engine {
 
 
                 if(tempValue >= bestValue) {
+                    thirdBestValue = secondBestValue;
+                    secondBestValue = bestValue;
                     bestValue = tempValue;
+
                     if(depth == 0) {
+                        thirdBestMoveIndex = secondBestMoveIndex;
+                        secondBestMoveIndex = bestMoveIndex;
                         bestMoveIndex = i;
+                    }
+                } else if (tempValue >= secondBestValue) {
+                    thirdBestValue = secondBestValue;
+                    secondBestValue = tempValue;
+
+                    if(depth == 0) {
+                        thirdBestMoveIndex = secondBestMoveIndex;
+                        secondBestMoveIndex = i;
+                    }
+                } else if (tempValue >= thirdBestValue) {
+                    thirdBestValue = tempValue;
+                    if(depth == 0) {
+                        thirdBestMoveIndex = i;
                     }
                 }
                 if(alpha >= bestValue) {
@@ -3044,6 +3088,8 @@ public final class Engine {
 
         } else {
             double leastValue = Double.POSITIVE_INFINITY;
+            double secondLeastValue = Double.POSITIVE_INFINITY + 1.0;
+            double thirdLeastValue = Double.POSITIVE_INFINITY + 2.0;
             for (int i = 0; i < moves.size(); i++) {
 
                 Move a = moves.get(i);
@@ -3054,9 +3100,24 @@ public final class Engine {
                 revertMove(game,moves.get(i));
 
                 if(tempValue <= leastValue) {
+                    thirdLeastValue = secondLeastValue;
+                    secondLeastValue = leastValue;
                     leastValue = tempValue;
                     if(depth == 0) {
+                        thirdBestMoveIndex = secondBestMoveIndex;
+                        secondBestMoveIndex = bestMoveIndex;
                         bestMoveIndex = i;
+                    }
+                } else if (tempValue <= secondLeastValue) {
+                    thirdLeastValue = secondLeastValue;
+                    secondLeastValue = i;
+                    if(depth == 0) {
+                        secondBestMoveIndex = i;
+                    }
+                } else if (tempValue <= thirdLeastValue) {
+                    thirdLeastValue = tempValue;
+                    if(depth == 0) {
+                        thirdBestMoveIndex = i;
                     }
                 }
                 //alpha = Math.max(alpha, leastValue); // not sure if this is the correct once so imma leave it here lol
@@ -3280,6 +3341,20 @@ public final class Engine {
     public void makeMove1() {
         if(move1 != null) {
             makeMove(game,move1);
+            game.setEvaluation(evaluate(game));
+            game.flipColor();
+        }
+    }
+    public void makeMove2() {
+        if(move2 != null) {
+            makeMove(game,move2);
+            game.setEvaluation(evaluate(game));
+            game.flipColor();
+        }
+    }
+    public void makeMove3() {
+        if(move3 != null) {
+            makeMove(game,move3);
             game.setEvaluation(evaluate(game));
             game.flipColor();
         }
