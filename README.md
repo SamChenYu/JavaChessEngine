@@ -56,7 +56,6 @@ Engine ✅ (04/02/24)
 - Introduce multi threading and transposition tables
 
 
-
 <div align="center">
   <img src="https://github.com/SamChenYu/JavaChessEngine/assets/150127006/f254d4b6-aa5b-4a99-8ab3-1cf218cc59eb" alt="Image Alt Text">
 </div>
@@ -64,7 +63,7 @@ Engine ✅ (04/02/24)
 
 
 <div style="text-align:center;">
-    <img src="https://github.com/SamChenYu/JavaChessEngine/assets/150127006/636edca8-6500-4606-a54a-9750253df657" alt="EnginePanel">
+    <img src="https://github.com/SamChenYu/JavaChessEngine/assets/150127006/e1f63eba-69f1-4ba4-b716-52903ca63355" alt="EnginePanel">
 </div>
 
 [Link to RyiSnow's Chess Pieces](https://ryisnow.itch.io/pixel-art-chess-piece-images)
