@@ -269,6 +269,8 @@ public final class Engine {
     }
 
 
+
+
     // Algorithmic Functions:
     public double evaluate(Game game) {
 
@@ -413,8 +415,6 @@ public final class Engine {
     } // end evaluate
 
     // multithreading function
-
-
     public Game makeMove(Game game, Move move) {
 
         Piece[][] newBoard = game.getBoard();
@@ -576,7 +576,7 @@ public final class Engine {
         game.incrementFullMoveClock();
         return game;
     } // end makeMove
-    public Game revertMove(Game game, Move move) {
+    public void revertMove(Game game, Move move) {
         //Exact opposite of the makeMove function
         Piece[][] newBoard = game.getBoard();
         char color = game.getActiveColor();
@@ -728,12 +728,7 @@ public final class Engine {
 
         game.revertHalfMoveClock();
         game.revertFullMoveClock();
-        return game;
     } // End revertMove
-
-
-
-
 
     public double findBestMove(Game game, int depth, double alpha, double beta, boolean isMaximising) {
 
@@ -864,8 +859,6 @@ public final class Engine {
     } // end findBestMove
 
 
-
-
     // Testing Functions:
     public void printBoardState(Game game) {
 
@@ -991,7 +984,7 @@ public final class Engine {
         }
     } // End printMoves
 
-    // Functions used for enginepanel and gui and user interface
+    // Methods used to connect to EnginePanel
     public String sendMoveToPanel(Move move) {
         // this method sends out to the enginepanel to update
 
@@ -1090,8 +1083,6 @@ public final class Engine {
             game.flipColor();
         }
     }
-
-
 
 
 

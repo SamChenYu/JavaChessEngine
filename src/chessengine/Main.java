@@ -1,7 +1,7 @@
 package chessengine;
 
 import GUI.ControlPanel;
-import GUI.EnginePanel;
+import GUI.EngineFrame;
 import javax.swing.SwingUtilities;
 
 public final class Main {
@@ -14,7 +14,8 @@ public final class Main {
             // Using a lambda expression to handle the button click event
             controlPanel.setButtonClickListener(e -> {
                 // Handle button click event in the main class
-                EnginePanel engineP = new EnginePanel(controlPanel.getString());
+                EngineFrame engineF = new EngineFrame(controlPanel.getString());
+
             });
         });
     }
