@@ -95,6 +95,8 @@ public final class EnginePanel {
             public void actionPerformed(ActionEvent e) {
                 // Disable button to prevent multiple searches
                 move1.setEnabled(false);
+                move2.setEnabled(false);
+                move3.setEnabled(false);
                 engine.makeMove1();
                 panel.repaint();
                 startButton.setEnabled(true);
@@ -107,6 +109,18 @@ public final class EnginePanel {
         move2.setFont(moveFont);
         move2.setForeground(Color.BLACK);
         move2.setBackground(Color.WHITE);
+        move2.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Disable button to prevent multiple searches
+                move1.setEnabled(false);
+                move2.setEnabled(false);
+                move3.setEnabled(false);
+                engine.makeMove2();
+                panel.repaint();
+                startButton.setEnabled(true);
+            }
+        });
         panel.add(move2);
 
         move3 = new JButton("#2: N/A");
@@ -114,6 +128,18 @@ public final class EnginePanel {
         move3.setFont(moveFont);
         move3.setForeground(Color.BLACK);
         move3.setBackground(Color.WHITE);
+        move3.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Disable button to prevent multiple searches
+                move1.setEnabled(false);
+                move2.setEnabled(false);
+                move3.setEnabled(false);
+                engine.makeMove3();
+                panel.repaint();
+                startButton.setEnabled(true);
+            }
+        });
         panel.add(move3);
 
         posSearchedLabel = new JLabel();
@@ -140,15 +166,7 @@ public final class EnginePanel {
                         // Call your engine's startSearch() method here
                         engine.startSearch();
 
-                        // Enable the button after search completes
-                        SwingUtilities.invokeLater(new Runnable() {
-                            public void run() {
-                                move1.setEnabled(true);
-                                move2.setEnabled(true);
-                                move3.setEnabled(true);
-
-                            }
-                        });
+                        // Enable the button after search completes);
                     }
                 });
 
@@ -172,7 +190,9 @@ public final class EnginePanel {
         newFENButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+
                 newFEN();
+                startButton.setEnabled(true);
             }
         });
         panel.add(newFENButton);
@@ -200,6 +220,28 @@ public final class EnginePanel {
 
     public void updateMove1(String move) {
         move1.setText("#1: "+move);
+        move1.setEnabled(true);
+        move2.setEnabled(true);
+        move3.setEnabled(true);
+
+        panel.repaint();
+    }
+
+    public void updateMove2(String move) {
+        move2.setText("#2: "+move);
+        move1.setEnabled(true);
+        move2.setEnabled(true);
+        move3.setEnabled(true);
+
+        panel.repaint();
+    }
+
+    public void updateMove3(String move) {
+        move3.setText("#3: "+move);
+        move1.setEnabled(true);
+        move2.setEnabled(true);
+        move3.setEnabled(true);
+
         panel.repaint();
     }
 
