@@ -88,8 +88,8 @@ public final class EnginePanel {
         move1 = new JButton("#1: N/A");
         move1.setBounds(850,250,325,50);
         move1.setFont(moveFont);
-        move1.setForeground(Color.WHITE);
-        move1.setBackground(Color.BLACK);
+        move1.setForeground(Color.BLACK);
+        move1.setBackground(Color.WHITE);
         move1.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -105,15 +105,15 @@ public final class EnginePanel {
         move2 = new JButton("#2: N/A");
         move2.setBounds(850,300,325,50);
         move2.setFont(moveFont);
-        move2.setForeground(Color.WHITE);
-        move2.setBackground(Color.BLACK);
+        move2.setForeground(Color.BLACK);
+        move2.setBackground(Color.WHITE);
         panel.add(move2);
 
         move3 = new JButton("#2: N/A");
         move3.setBounds(850,350,325,50);
         move3.setFont(moveFont);
-        move3.setForeground(Color.WHITE);
-        move3.setBackground(Color.BLACK);
+        move3.setForeground(Color.BLACK);
+        move3.setBackground(Color.WHITE);
         panel.add(move3);
 
         posSearchedLabel = new JLabel();
@@ -167,8 +167,8 @@ public final class EnginePanel {
         newFENButton = new JButton("Enter New FEN");
         newFENButton.setBounds(850,700,325,50);
         newFENButton.setFont(font);
-        newFENButton.setForeground(Color.WHITE);
-        newFENButton.setBackground(Color.BLACK);
+        newFENButton.setForeground(Color.BLACK);
+        newFENButton.setBackground(Color.WHITE);
         newFENButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
