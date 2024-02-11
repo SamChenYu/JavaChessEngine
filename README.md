@@ -33,29 +33,6 @@ These two factors are weighted dynamically, where very similiar material will we
 
 
 
-## ROADMAP:
-- GUI ✅ (10/01/24) 
-- Input with FEN Notation✅ (07/01/24)
-- Basic Evaluate Function ✅ (08/01/24)
-  
-Engine ✅ (04/02/24)
-- Calculate Possible Moves Function ✅ (14/01/24) ✅  Overhauled (28/01/24)
-- isCheckmate Function ✅ (18/01/24)
-- MiniMax Algorithm ✅ (31/01/24)
-- Alpha-Beta Pruning ✅ (03/02/24)
-
-
-- Make Move Function: ✅ (18/01/24)
-  Managing En Passant ✅
-  Managing King Castling Rights ✅
-  Checks / Checkmate ✅
-- Proper Evaluate Function✅ Introduced Piece Square Tables(31/01/24)
-- OUPUT FEN NOTATION
-- Ability to Play Moves Directly On Panel
-
-- Introduce multi threading and transposition tables
-
-
 <div align="center">
   <img src="https://github.com/SamChenYu/JavaChessEngine/assets/150127006/f254d4b6-aa5b-4a99-8ab3-1cf218cc59eb" alt="Image Alt Text">
 </div>
