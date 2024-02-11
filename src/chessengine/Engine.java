@@ -1084,6 +1084,67 @@ public final class Engine {
         }
     }
 
+    public void moveFromPanel(int startX, int startY, int endX, int endY) {
+
+        // uhhh so somewhere the representation of the board is weird
+        // so the Y values are upside down so i'm just manually replacing it lol
+        switch(startY) {
+            case 0 -> {
+                startY = 7;
+            }
+            case 1 -> {
+                startY = 6;
+            }
+            case 2 -> {
+                startY = 5;
+            }
+            case 3-> {
+                startY = 4;
+            }
+            case 4 -> {
+                startY = 3;
+            }
+            case 5 -> {
+                startY = 2;
+            }
+            case 6-> {
+                startY = 1;
+            }
+            case 7-> {
+                startY = 0;
+            }
+        }
+        switch(endY) {
+            case 0 -> {
+                endY = 7;
+            }
+            case 1 -> {
+                endY = 6;
+            }
+            case 2 -> {
+                endY = 5;
+            }
+            case 3-> {
+                endY = 4;
+            }
+            case 4 -> {
+                endY = 3;
+            }
+            case 5 -> {
+                endY = 2;
+            }
+            case 6-> {
+                endY = 1;
+            }
+            case 7-> {
+                endY = 0;
+            }
+        }
+
+        Move move = new Move(startX, startY, endX, endY, "Move", "", -1, -1, "");
+        makeMove(game,move);
+        game.flipColor();
+    }
 
 
     // Getters and Setters

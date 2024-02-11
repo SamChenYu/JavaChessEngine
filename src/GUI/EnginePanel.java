@@ -5,7 +5,6 @@ import chessengine.Engine;
 import Game.Piece;
 
 import javax.swing.*;
-
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -16,6 +15,10 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.imageio.ImageIO;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 
 public final class EnginePanel extends JPanel {
 
@@ -26,8 +29,14 @@ public final class EnginePanel extends JPanel {
     private final JButton move1, move2, move3;
     private final JTextField newFENField;
     private final JButton newFENButton;
+    private final JButton[][] squareButtons = new JButton[8][8];
     private final Font font = new Font("Arial",Font.BOLD,30);
     private final Font moveFont = new Font("Arial",Font.BOLD,20);
+
+    // Manually moving pieces
+    private int pieceSelectedX = -1, pieceSelectedY = -1;
+
+
 
     
     public EnginePanel(String input) {
@@ -142,6 +151,42 @@ public final class EnginePanel extends JPanel {
         });
         add(newFENButton);
 
+
+        // initialisating the invisible JButtons
+
+        Piece[][] board = engine.getFlippedBoard();
+        for(int x = 0; x < 8; x++) {
+            for(int y = 0; y < 8; y++) {
+                final int finalCounterX = x; // Capture the current value of counter
+                final int finalCounterY = y;
+                int spriteX = (x * 90) + 36;
+                int spriteY = (y * 85) + 36;
+                squareButtons[x][y] = new JButton();
+                squareButtons[x][y].setBounds(spriteX, spriteY, 94, 90);
+                squareButtons[x][y].setOpaque(false);
+                squareButtons[x][y].setContentAreaFilled(false);
+                squareButtons[x][y].setBorderPainted(false);
+                squareButtons[x][y].addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+
+                        if(pieceSelectedX == -1) {
+                            pieceSelectedX = finalCounterX;
+                            pieceSelectedY = finalCounterY;
+                        } else {
+                            // send the data to engine to make a move
+                            engine.moveFromPanel(pieceSelectedX, pieceSelectedY, finalCounterX, finalCounterY);
+                            pieceSelectedX = -1;
+                            pieceSelectedY = -1;
+                            repaint();
+                        }
+                    }
+                });
+                add(squareButtons[finalCounterX][finalCounterY]);
+            }
+        }
+
+
         setBackground(Color.BLACK);
         loadImages();
         repaint();    // repaint to the user isn't just blank
@@ -169,8 +214,8 @@ public final class EnginePanel extends JPanel {
                 int spriteX = (x*spriteWidth)+initialSquareOffsetX;
                 int spriteY = (y*spriteHeight)+initialSquareOffsetY;
                 g2.drawImage(board[x][y].getImage(),spriteX,spriteY,spriteWidth,spriteHeight,null);
-//                    g2.setColor(Color.red);
-//                    g2.drawRect(spriteX,spriteY,spriteWidth,spriteHeight);
+                    //g2.setColor(Color.red);
+                    //g2.drawRect(spriteX,spriteY,spriteWidth,spriteHeight);
             }
         }
 
