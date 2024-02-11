@@ -2,6 +2,11 @@
 In-Progress Chess Engine Developed With The MiniMax Algorithm Built From Scratch.
 
 Current Estimated Elo (Depth 4) at 1150
+
+### Todo:
+- CPU bottlenecked by updating legal moves -> researching alternative methods to generate legal moves faster
+- Multithreading
+- Transposition Tables HashMap<String, double) to save position evaluations
  
 ## Match History
 ### Martin 250 Elo Bot (www.chess.com)
@@ -19,7 +24,8 @@ The evaluation method is between -1 and 0.
 
 0 is equal evaluation or stalemate
 
-The evaluation takes into account two factors:  Position difference and material difference.
+The evaluation takes into account two factors:
+Position difference and material difference.
 
 The positional difference is calculated with piece square tables where each piece has assigned values on every square, determining the strength of the particular position. The material difference is calculated with a sigmoid function:  
 
