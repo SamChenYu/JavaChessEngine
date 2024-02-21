@@ -2,8 +2,7 @@
 package chessengine;
 
 import GUI.EnginePanel;
-import Game.Piece;
-import Game.Game;
+import Game.*;
 import java.util.ArrayList;
 
 import java.util.concurrent.ExecutorService;
@@ -16,6 +15,11 @@ public final class Engine {
     private final Game game;
     private final EnginePanel ep;
     MovesGenerator mg;
+
+    double timeToEval = 0;
+
+    private int iterations = 0;
+
 
 
     // Minimax
@@ -164,26 +168,29 @@ public final class Engine {
         executorService = Executors.newFixedThreadPool(numThreads);
         this.ep = ep;
 
-        game = new Game(input);
-        mg = new MovesGenerator(game, this);
+
+
+
+        mg = new MovesGenerator(this);
+        game = new Game(mg, input);
+        mg.initGame(game);
         evaluate(game);
         printBoardState(game);
 
     }
 
     public void startSearch() {
+        mg.movesGenerationTime = 0;
+        timeToEval = 0;
         gamesSearched = 0;
         game.moves.clear();
 
-        // finding legal moves
+         //finding legal moves
 //        double timeStart = System.currentTimeMillis();
-//        game.moves = updateMoves(game):
-//        for(int i=0; i<8; i++) {
-//            updateMoves(game,i);
-//        }
+//        game.moves = mg.updateMoves(game);
 //        double timeEnd = System.currentTimeMillis();
 //        double totalTime = (timeEnd - timeStart) /1000.0;
-//        System.out.println("Total Time: " + totalTime + " seconds for " + movesIndexed + " moves");
+//        System.out.println("Total Time: " + totalTime);
 //        printMoves(game);
 //        printBoardState(game);
 
@@ -230,6 +237,13 @@ public final class Engine {
 
 
         evaluate(game);
+        double time = mg.movesGenerationTime;
+        time /= 1000;
+        System.out.println("Time to generate moves: " + time);
+        System.out.println("Time to eval: " + timeToEval);
+
+        
+
     }
 
     public void parallel( Game game) {
@@ -273,7 +287,7 @@ public final class Engine {
 
     // Algorithmic Functions:
     public double evaluate(Game game) {
-
+        double timeStart = System.currentTimeMillis();
         Piece[][] board = game.getBoard();
 
         int whitePosition = 0;
@@ -411,6 +425,8 @@ public final class Engine {
         double evaluation = (whitePositionValue - blackPositionValue + materialValue);
 
         game.setEvaluation(evaluation);
+        double timeEnd = System.currentTimeMillis();
+        timeToEval += (timeEnd - timeStart);
         return game.getEvaluation();
     } // end evaluate
 
@@ -452,7 +468,8 @@ public final class Engine {
         switch(moveType) {
 
             case "Move" -> {
-                newBoard[endX][endY].copyPiece(newBoard[startX][startY]);
+
+                newBoard[endX][endY] = newBoard[startX][startY].clone();
                 newBoard[startX][startY] = new Piece();
                 //Extra special rules:
 
@@ -465,8 +482,6 @@ public final class Engine {
                         game.setWhiteCastleKingSide(false);
                         game.setWhiteCastleQueenSide(false);
                     } else {
-
-
                         game.setBlackCastleKingSide(false);
                         game.setBlackCastleQueenSide(false);
                     }
@@ -492,7 +507,7 @@ public final class Engine {
             }
 
             case "Moved_Twice" -> {
-                newBoard[endX][endY].copyPiece(newBoard[startX][startY]);
+                newBoard[endX][endY] = newBoard[startX][startY].clone();
                 newBoard[startX][startY] = new Piece();
                 game.setEnPassantXY(move.getEnPassantX(), move.getEnPassantY());
                 game.setEnPassantX(move.getEnPassantX());
@@ -500,12 +515,12 @@ public final class Engine {
             }
 
             case "Capture" -> {
-                newBoard[endX][endY].copyPiece(newBoard[startX][startY]);
+                newBoard[endX][endY] = newBoard[startX][startY].clone();
                 newBoard[startX][startY] = new Piece();
             }
 
             case "En_Passant_Capture" -> {
-                newBoard[endX][endY].copyPiece(newBoard[startX][startY]);
+                newBoard[endX][endY] = newBoard[startX][startY].clone();
                 newBoard[startX][startY] = new Piece();
 
                 // information about the enemy pawn is not stored
@@ -519,13 +534,23 @@ public final class Engine {
                 game.setHalfMoveClock(-1);
             }
 
-            case "Promote" -> {
-                newBoard[endX][endY] = new Piece(move.getPromotePieceTo(), color);
-                newBoard[startX][startY] = new Piece();
-            }
+            case "Promote", "Promote_Capture" -> {
 
-            case "Promote_Capture" -> {
-                newBoard[endX][endY] = new Piece(move.getPromotePieceTo(), color);
+                switch(move.getPromotePieceTo()) {
+                    case "queen" -> {
+                        newBoard[endX][endY] = new Queen(mg, color);
+                    }
+                    case "rook" -> {
+                        newBoard[endX][endY] = new Rook(mg, color);
+                    }
+                    case "knight" -> {
+                        newBoard[endX][endY] = new Knight(mg, color);
+                    }
+                    case "bishop" -> {
+                        newBoard[endX][endY] = new Bishop(mg, color);
+                    }
+
+                }
                 newBoard[startX][startY] = new Piece();
             }
 
@@ -533,15 +558,15 @@ public final class Engine {
                 if(color == 'w') {
                     newBoard[4][0] = new Piece();
                     newBoard[7][0] = new Piece();
-                    newBoard[6][0] = new Piece("king",'w');
-                    newBoard[5][0] = new Piece("rook", 'w');
+                    newBoard[6][0] = new King(mg,'w');
+                    newBoard[5][0] = new Rook(mg, 'w');
                     game.setWhiteCastleKingSide(false);
                     game.setWhiteCastleQueenSide(false);
                 } else {
                     newBoard[4][7] = new Piece();
                     newBoard[7][7] = new Piece();
-                    newBoard[6][7] = new Piece("king",'b');
-                    newBoard[5][7] = new Piece("rook", 'b');
+                    newBoard[6][7] = new King(mg,'b');
+                    newBoard[5][7] = new Rook(mg, 'b');
                     game.setBlackCastleKingSide(false);
                     game.setBlackCastleQueenSide(false);
                 }
@@ -551,15 +576,15 @@ public final class Engine {
                 if(color == 'w') {
                     newBoard[4][0] = new Piece();
                     newBoard[0][0] = new Piece();
-                    newBoard[2][0] = new Piece("king", 'w');
-                    newBoard[3][0] = new Piece("rook", 'w');
+                    newBoard[2][0] = new King(mg, 'w');
+                    newBoard[3][0] = new Rook(mg, 'w');
                     game.setWhiteCastleQueenSide(false);
                     game.setWhiteCastleKingSide(false);
                 } else {
                     newBoard[4][7] = new Piece();
                     newBoard[0][7] = new Piece();
-                    newBoard[2][7] = new Piece("king", 'b');
-                    newBoard[3][7] = new Piece("rook", 'b');
+                    newBoard[2][7] = new King(mg, 'b');
+                    newBoard[3][7] = new Rook(mg, 'b');
                     game.setBlackCastleKingSide(false);
                     game.setBlackCastleQueenSide(false);
                 }
@@ -599,7 +624,7 @@ public final class Engine {
         switch(moveType) {
 
             case "Move" -> {
-                newBoard[startX][startY].copyPiece(newBoard[endX][endY]);
+                newBoard[startX][startY] = newBoard[endX][endY].clone();
                 newBoard[endX][endY] = new Piece();
                 //Extra special rules:
 
@@ -636,27 +661,55 @@ public final class Engine {
             }
 
             case "Moved_Twice" -> {
-                newBoard[startX][startY].copyPiece(newBoard[endX][endY]);
+                newBoard[startX][startY] = newBoard[endX][endY].clone();
                 newBoard[endX][endY] = new Piece();
 
             }
 
             case "Capture" -> {
-                newBoard[startX][startY].copyPiece(newBoard[endX][endY]);
-                newBoard[endX][endY] = new Piece(move.getCapturedPiece(),enemyColor);
+                newBoard[startX][startY] = newBoard[endX][endY].clone();
+
+                switch(move.getCapturedPiece()) {
+                    case "pawn" -> {
+                        if (enemyColor == 'w') {
+                            newBoard[endX][endY] = new WhitePawn(mg);
+                        } else {
+                            newBoard[endX][endY] = new BlackPawn(mg);
+                        }
+                    } // end case pawn
+
+                    case "knight" -> {
+                        newBoard[endX][endY] = new Knight(mg, enemyColor);
+                    } // end case knight
+
+                    case "bishop" -> {
+                        newBoard[endX][endY] = new Bishop(mg, enemyColor);
+                    } // end case bishop
+
+                    case "rook" -> {
+                        newBoard[endX][endY] = new Rook(mg, enemyColor);
+                    } // end case rook
+
+                    case "queen" -> {
+                        newBoard[endX][endY] = new Queen(mg, enemyColor);
+                    } // end case queen
+
+                } // end switch
+
+
 
             }
 
             case "En_Passant_Capture" -> {
-                newBoard[startX][startY].copyPiece(newBoard[endX][endY]);
+                newBoard[startX][startY] = newBoard[endX][endY].clone();
                 newBoard[endX][endY] = new Piece();
 
                 // information about the enemy pawn is not stored
 
                 if(color == 'w') {
-                    newBoard[endX][endY-1] = new Piece("pawn",'b');
+                    newBoard[endX][endY-1] = new BlackPawn(mg);
                 } else {
-                    newBoard[endX][endY+1] = new Piece("pawn",'w');
+                    newBoard[endX][endY+1] = new WhitePawn(mg);
                 }
 
                 game.setHalfMoveClock(-1);
@@ -664,25 +717,60 @@ public final class Engine {
 
             case "Promote" -> {
                 newBoard[endX][endY] = new Piece();
-                newBoard[startX][startY] = new Piece("pawn", color);
+                if(color == 'w') {
+                    newBoard[endX][endY-1] = new WhitePawn(mg);
+                } else {
+                    newBoard[endX][endY+1] = new BlackPawn(mg);
+                }
             }
 
             case "Promote_Capture" -> {
-                newBoard[endX][endY] = new Piece(move.getCapturedPiece(),enemyColor);
-                newBoard[startX][startY] = new Piece("pawn", color);
+
+                if(color == 'w') {
+                    newBoard[startX][startY] = new WhitePawn(mg);
+                } else {
+                    newBoard[startX][startY] = new BlackPawn(mg);
+                }
+
+                switch(move.getCapturedPiece()) {
+                    case "pawn" -> {
+                        if (enemyColor == 'w') {
+                            newBoard[endX][endY] = new WhitePawn(mg);
+                        } else {
+                            newBoard[endX][endY] = new BlackPawn(mg);
+                        }
+                    } // end case pawn
+
+                    case "knight" -> {
+                        newBoard[endX][endY] = new Knight(mg, enemyColor);
+                    } // end case knight
+
+                    case "bishop" -> {
+                        newBoard[endX][endY] = new Bishop(mg, enemyColor);
+                    } // end case bishop
+
+                    case "rook" -> {
+                        newBoard[endX][endY] = new Rook(mg, enemyColor);
+                    } // end case rook
+
+                    case "queen" -> {
+                        newBoard[endX][endY] = new Queen(mg, enemyColor);
+                    } // end case queen
+
+                } // end switch
             }
 
             case "Castle_KingSide" -> {
                 if(color == 'w') {
-                    newBoard[4][0] = new Piece("king",'w');
-                    newBoard[7][0] = new Piece("rook", 'w');
+                    newBoard[4][0] = new King(mg,'w');
+                    newBoard[7][0] = new Rook(mg, 'w');
                     newBoard[6][0] = new Piece();
                     newBoard[5][0] = new Piece();
                     game.setWhiteCastleKingSide(move.getPreviousKingCastleState());
                     game.setWhiteCastleQueenSide(move.getPreviousQueenCastleState());
                 } else {
-                    newBoard[4][7] = new Piece("king",'b');
-                    newBoard[7][7] = new Piece("rook", 'b');
+                    newBoard[4][7] = new King(mg,'b');
+                    newBoard[7][7] = new Rook(mg, 'b');
                     newBoard[6][7] = new Piece();
                     newBoard[5][7] = new Piece();
                     game.setBlackCastleKingSide(move.getPreviousKingCastleState());
@@ -692,14 +780,14 @@ public final class Engine {
 
             case "Castle_QueenSide" -> {
                 if(color == 'w') {
-                    newBoard[4][0] = new Piece("king", 'w');
-                    newBoard[0][0] = new Piece("rook", 'w');
+                    newBoard[4][0] = new King(mg, 'w');
+                    newBoard[0][0] = new Rook(mg, 'w');
                     newBoard[2][0] = new Piece();
                     newBoard[3][0] = new Piece();
 
                 } else {
-                    newBoard[4][7] = new Piece("king", 'b');
-                    newBoard[0][7] = new Piece("rook", 'b');
+                    newBoard[4][7] = new King(mg, 'b');
+                    newBoard[0][7] = new Rook(mg, 'b');
                     newBoard[2][7] = new Piece();
                     newBoard[3][7] = new Piece();
 
@@ -731,7 +819,6 @@ public final class Engine {
     } // End revertMove
 
     public double findBestMove(Game game, int depth, double alpha, double beta, boolean isMaximising) {
-
         gamesSearched++;
         ep.updateGamesSearched(gamesSearched);
 
@@ -765,11 +852,8 @@ public final class Engine {
             double thirdBestValue = Double.NEGATIVE_INFINITY + 2.0;
             for(int i=0; i<moves.size(); i++) {
 
-                Move a = moves.get(i);
-                //System.out.println("Best Move: " + game.getBoard()[a.getStartX()][a.getStartY()].getName() + " from " + a.toChar(a.getStartX()) + (a.getStartY()+1) + " moves to " + a.toChar(a.getEndX()) + (a.getEndY()+1));
-                makeMove(game,moves.get(i));
+                Move a = moves.get(i);makeMove(game,moves.get(i));
                 game.flipColor();
-//               printBoardState(game);
                 double tempValue  = findBestMove(game,depth+1, alpha, beta, false);
                 game.flipColor();
                 revertMove(game,moves.get(i));
