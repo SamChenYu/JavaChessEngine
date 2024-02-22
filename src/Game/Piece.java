@@ -1,17 +1,22 @@
 
 package Game;
 
+import Move.Move;
+import Move.MovesGenerator;
+
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
-public class Piece {
+public class Piece implements Cloneable {
     
     private String name;
     private int value;
     private char color = '.';
     private String filepath;
     private BufferedImage image;
+    MovesGenerator mg;
 
     public Piece(String name, char color) {
         this.name = name;
@@ -100,13 +105,18 @@ public class Piece {
         }
         
     }
-    
-    public void copyPiece(Piece copy) {
-        name = copy.getName();
-        value = copy.getValue();
-        color = copy.getColor();
-        image = copy.getImage();
+
+    @Override
+    public Piece clone() {
+        try {
+            return (Piece) super.clone();
+        } catch (CloneNotSupportedException e) {
+            // This should never happen since Piece implements Cloneable
+            throw new AssertionError();
+        }
     }
+
+
     
     
     
@@ -140,4 +150,10 @@ public class Piece {
             return true;
         }
     }
+
+    public ArrayList<Move> update(Game game, int i, int y) {
+        // default case: no piece is in place
+        return null;
+    }
+
 }

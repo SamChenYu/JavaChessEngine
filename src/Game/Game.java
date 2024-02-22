@@ -1,7 +1,9 @@
 
 package Game;
 
-import chessengine.Move;
+import Move.Move;
+import Move.MovesGenerator;
+
 import java.util.ArrayList;
 
 
@@ -78,9 +80,12 @@ public final class Game {
     private int fullMoveClock = 1; // full amount of turns taken
     
     public ArrayList<Move> moves; // list of possible moves for the current board state
+
+    MovesGenerator mg; // parsed into the piece so that they can self-update
+    String input;
     
-    
-    public Game(String input) {
+    public Game(MovesGenerator mg, String input) {
+        this.mg = mg;
         for(int i=0; i<8; i++) {
             for(int j=0; j<8; j++) {
                 board[i][j] = new Piece();
@@ -90,17 +95,7 @@ public final class Game {
         moves = new ArrayList<Move>();
         processString(input);
     }
-    
-    public Game() { // most likely created for a copy
-        for(int i=0; i<8; i++) {
-            for(int j=0; j<8; j++) {
-                board[i][j] = new Piece();
-                flippedBoard[i][j] = new Piece();
-            }
-        }
-        moves = new ArrayList<Move>();
-    }
-    
+
     public void processString(String input) {
 
         // Split the FEN string using space as the delimiter
@@ -171,84 +166,84 @@ public final class Game {
                 switch(currentChar) {
                     case 'r' -> {
                         // black rook
-                        board[squareCounter][i] = new Piece("rook", 'b');
+                        board[squareCounter][i] = new Rook(mg, 'b');
                         squareCounter++;
                         break;
                     }
                     
                     case 'n' -> {
                         // black knight
-                        board[squareCounter][i] = new Piece("knight", 'b');
+                        board[squareCounter][i] = new Knight(mg, 'b');
                         squareCounter++;
                         break;
                     }
                     
                     case 'b' -> {
                         // black bishop
-                        board[squareCounter][i] = new Piece("bishop", 'b');
+                        board[squareCounter][i] = new Bishop(mg, 'b');
                         squareCounter++;
                         break;
                     }
                     
                     case 'q' -> {
                         // black queen
-                        board[squareCounter][i] = new Piece("queen", 'b');
+                        board[squareCounter][i] = new Queen(mg, 'b');
                         squareCounter++;
                         break;
                     }
                     
                     case 'k' -> {
                         // black king
-                        board[squareCounter][i] = new Piece("king", 'b');
+                        board[squareCounter][i] = new King(mg, 'b');
                         squareCounter++;
                         break;
                     }
                     
                     case 'p' -> {
                         // black pawn
-                        board[squareCounter][i] = new Piece("pawn", 'b');
+                        board[squareCounter][i] = new BlackPawn(mg);
                         squareCounter++;
                         break;
                     }
                     
                     case 'P' -> {
                         // white pawn
-                        board[squareCounter][i] = new Piece("pawn", 'w');
+                        board[squareCounter][i] = new WhitePawn(mg);
                         squareCounter++;
                         break;
                     }
                     
                     case 'K' -> {
                         // white king
-                        board[squareCounter][i] = new Piece("king", 'w');
+                        board[squareCounter][i] = new King(mg, 'w');
                         squareCounter++;
                         break;
                     }
                     
                     case 'Q' -> {
                         //white queen
-                        board[squareCounter][i] = new Piece("queen", 'w');
+                        board[squareCounter][i] = new Queen(mg, 'w');
                         squareCounter++;
                         break;
                     }
                     
                     case 'B' -> {
                         // white bishop
-                        board[squareCounter][i] = new Piece("bishop", 'w');
+                        board[squareCounter][i] = new Bishop(mg, 'w');
                         squareCounter++;
                         break;
                     }
                     
                     case 'N' -> {
                         // white knight
-                        board[squareCounter][i] = new Piece("knight", 'w');
+                        board[squareCounter][i] = new Knight(mg, 'w');
                         squareCounter++;
                         break;
                     }
                     
                     case 'R' -> {
                         // white rook
-                        board[squareCounter][i] = new Piece("rook", 'w');
+                        board[squareCounter][i] = new Rook(mg, 'w');
                         squareCounter++;
                         break;
                     }
