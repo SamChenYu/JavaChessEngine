@@ -1,7 +1,6 @@
 package Game;
 
-import chessengine.Move;
-import chessengine.MovesGenerator;
+import Move.*;
 
 import java.util.ArrayList;
 
@@ -32,7 +31,7 @@ public class King extends Piece {
 
 
                 if (board[x][y].isEmpty()) {
-                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                    Move move = new Move(i,j,x,y);
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
@@ -40,7 +39,7 @@ public class King extends Piece {
 
                 if (board[x][y].isEnemy(color)) {
                     String enemyName = board[x][y].getName();
-                    Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                    Move move = new Capture(i,j,x,y, board[x][y].clone());
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
@@ -54,7 +53,7 @@ public class King extends Piece {
             x--;
             if (x >= 0 && (board[x][y].isEmpty() || board[x][y].isEnemy(color))) {
                 if (board[x][y].isEmpty()) {
-                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                    Move move = new Move(i,j,x,y);
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
@@ -62,7 +61,7 @@ public class King extends Piece {
 
                 if (board[x][y].isEnemy(color)) {
                     String enemyName = board[x][y].getName();
-                    Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                    Move move = new Capture(i,j,x,y, board[x][y].clone());
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
@@ -75,7 +74,7 @@ public class King extends Piece {
             y++;
             if (y <= 7) {
                 if (board[x][y].isEmpty()) {
-                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                    Move move = new Move(i,j,x,y);
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
@@ -83,7 +82,7 @@ public class King extends Piece {
 
                 if (board[x][y].isEnemy(color)) {
                     String enemyName = board[x][y].getName();
-                    Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                    Move move = new Capture(i,j,x,y, board[x][y].clone());
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
@@ -96,7 +95,7 @@ public class King extends Piece {
             y--;
             if (y >= 0) {
                 if (board[x][y].isEmpty()) {
-                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                    Move move = new Move(i,j,x,y);
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
@@ -104,7 +103,7 @@ public class King extends Piece {
 
                 if (board[x][y].isEnemy(color)) {
                     String enemyName = board[x][y].getName();
-                    Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                    Move move = new Capture(i,j,x,y, board[x][y].clone());
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
@@ -122,7 +121,7 @@ public class King extends Piece {
             y++;
             if (x <= 7 && y <= 7) {
                 if (board[x][y].isEmpty()) {
-                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                    Move move = new Move(i,j,x,y);
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
@@ -130,7 +129,7 @@ public class King extends Piece {
 
                 if (board[x][y].isEnemy(color)) {
                     String enemyName = board[x][y].getName();
-                    Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                    Move move = new Capture(i,j,x,y, board[x][y].clone());
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
@@ -145,7 +144,7 @@ public class King extends Piece {
             y++;
             if (x >= 0 && y <= 7) {
                 if (board[x][y].isEmpty()) {
-                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                    Move move = new Move(i,j,x,y);
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
@@ -153,7 +152,7 @@ public class King extends Piece {
 
                 if (board[x][y].isEnemy(color)) {
                     String enemyName = board[x][y].getName();
-                    Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                    Move move = new Capture(i,j,x,y, board[x][y].clone());
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
@@ -168,7 +167,7 @@ public class King extends Piece {
             y--;
             if ((x <= 7 && y >= 0)) {
                 if (board[x][y].isEmpty()) {
-                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                    Move move = new Move(i,j,x,y);
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
@@ -176,7 +175,7 @@ public class King extends Piece {
 
                 if (board[x][y].isEnemy(color)) {
                     String enemyName = board[x][y].getName();
-                    Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                    Move move = new Capture(i,j,x,y, board[x][y].clone());
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
@@ -190,7 +189,7 @@ public class King extends Piece {
             y--;
             if (x >= 0 && y >= 0) {
                 if (board[x][y].isEmpty()) {
-                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                    Move move = new Move(i,j,x,y);
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
@@ -198,7 +197,7 @@ public class King extends Piece {
 
                 if (board[x][y].isEnemy(color)) {
                     String enemyName = board[x][y].getName();
-                    Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                    Move move = new Capture(i,j,x,y, board[x][y].clone());
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
@@ -213,7 +212,7 @@ public class King extends Piece {
 
                         if (!mg.isSquareInCheck(game, 4, 0) && !mg.isSquareInCheck(game, 5, 0) &&
                                 !mg.isSquareInCheck(game, 6, 0)) {
-                            Move move = new Move(4, 0, 6, 0, "Castle_KingSide", "", -1, -1, "");
+                            Move move = new CastleKingSide(4,0,6,0);
                             moves.add(move);
                         }
 
@@ -223,7 +222,7 @@ public class King extends Piece {
                     if (board[3][0].isEmpty() && board[2][0].isEmpty() && board[1][0].isEmpty()) {
                         if (!mg.isSquareInCheck(game, 1, 0) &&
                                 !mg.isSquareInCheck(game, 2, 0) && !mg.isSquareInCheck(game, 3, 0) && !mg.isSquareInCheck(game, 4, 0)) {
-                            Move move = new Move(4, 0, 2, 0, "Castle_QueenSide", "", -1, -1, "");
+                            Move move = new CastleQueenSide(4,0,2,0);
                             moves.add(move);
                         }
                     }
@@ -234,7 +233,7 @@ public class King extends Piece {
                     if (board[5][7].isEmpty() && board[6][7].isEmpty()) {
                         if (!mg.isSquareInCheck(game, 4, 7) && !mg.isSquareInCheck(game, 5, 7) &&
                                 !mg.isSquareInCheck(game, 6, 7)) {
-                            Move move = new Move(4, 7, 6, 7, "Castle_KingSide", "", -1, -1, "");
+                            Move move = new CastleKingSide(4,7,6, 7);
                             moves.add(move);
                         }
                     }
@@ -243,7 +242,7 @@ public class King extends Piece {
                     if (board[3][7].isEmpty() && board[2][7].isEmpty() && board[1][7].isEmpty()) {
                         if (!mg.isSquareInCheck(game, 1, 7) &&
                                 !mg.isSquareInCheck(game, 2, 7) && !mg.isSquareInCheck(game, 3, 7) && !mg.isSquareInCheck(game, 4, 7)) {
-                            Move move = new Move(4, 7, 2, 7, "Castle_QueenSide", "", -1, -1, "");
+                            Move move = new CastleQueenSide(4,7,2,7);
                             moves.add(move);
                         }
                     }

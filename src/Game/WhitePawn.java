@@ -1,9 +1,7 @@
 package Game;
-import chessengine.Move;
-import chessengine.MovesGenerator;
+import Move.*;
 
 import java.util.ArrayList;
-import chessengine.MovesGenerator;
 
 public class WhitePawn extends Piece{
     
@@ -27,7 +25,7 @@ public class WhitePawn extends Piece{
                 int x = i, y = j + 1; // coords interested in
                 if (board[x][y].isEmpty()) {
                     // Can move forward one
-                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                    Move move = new Move(i, j, x, y);
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
@@ -38,7 +36,7 @@ public class WhitePawn extends Piece{
                 int x = i, y = j + 2; // coords interested in
                 if (board[i][j + 1].isEmpty() && board[x][y].isEmpty()) {
                     // Can move forward two
-                    Move move = new Move(i, j, x, y, "Moved_Twice", "", i, (j + y) / 2, "");
+                    Move move = new MovedTwice(i,j,x,y, i, (j + y) / 2);
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
@@ -52,14 +50,14 @@ public class WhitePawn extends Piece{
                 if (board[x][y].isEnemy(color)) {
                     // Can attack left
                     String enemyName = board[x][y].getName();
-                    Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                    Move move = new Capture(i,j,x,y, board[x][y].clone());
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
                 }
 
                 if (enPassantX == (x) && enPassantY == (y) && board[x][y].isEnemy(color)) {
-                    Move move = new Move(i, j, x, y, "En_Passant_Capture", "pawn", x, y, "");
+                    Move move = new EnPassantCapture(i, j, x, y, x, y);
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
 
@@ -74,14 +72,14 @@ public class WhitePawn extends Piece{
                 int x = i + 1, y = j + 1; // coords interested in
                 if (board[x][y].isEnemy(color)) {
                     String enemyName = board[x][y].getName();
-                    Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                    Move move = new Capture(i, j, x, y, board[x][y].clone());
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
                 }
                 if (enPassantX == (x) && enPassantY == (y) && board[x][y].isEnemy(color)) {
 
-                    Move move = new Move(i, j, x, y, "En_Passant_Capture", "pawn", x, y, "");
+                    Move move = new EnPassantCapture(i, j, x, y,  x, y);
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     } else {
@@ -94,10 +92,10 @@ public class WhitePawn extends Piece{
                 int x = i, y = j + 1; // coords interested in
                 if (board[x][y].isEmpty()) {
                     // Can promote to queen, rook, bishop, knight
-                    Move move1 = new Move(i, j, x, y, "Promote", "", x, y, "queen");
-                    Move move2 = new Move(i, j, x, y, "Promote", "", x, y, "rook");
-                    Move move3 = new Move(i, j, x, y, "Promote", "", x, y, "bishop");
-                    Move move4 = new Move(i, j, x, y, "Promote", "", x, y, "knight");
+                    Move move1 = new Promote(i, j, x, y, new Queen(mg, 'w'));
+                    Move move2 = new Promote(i, j, x, y, new Rook(mg, 'w'));
+                    Move move3 = new Promote(i, j, x, y, new Bishop(mg, 'w'));
+                    Move move4 = new Promote(i, j, x, y, new Knight(mg, 'w'));
 
                     if (mg.checkIfMoveIsValid(game, move1)) {
                         moves.add(move1);
@@ -120,11 +118,10 @@ public class WhitePawn extends Piece{
                 int x = i - 1, y = j + 1; // coords interested in
                 if (board[x][y].isEnemy(color)) {
                     // Can attack left
-                    String enemyName = board[x][y].getName();
-                    Move move1 = new Move(i, j, x, y, "Promote_Capture", enemyName, x, y, "queen");
-                    Move move2 = new Move(i, j, x, y, "Promote_Capture", enemyName, x, y, "rook");
-                    Move move3 = new Move(i, j, x, y, "Promote_Capture", enemyName, x, y, "bishop");
-                    Move move4 = new Move(i, j, x, y, "Promote_Capture", enemyName, x, y, "knight");
+                    Move move1 = new PromoteCapture(i, j, x, y, new Queen(mg, color), board[x][y].clone());
+                    Move move2 = new PromoteCapture(i, j, x, y, new Rook(mg, color), board[x][y].clone());
+                    Move move3 = new PromoteCapture(i, j, x, y, new Bishop(mg, color), board[x][y].clone());
+                    Move move4 = new PromoteCapture(i, j, x, y, new Knight(mg, color), board[x][y].clone());
                     if (mg.checkIfMoveIsValid(game, move1)) {
                         moves.add(move1);
                     }
@@ -146,11 +143,10 @@ public class WhitePawn extends Piece{
                 int x = i + 1, y = j + 1; // coords interested in
                 if (board[x][y].isEnemy(color)) {
                     // Can attack right
-                    String enemyName = board[x][y].getName();
-                    Move move1 = new Move(i, j, x, y, "Promote_Capture", enemyName, x, y, "queen");
-                    Move move2 = new Move(i, j, x, y, "Promote_Capture", enemyName, x, y, "rook");
-                    Move move3 = new Move(i, j, x, y, "Promote_Capture", enemyName, x, y, "bishop");
-                    Move move4 = new Move(i, j, x, y, "Promote_Capture", enemyName, x, y, "knight");
+                    Move move1 = new PromoteCapture(i, j, x, y, new Queen(mg, color), board[x][y].clone());
+                    Move move2 = new PromoteCapture(i, j, x, y, new Rook(mg, color), board[x][y].clone());
+                    Move move3 = new PromoteCapture(i, j, x, y, new Bishop(mg, color), board[x][y].clone());
+                    Move move4 = new PromoteCapture(i, j, x, y, new Knight(mg, color), board[x][y].clone());
                     if (mg.checkIfMoveIsValid(game, move1)) {
                         moves.add(move1);
                     }

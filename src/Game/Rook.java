@@ -1,7 +1,6 @@
 package Game;
 
-import chessengine.Move;
-import chessengine.MovesGenerator;
+import Move.*;
 
 import java.util.ArrayList;
 
@@ -26,7 +25,7 @@ public class Rook extends Piece {
             while (x < 7) {
                 x++;
                 if (board[x][y].isEmpty()) {
-                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                    Move move = new Move(i,j,x,y);
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
@@ -34,7 +33,7 @@ public class Rook extends Piece {
                     // Piece blocks rook's way
                     if (board[x][y].isEnemy(color)) {
                         String enemyName = board[x][y].getName();
-                        Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                        Move move = new Capture(i,j,x,y, board[x][y].clone());
                         if (mg.checkIfMoveIsValid(game, move)) {
                             moves.add(move);
                         }
@@ -50,7 +49,7 @@ public class Rook extends Piece {
             while (x > 0) {
                 x--;
                 if (board[x][y].isEmpty()) {
-                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                    Move move = new Move(i,j,x,y);
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
@@ -59,7 +58,7 @@ public class Rook extends Piece {
                     // Piece blocks rook's way
                     if (board[x][y].isEnemy(color)) {
                         String enemyName = board[x][y].getName();
-                        Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                        Move move = new Capture(i,j,x,y, board[x][y].clone());
                         if (mg.checkIfMoveIsValid(game, move)) {
                             moves.add(move);
                         }
@@ -76,7 +75,7 @@ public class Rook extends Piece {
             while (y < 7) {
                 y++;
                 if (board[x][y].isEmpty()) {
-                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                    Move move = new Move(i,j,x,y);
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
@@ -84,7 +83,7 @@ public class Rook extends Piece {
                     // Piece blocks rook's way
                     if (board[x][y].isEnemy(color)) {
                         String enemyName = board[x][y].getName();
-                        Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                        Move move = new Capture(i,j,x,y, board[x][y].clone());
                         if (mg.checkIfMoveIsValid(game, move)) {
                             moves.add(move);
                         }
@@ -100,7 +99,7 @@ public class Rook extends Piece {
             while (y > 0) {
                 y--;
                 if (board[x][y].isEmpty()) {
-                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                    Move move = new Move(i,j,x,y);
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
@@ -108,7 +107,7 @@ public class Rook extends Piece {
                     // Piece blocks bishop's way
                     if (board[x][y].isEnemy(color)) {
                         String enemyName = board[x][y].getName();
-                        Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                        Move move = new Capture(i,j,x,y, board[x][y].clone());
                         if (mg.checkIfMoveIsValid(game, move)) {
                             moves.add(move);
                         }

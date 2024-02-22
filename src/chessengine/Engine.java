@@ -3,6 +3,9 @@ package chessengine;
 
 import GUI.EnginePanel;
 import Game.*;
+import Move.Move;
+import Move.MovesGenerator;
+
 import java.util.ArrayList;
 
 import java.util.concurrent.ExecutorService;
@@ -18,12 +21,10 @@ public final class Engine {
 
     double timeToEval = 0;
 
-    private int iterations = 0;
-
 
 
     // Minimax
-    private final int maxDepth = 4;
+    private int maxDepth = 2;
     private int bestMoveIndex = -1, secondBestMoveIndex= -1, thirdBestMoveIndex = -1;
     private Move move1, move2, move3;
     private Integer gamesSearched = 0;
@@ -180,6 +181,7 @@ public final class Engine {
     }
 
     public void startSearch() {
+        maxDepth = ep.getDepth();
         mg.movesGenerationTime = 0;
         timeToEval = 0;
         gamesSearched = 0;
@@ -465,137 +467,9 @@ public final class Engine {
         int endX = move.getEndX();
         int endY = move.getEndY();
 
-        switch(moveType) {
-
-            case "Move" -> {
-
-                newBoard[endX][endY] = newBoard[startX][startY].clone();
-                newBoard[startX][startY] = new Piece();
-                //Extra special rules:
-
-                // If the king moves, then it can no longer castle
-                if(newBoard[startX][startY].getName().equals("king")) {
-                    if(newBoard[startX][startY].getColor() == 'w') {
-                        // save the states in the move object first
-
-
-                        game.setWhiteCastleKingSide(false);
-                        game.setWhiteCastleQueenSide(false);
-                    } else {
-                        game.setBlackCastleKingSide(false);
-                        game.setBlackCastleQueenSide(false);
-                    }
-                }
-
-                // if rooks move from their starting square then they cannot castle
-                if(newBoard[startX][startY].getName().equals("rook")) {
-                    // WHITE ROOKS
-                    if (startX == 7 && startY == 0) {
-                        game.setWhiteCastleKingSide(false);
-                    } else if(startX == 0 && startY == 0) {
-                        game.setWhiteCastleQueenSide(false);
-                    }
-
-                    // BLACK ROOKS
-                    if(startX == 7 && startY == 7) {
-
-                        game.setBlackCastleKingSide(false);
-                    } else if (startX == 0 && startY == 7) {
-                        game.setBlackCastleQueenSide(false);
-                    }
-                }
-            }
-
-            case "Moved_Twice" -> {
-                newBoard[endX][endY] = newBoard[startX][startY].clone();
-                newBoard[startX][startY] = new Piece();
-                game.setEnPassantXY(move.getEnPassantX(), move.getEnPassantY());
-                game.setEnPassantX(move.getEnPassantX());
-                game.setEnPassantY(move.getEnPassantY());
-            }
-
-            case "Capture" -> {
-                newBoard[endX][endY] = newBoard[startX][startY].clone();
-                newBoard[startX][startY] = new Piece();
-            }
-
-            case "En_Passant_Capture" -> {
-                newBoard[endX][endY] = newBoard[startX][startY].clone();
-                newBoard[startX][startY] = new Piece();
-
-                // information about the enemy pawn is not stored
-
-                if(color == 'w') {
-                    newBoard[endX][endY-1] = new Piece();
-                } else {
-                    newBoard[endX][endY+1] = new Piece();
-                }
-
-                game.setHalfMoveClock(-1);
-            }
-
-            case "Promote", "Promote_Capture" -> {
-
-                switch(move.getPromotePieceTo()) {
-                    case "queen" -> {
-                        newBoard[endX][endY] = new Queen(mg, color);
-                    }
-                    case "rook" -> {
-                        newBoard[endX][endY] = new Rook(mg, color);
-                    }
-                    case "knight" -> {
-                        newBoard[endX][endY] = new Knight(mg, color);
-                    }
-                    case "bishop" -> {
-                        newBoard[endX][endY] = new Bishop(mg, color);
-                    }
-
-                }
-                newBoard[startX][startY] = new Piece();
-            }
-
-            case "Castle_KingSide" -> {
-                if(color == 'w') {
-                    newBoard[4][0] = new Piece();
-                    newBoard[7][0] = new Piece();
-                    newBoard[6][0] = new King(mg,'w');
-                    newBoard[5][0] = new Rook(mg, 'w');
-                    game.setWhiteCastleKingSide(false);
-                    game.setWhiteCastleQueenSide(false);
-                } else {
-                    newBoard[4][7] = new Piece();
-                    newBoard[7][7] = new Piece();
-                    newBoard[6][7] = new King(mg,'b');
-                    newBoard[5][7] = new Rook(mg, 'b');
-                    game.setBlackCastleKingSide(false);
-                    game.setBlackCastleQueenSide(false);
-                }
-            }
-
-            case "Castle_QueenSide" -> {
-                if(color == 'w') {
-                    newBoard[4][0] = new Piece();
-                    newBoard[0][0] = new Piece();
-                    newBoard[2][0] = new King(mg, 'w');
-                    newBoard[3][0] = new Rook(mg, 'w');
-                    game.setWhiteCastleQueenSide(false);
-                    game.setWhiteCastleKingSide(false);
-                } else {
-                    newBoard[4][7] = new Piece();
-                    newBoard[0][7] = new Piece();
-                    newBoard[2][7] = new King(mg, 'b');
-                    newBoard[3][7] = new Rook(mg, 'b');
-                    game.setBlackCastleKingSide(false);
-                    game.setBlackCastleQueenSide(false);
-                }
-            }
-
-            default-> {
-                System.out.println("Error unrecognized move");
-            }
-        } // End switch
-
-
+        // applying the move to the board
+        // the move will be able to make the move itself
+        game = move.makeMove(game);
 
         game.incrementHalfMoveClock();
         game.incrementFullMoveClock();
@@ -619,186 +493,7 @@ public final class Engine {
         int endX = move.getEndX();
         int endY = move.getEndY();
         // Dichotmy of moves
-
-
-        switch(moveType) {
-
-            case "Move" -> {
-                newBoard[startX][startY] = newBoard[endX][endY].clone();
-                newBoard[endX][endY] = new Piece();
-                //Extra special rules:
-
-                //Castling rights for reverting moves?
-                // If the king moves, then it can no longer castle
-                if(newBoard[startX][startY].getName().equals("king")) {
-                    if(newBoard[startX][startY].getColor() == 'w') {
-                        game.setWhiteCastleKingSide(move.getPreviousKingCastleState());
-                        game.setWhiteCastleQueenSide(move.getPreviousQueenCastleState());
-                    } else {
-                        game.setBlackCastleKingSide(move.getPreviousKingCastleState());
-                        game.setBlackCastleQueenSide(move.getPreviousQueenCastleState());
-                    }
-                }
-
-                // if rooks move from their starting square then they cannot castle
-                if(newBoard[startX][startY].getName().equals("rook")) {
-                    // WHITE ROOKS
-                    if (startX == 7 && startY == 0) {
-                        game.setWhiteCastleKingSide(move.getPreviousKingCastleState());
-                    } else if(startX == 0 && startY == 0) {
-                        game.setWhiteCastleQueenSide(move.getPreviousQueenCastleState());
-                    }
-
-                    // BLACK ROOKS
-                    if(startX == 7 && startY == 7) {
-
-                        game.setBlackCastleKingSide(move.getPreviousKingCastleState());
-                    } else if (startX == 0 && startY == 7) {
-                        game.setBlackCastleQueenSide(move.getPreviousQueenCastleState());
-                    }
-                }
-
-            }
-
-            case "Moved_Twice" -> {
-                newBoard[startX][startY] = newBoard[endX][endY].clone();
-                newBoard[endX][endY] = new Piece();
-
-            }
-
-            case "Capture" -> {
-                newBoard[startX][startY] = newBoard[endX][endY].clone();
-
-                switch(move.getCapturedPiece()) {
-                    case "pawn" -> {
-                        if (enemyColor == 'w') {
-                            newBoard[endX][endY] = new WhitePawn(mg);
-                        } else {
-                            newBoard[endX][endY] = new BlackPawn(mg);
-                        }
-                    } // end case pawn
-
-                    case "knight" -> {
-                        newBoard[endX][endY] = new Knight(mg, enemyColor);
-                    } // end case knight
-
-                    case "bishop" -> {
-                        newBoard[endX][endY] = new Bishop(mg, enemyColor);
-                    } // end case bishop
-
-                    case "rook" -> {
-                        newBoard[endX][endY] = new Rook(mg, enemyColor);
-                    } // end case rook
-
-                    case "queen" -> {
-                        newBoard[endX][endY] = new Queen(mg, enemyColor);
-                    } // end case queen
-
-                } // end switch
-
-
-
-            }
-
-            case "En_Passant_Capture" -> {
-                newBoard[startX][startY] = newBoard[endX][endY].clone();
-                newBoard[endX][endY] = new Piece();
-
-                // information about the enemy pawn is not stored
-
-                if(color == 'w') {
-                    newBoard[endX][endY-1] = new BlackPawn(mg);
-                } else {
-                    newBoard[endX][endY+1] = new WhitePawn(mg);
-                }
-
-                game.setHalfMoveClock(-1);
-            }
-
-            case "Promote" -> {
-                newBoard[endX][endY] = new Piece();
-                if(color == 'w') {
-                    newBoard[endX][endY-1] = new WhitePawn(mg);
-                } else {
-                    newBoard[endX][endY+1] = new BlackPawn(mg);
-                }
-            }
-
-            case "Promote_Capture" -> {
-
-                if(color == 'w') {
-                    newBoard[startX][startY] = new WhitePawn(mg);
-                } else {
-                    newBoard[startX][startY] = new BlackPawn(mg);
-                }
-
-                switch(move.getCapturedPiece()) {
-                    case "pawn" -> {
-                        if (enemyColor == 'w') {
-                            newBoard[endX][endY] = new WhitePawn(mg);
-                        } else {
-                            newBoard[endX][endY] = new BlackPawn(mg);
-                        }
-                    } // end case pawn
-
-                    case "knight" -> {
-                        newBoard[endX][endY] = new Knight(mg, enemyColor);
-                    } // end case knight
-
-                    case "bishop" -> {
-                        newBoard[endX][endY] = new Bishop(mg, enemyColor);
-                    } // end case bishop
-
-                    case "rook" -> {
-                        newBoard[endX][endY] = new Rook(mg, enemyColor);
-                    } // end case rook
-
-                    case "queen" -> {
-                        newBoard[endX][endY] = new Queen(mg, enemyColor);
-                    } // end case queen
-
-                } // end switch
-            }
-
-            case "Castle_KingSide" -> {
-                if(color == 'w') {
-                    newBoard[4][0] = new King(mg,'w');
-                    newBoard[7][0] = new Rook(mg, 'w');
-                    newBoard[6][0] = new Piece();
-                    newBoard[5][0] = new Piece();
-                    game.setWhiteCastleKingSide(move.getPreviousKingCastleState());
-                    game.setWhiteCastleQueenSide(move.getPreviousQueenCastleState());
-                } else {
-                    newBoard[4][7] = new King(mg,'b');
-                    newBoard[7][7] = new Rook(mg, 'b');
-                    newBoard[6][7] = new Piece();
-                    newBoard[5][7] = new Piece();
-                    game.setBlackCastleKingSide(move.getPreviousKingCastleState());
-                    game.setBlackCastleQueenSide(move.getPreviousQueenCastleState());
-                }
-            }
-
-            case "Castle_QueenSide" -> {
-                if(color == 'w') {
-                    newBoard[4][0] = new King(mg, 'w');
-                    newBoard[0][0] = new Rook(mg, 'w');
-                    newBoard[2][0] = new Piece();
-                    newBoard[3][0] = new Piece();
-
-                } else {
-                    newBoard[4][7] = new King(mg, 'b');
-                    newBoard[0][7] = new Rook(mg, 'b');
-                    newBoard[2][7] = new Piece();
-                    newBoard[3][7] = new Piece();
-
-                }
-            }
-
-            default-> {
-                System.out.println("Error unrecognized move");
-            }
-        } // End switch
-
+        game = move.revertMove(game);
         // Restore any states from the move being executed
 
         if(color == 'w') {
@@ -992,158 +687,28 @@ public final class Engine {
         } else {
             for(int i=0; i<moves.size(); i++) {
 
-                String startFile ="";
-                int startX = moves.get(i).getStartX();
-                int startY = moves.get(i).getStartY();
+                System.out.println(moves.get(i).printMove(game));
 
-                String endFile ="";
-                int endX = moves.get(i).getEndX();
-                int endY = moves.get(i).getEndY();
-
-                String pieceName = board[startX][startY].getName();
-                String promotePieceTo = moves.get(i).getPromotePieceTo();
-
-                startY++; // array starts from 0,0
-                endY++; // chess board starts from 1,1
-                switch(startX) {
-                    case 0 ->   startFile = "a";
-                    case 1 ->   startFile = "b";
-                    case 2 ->   startFile = "c";
-                    case 3 ->   startFile = "d";
-                    case 4 ->   startFile = "e";
-                    case 5 ->   startFile = "f";
-                    case 6 ->   startFile = "g";
-                    case 7 ->   startFile = "h";
-                }
-                switch(endX) {
-                    case 0 ->  endFile = "a";
-                    case 1 ->  endFile = "b";
-                    case 2 ->  endFile = "c";
-                    case 3 ->  endFile = "d";
-                    case 4 ->  endFile = "e";
-                    case 5 ->  endFile = "f";
-                    case 6 ->  endFile = "g";
-                    case 7 ->  endFile = "h";
-                }
-
-                switch(moves.get(i).getMoveType()) {
-
-                    case "Move" -> {
-                        System.out.println(pieceName + " " + startFile + startY  + " " + "moves to " + endFile + endY);
-                    }
-
-                    case "Moved_Twice" -> {
-                        System.out.println(pieceName + " " + startFile + startY  + " " + "moves to " + endFile + endY);
-                    }
-
-                    case "Capture" -> {
-                        System.out.println(pieceName + " " + startFile + startY + " " + "captures at " + endFile + endY);
-                    }
-
-                    case "En_Passant_Capture" -> {
-                        System.out.println(pieceName + " " + startFile + startY + " " + "captures at " + endFile + endY + " (En Passant)");
-                    }
-
-                    case "Promote" -> {
-                        System.out.println(pieceName + " " + startFile + startY + " " + "promotes to " + promotePieceTo + " " + endFile + endY);
-                    }
-
-                    case "Promote_Capture" -> {
-                        System.out.println(pieceName + " " + startFile + startY + " " + "captures at " + endFile + endY + " and promotes to " + promotePieceTo);
-                    }
-
-                    case "Castle_KingSide" -> {
-                        System.out.println("Castle King Side");
-                    }
-
-                    case "Castle_QueenSide" -> {
-                        System.out.println("Castle Queen Side");
-                    }
-
-                    default-> {
-                        System.out.println("Unrecognized Move");
-                    }
-                } // End switch
             } // End loop
         }
     } // End printMoves
 
+
+
+
+
+
+
+
+
+
+
+
+
     // Methods used to connect to EnginePanel
     public String sendMoveToPanel(Move move) {
-        // this method sends out to the enginepanel to update
-
-        String startFile ="";
-        int startX = move.getStartX();
-        int startY = move.getStartY();
-
-        String endFile ="";
-        int endX = move.getEndX();
-        int endY = move.getEndY();
-
-        String pieceName = game.getBoard()[startX][startY].getName();
-        String promotePieceTo = move.getPromotePieceTo();
-
-        startY++; // array starts from 0,0
-        endY++; // chess board starts from 1,1
-        switch(startX) {
-            case 0 ->   startFile = "a";
-            case 1 ->   startFile = "b";
-            case 2 ->   startFile = "c";
-            case 3 ->   startFile = "d";
-            case 4 ->   startFile = "e";
-            case 5 ->   startFile = "f";
-            case 6 ->   startFile = "g";
-            case 7 ->   startFile = "h";
-        }
-        switch(endX) {
-            case 0 ->  endFile = "a";
-            case 1 ->  endFile = "b";
-            case 2 ->  endFile = "c";
-            case 3 ->  endFile = "d";
-            case 4 ->  endFile = "e";
-            case 5 ->  endFile = "f";
-            case 6 ->  endFile = "g";
-            case 7 ->  endFile = "h";
-        }
-
-        switch(move.getMoveType()) {
-
-            case "Move" -> {
-                return pieceName + " " + startFile + startY  + " " + "moves to " + endFile + endY;
-            }
-
-            case "Moved_Twice" -> {
-                return pieceName + " " + startFile + startY  + " " + "moves to " + endFile + endY;
-            }
-
-            case "Capture" -> {
-                return pieceName + " " + startFile + startY + " " + "captures at " + endFile + endY;
-            }
-
-            case "En_Passant_Capture" -> {
-                return pieceName + " " + startFile + startY + " " + "captures at " + endFile + endY + " (En Passant)";
-            }
-
-            case "Promote" -> {
-                return pieceName + " " + startFile + startY + " " + "promotes to " + promotePieceTo + " " + endFile + endY;
-            }
-
-            case "Promote_Capture" -> {
-                return pieceName + " " + startFile + startY + " " + "captures at " + endFile + endY + " and promotes to " + promotePieceTo;
-            }
-
-            case "Castle_KingSide" -> {
-                return "Castle King Side";
-            }
-
-            case "Castle_QueenSide" -> {
-                return "Castle Queen Side";
-            }
-
-            default-> {
-                return "Unrecognized Move";
-            }
-        } // End switch
+        // this method returns the move in a string format for the GUI
+        return move.printMove(game);
     }
 
     public void makeMove1() {
@@ -1225,7 +790,7 @@ public final class Engine {
             }
         }
 
-        Move move = new Move(startX, startY, endX, endY, "Move", "", -1, -1, "");
+        Move move = new Move(startX, startY, endX, endY);
         makeMove(game,move);
         game.flipColor();
     }
@@ -1239,6 +804,9 @@ public final class Engine {
         double truncatedNumber = Double.parseDouble(truncatedNumberString);
         return truncatedNumber;
     }
+
+
+
     // Some getters and setters for the game to pump back to the EnginePanel to user interface
     public Piece[][] getFlippedBoard() { return game.getFlippedBoard(); }
     public char getActiveColor() { return game.getActiveColor(); }

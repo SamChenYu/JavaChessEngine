@@ -24,12 +24,11 @@ public final class EnginePanel extends JPanel {
 
     private Engine engine;
     private BufferedImage boardImage;
-    private final JLabel posSearchedLabel;
-    private final JButton startButton;
-    private final JButton move1, move2, move3;
+    private final JLabel posSearchedLabel, depthLabel;
+    private final JButton startButton, move1, move2, move3, newFENButton;
     private final JTextField newFENField;
-    private final JButton newFENButton;
     private final JButton[][] squareButtons = new JButton[8][8];
+    private final JSpinner depthSpinner;
     private final Font font = new Font("Arial",Font.BOLD,30);
     private final Font moveFont = new Font("Arial",Font.BOLD,20);
 
@@ -46,7 +45,7 @@ public final class EnginePanel extends JPanel {
 
         // Init all JSwing Elements
         move1 = new JButton("#1: N/A");
-        move1.setBounds(850,250,325,50);
+        move1.setBounds(850,230,300,50);
         move1.setFont(moveFont);
         move1.setForeground(Color.BLACK);
         move1.setBackground(Color.WHITE);
@@ -65,7 +64,7 @@ public final class EnginePanel extends JPanel {
         add(move1);
 
         move2 = new JButton("#2: N/A");
-        move2.setBounds(850,300,325,50);
+        move2.setBounds(850,280,300,50);
         move2.setFont(moveFont);
         move2.setForeground(Color.BLACK);
         move2.setBackground(Color.WHITE);
@@ -83,8 +82,8 @@ public final class EnginePanel extends JPanel {
         });
         add(move2);
 
-        move3 = new JButton("#2: N/A");
-        move3.setBounds(850,350,325,50);
+        move3 = new JButton("#3: N/A");
+        move3.setBounds(850,330,300,50);
         move3.setFont(moveFont);
         move3.setForeground(Color.BLACK);
         move3.setBackground(Color.WHITE);
@@ -104,7 +103,7 @@ public final class EnginePanel extends JPanel {
 
         posSearchedLabel = new JLabel();
         posSearchedLabel.setText("0");
-        posSearchedLabel.setBounds(850,450,300,50);
+        posSearchedLabel.setBounds(850,420,300,50);
         posSearchedLabel.setFont(font);
         posSearchedLabel.setForeground(Color.WHITE);
         posSearchedLabel.setBackground(Color.BLACK);
@@ -112,7 +111,7 @@ public final class EnginePanel extends JPanel {
 
 
         startButton = new JButton("Search");
-        startButton.setBounds(850,510,150,50);
+        startButton.setBounds(930,480,150,50);
         startButton.setFont(font);
         startButton.addActionListener(new ActionListener() {
             @Override
@@ -129,6 +128,22 @@ public final class EnginePanel extends JPanel {
             }
         });
         add(startButton);
+
+
+        depthLabel = new JLabel("Depth: ");
+        depthLabel.setBounds(850,570,150,50);
+        depthLabel.setFont(font);
+        depthLabel.setForeground(Color.WHITE);
+        depthLabel.setBackground(Color.BLACK);
+        add(depthLabel);
+        depthSpinner = new JSpinner(new SpinnerNumberModel(4, 1, 20, 1));
+        depthSpinner.setBounds(970,570,75,50);
+        depthSpinner.setFont(font);
+        depthSpinner.setForeground(Color.BLACK);
+        depthSpinner.setBackground(Color.WHITE);
+        add(depthSpinner);
+
+
 
         newFENField = new JTextField("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
         newFENField.setBackground(Color.BLACK);
@@ -150,7 +165,6 @@ public final class EnginePanel extends JPanel {
             }
         });
         add(newFENButton);
-
 
         // initialisating the invisible JButtons
 
@@ -226,7 +240,7 @@ public final class EnginePanel extends JPanel {
         g2.drawString("Full Move Clock: "+engine.getFullMoveClock(),850,150);
         g2.drawString("Half Move Clock: "+engine.getHalfMoveClock(),850,200);
 
-        g2.drawString("Positions searched: ",850,450);
+        g2.drawString("Positions searched: ",850,420);
     }
 
     public void updateGamesSearched(int gamesSearched) {
@@ -278,6 +292,10 @@ public final class EnginePanel extends JPanel {
         } catch(IOException e) {
             System.out.println("board image loading failed");
         }
+    }
+
+    public int getDepth() {
+        return (int) depthSpinner.getValue();
     }
 
 } // End EnginePanel

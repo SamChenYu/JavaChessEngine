@@ -1,8 +1,6 @@
 package Game;
 
-import chessengine.Move;
-import chessengine.MovesGenerator;
-
+import Move.*;
 import java.util.ArrayList;
 
 public class Knight extends Piece {
@@ -31,13 +29,14 @@ public class Knight extends Piece {
             if (x <= 7 && y <= 7) {
 
                 if (board[x][y].isEmpty()) {
-                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                    Move move = new Move(i,j,x,y);
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
                 } else if (board[x][y].isEnemy(color)) {
                     String enemyName = board[x][y].getName();
-                    Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                    Move move = new Capture(i,j,x,y, board[x][y].clone());
+
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
@@ -53,13 +52,13 @@ public class Knight extends Piece {
             if (x >= 0 && y <= 7) {
 
                 if (board[x][y].isEmpty()) {
-                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                    Move move = new Move(i,j,x,y);
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
                 } else if (board[x][y].isEnemy(color)) {
                     String enemyName = board[x][y].getName();
-                    Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                    Move move = new Capture(i,j,x,y, board[x][y].clone());
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
@@ -76,13 +75,13 @@ public class Knight extends Piece {
             if (x <= 7 && y >= 0) {
 
                 if (board[x][y].isEmpty()) {
-                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                    Move move = new Move(i,j,x,y);
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
                 } else if (board[x][y].isEnemy(color)) {
                     String enemyName = board[x][y].getName();
-                    Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                    Move move = new Capture(i,j,x,y, board[x][y].clone());
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
@@ -97,13 +96,13 @@ public class Knight extends Piece {
             if (x >= 0 && y >= 0) {
 
                 if (board[x][y].isEmpty()) {
-                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                    Move move = new Move(i,j,x,y);
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
                 } else if (board[x][y].isEnemy(color)) {
                     String enemyName = board[x][y].getName();
-                    Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                    Move move = new Capture(i,j,x,y, board[x][y].clone());
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
@@ -119,13 +118,13 @@ public class Knight extends Piece {
             if (x <= 7 && y <= 7) {
 
                 if (board[x][y].isEmpty()) {
-                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                    Move move = new Move(i,j,x,y);
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
                 } else if (board[x][y].isEnemy(color)) {
                     String enemyName = board[x][y].getName();
-                    Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                    Move move = new Capture(i,j,x,y, board[x][y].clone());
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
@@ -140,13 +139,13 @@ public class Knight extends Piece {
             if (x <= 7 && y >= 0) {
 
                 if (board[x][y].isEmpty()) {
-                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                    Move move = new Move(i,j,x,y);
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
                 } else if (board[x][y].isEnemy(color)) {
                     String enemyName = board[x][y].getName();
-                    Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                    Move move = new Capture(i,j,x,y, board[x][y].clone());
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
@@ -161,13 +160,13 @@ public class Knight extends Piece {
             if (x >= 0 && y <= 7) {
 
                 if (board[x][y].isEmpty()) {
-                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                    Move move = new Move(i,j,x,y);
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
                 } else if (board[x][y].isEnemy(color)) {
                     String enemyName = board[x][y].getName();
-                    Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                    Move move = new Capture(i,j,x,y, board[x][y].clone());
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
@@ -182,13 +181,13 @@ public class Knight extends Piece {
             if (x >= 0 && y >= 0) {
 
                 if (board[x][y].isEmpty()) {
-                    Move move = new Move(i, j, x, y, "Move", "", -1, -1, "");
+                    Move move = new Move(i,j,x,y);
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }
                 } else if (board[x][y].isEnemy(color)) {
                     String enemyName = board[x][y].getName();
-                    Move move = new Move(i, j, x, y, "Capture", enemyName, -1, -1, "");
+                    Move move = new Capture(i,j,x,y, board[x][y].clone());
                     if (mg.checkIfMoveIsValid(game, move)) {
                         moves.add(move);
                     }

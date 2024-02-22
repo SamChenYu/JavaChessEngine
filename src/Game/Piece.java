@@ -1,8 +1,8 @@
 
 package Game;
 
-import chessengine.Move;
-import chessengine.MovesGenerator;
+import Move.Move;
+import Move.MovesGenerator;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;

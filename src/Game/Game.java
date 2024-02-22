@@ -1,8 +1,8 @@
 
 package Game;
 
-import chessengine.Move;
-import chessengine.MovesGenerator;
+import Move.Move;
+import Move.MovesGenerator;
 
 import java.util.ArrayList;
 
@@ -81,7 +81,7 @@ public final class Game {
     
     public ArrayList<Move> moves; // list of possible moves for the current board state
 
-    MovesGenerator mg; // parsed into the piece so that they can self-update
+    public MovesGenerator mg; // parsed into the piece so that they can self-update
     String input;
     
     public Game(MovesGenerator mg, String input) {
