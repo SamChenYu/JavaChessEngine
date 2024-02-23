@@ -6,6 +6,16 @@ import java.util.ArrayList;
 
 public class BlackPawn extends Piece {
 
+    private static int[][] blackPawnPST = {
+            { 0,   0,   0,   0,   0,   0,  0,   0},
+            {98, 134,  61,  95,  68, 126, 34, -11},
+            {-6,   7,  26,  31,  65,  56, 25, -20},
+            {-14,  13,   6,  21,  23,  12, 17, -23},
+            {-27,  -2,  -5,  12,  17,   6, 10, -25},
+            {-26,  -4,  -4, -10,   3,   3, 33, -12},
+            {-35,  -1, -20, -23, -15,  24, 38, -22},
+            { 0,   0,   0,   0,   0,   0,  0,   0},
+    };
     public BlackPawn(MovesGenerator mg) {
         super("pawn", 'b');
         this.mg = mg;
@@ -173,4 +183,10 @@ public class BlackPawn extends Piece {
     public BlackPawn clone() {
         return (BlackPawn) super.clone();
     }
+
+    @Override
+    public int getPSTValue(int i, int j) {
+        return blackPawnPST[i][j];
+    }
+
 }

@@ -6,6 +6,30 @@ import java.util.ArrayList;
 
 public class Queen extends Piece{
 
+
+    private static final int[][]  whiteQueenPST= {
+            {-1, -18,  -9,  10, -15, -25, -31, -50},
+            {-35,  -8,  11,   2,   8,  15,  -3,   1},
+            {-14,   2, -11,  -2,  -5,   2,  14,   5},
+            {-9, -26,  -9, -10,  -2,  -4,   3,  -3},
+            {-27, -27, -16, -16,  -1,  17,  -2,   1},
+            {-13, -17,   7,   8,  29,  56,  47,  57},
+            {-24, -39,  -5,   1, -16,  57,  28,  54},
+            {-28,   0,  29,  12,  59,  44,  43,  45},
+    };
+    private static final int[][]  blackQueenPST= {
+            {-28,   0,  29,  12,  59,  44,  43,  45},
+            {-24, -39,  -5,   1, -16,  57,  28,  54},
+            {-13, -17,   7,   8,  29,  56,  47,  57},
+            {-27, -27, -16, -16,  -1,  17,  -2,   1},
+            {-9, -26,  -9, -10,  -2,  -4,   3,  -3},
+            {-14,   2, -11,  -2,  -5,   2,  14,   5},
+            {-35,  -8,  11,   2,   8,  15,  -3,   1},
+            {-1, -18,  -9,  10, -15, -25, -31, -50},
+    };
+
+
+
     public Queen(MovesGenerator mg, char c) {
         super("queen", c);
         this.mg = mg;
@@ -235,4 +259,15 @@ public class Queen extends Piece{
     public Queen clone() {
         return (Queen) super.clone();
     }
+
+    @Override
+    public int getPSTValue(int i, int j) {
+        if (this.getColor() == 'w') {
+            return whiteQueenPST[i][j];
+        } else {
+            return blackQueenPST[i][j];
+        }
+    }
+
+
 }

@@ -14,7 +14,6 @@ public class MovesGenerator {
     Game game;
     Engine engine;
 
-    public double movesGenerationTime = 0;
 
     public MovesGenerator(Engine engine) {
         this.engine = engine;

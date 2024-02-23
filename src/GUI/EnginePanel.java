@@ -244,7 +244,8 @@ public final class EnginePanel extends JPanel {
     }
 
     public void updateGamesSearched(int gamesSearched) {
-        posSearchedLabel.setText(""+gamesSearched);
+        String formattedNumber = String.format("%,d", gamesSearched);
+        posSearchedLabel.setText(formattedNumber);
         repaint();
     }
 

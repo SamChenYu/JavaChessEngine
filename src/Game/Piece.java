@@ -25,7 +25,7 @@ public class Piece implements Cloneable {
         switch(name) {
             
             case "king" -> {
-                value = Integer.MAX_VALUE;
+                value = 1000;
                 if(color == 'w' ) {
                     filepath = "/res/w-king.png";
                 } else {
@@ -155,5 +155,11 @@ public class Piece implements Cloneable {
         // default case: no piece is in place
         return null;
     }
+
+
+    public int getPSTValue(int i, int j) {
+        return 0;
+    }
+
 
 }

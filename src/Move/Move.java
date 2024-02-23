@@ -204,7 +204,7 @@ public class Move {
         //Extra special rules:
 
         // If the king moves, then it can no longer castle
-        if(newBoard[startX][startY].getName().equals("king")) {
+        if(newBoard[startX][startY] instanceof King) {
             if(newBoard[startX][startY].getColor() == 'w') {
                 // save the states in the move object first
 
@@ -218,7 +218,7 @@ public class Move {
         }
 
         // if rooks move from their starting square then they cannot castle
-        if(newBoard[startX][startY].getName().equals("rook")) {
+        if(newBoard[startX][startY] instanceof Rook) {
             // WHITE ROOKS
             if (startX == 7 && startY == 0) {
                 game.setWhiteCastleKingSide(false);
@@ -246,7 +246,7 @@ public class Move {
 
         //Castling rights for reverting moves?
         // If the king moves, then it can no longer castle
-        if(newBoard[startX][startY].getName().equals("king")) {
+        if(newBoard[startX][startY] instanceof King) {
             if(newBoard[startX][startY].getColor() == 'w') {
                 game.setWhiteCastleKingSide(getPreviousKingCastleState());
                 game.setWhiteCastleQueenSide(getPreviousQueenCastleState());
@@ -257,7 +257,7 @@ public class Move {
         }
 
         // if rooks move from their starting square then they cannot castle
-        if(newBoard[startX][startY].getName().equals("rook")) {
+        if(newBoard[startX][startY] instanceof Rook) {
             // WHITE ROOKS
             if (startX == 7 && startY == 0) {
                 game.setWhiteCastleKingSide(getPreviousKingCastleState());
