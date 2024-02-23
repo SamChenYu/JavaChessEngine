@@ -72,11 +72,7 @@ public final class Engine {
         double lowestValue = -100000.0;
         double highestValue = 100000.0;
 
-        if(game.getActiveColor() == 'w') {
-            findBestMove(game,0,lowestValue,highestValue, true);
-        } else {
-            findBestMove(game,0,lowestValue,highestValue, false);
-        }
+        findBestMove(game,0,lowestValue,highestValue, game.getActiveColor() == 'w');
 
 
         System.out.println("Games searched: " + gamesSearched );
@@ -272,21 +268,9 @@ public final class Engine {
     } // end makeMove
     public void revertMove(Game game, Move move) {
         //Exact opposite of the makeMove function
-        Piece[][] newBoard = game.getBoard();
         char color = game.getActiveColor();
-        char enemyColor;
-        // we assume that the correct color as already been flipped
-        if(color == 'w') {
-            enemyColor = 'b';
-        } else {
-            enemyColor = 'w';
-        }
 
-        String moveType = move.getMoveType();
-        int startX = move.getStartX();
-        int startY = move.getStartY();
-        int endX = move.getEndX();
-        int endY = move.getEndY();
+
         // Dichotmy of moves
         game = move.revertMove(game);
         // Restore any states from the move being executed
@@ -537,56 +521,24 @@ public final class Engine {
         // uhhh so somewhere the representation of the board is weird
         // so the Y values are upside down so i'm just manually replacing it lol
         switch(startY) {
-            case 0 -> {
-                startY = 7;
-            }
-            case 1 -> {
-                startY = 6;
-            }
-            case 2 -> {
-                startY = 5;
-            }
-            case 3-> {
-                startY = 4;
-            }
-            case 4 -> {
-                startY = 3;
-            }
-            case 5 -> {
-                startY = 2;
-            }
-            case 6-> {
-                startY = 1;
-            }
-            case 7-> {
-                startY = 0;
-            }
+            case 0 -> startY = 7;
+            case 1 -> startY = 6;
+            case 2 -> startY = 5;
+            case 3 -> startY = 4;
+            case 4 -> startY = 3;
+            case 5 -> startY = 2;
+            case 6 -> startY = 1;
+            case 7 -> startY = 0;
         }
         switch(endY) {
-            case 0 -> {
-                endY = 7;
-            }
-            case 1 -> {
-                endY = 6;
-            }
-            case 2 -> {
-                endY = 5;
-            }
-            case 3-> {
-                endY = 4;
-            }
-            case 4 -> {
-                endY = 3;
-            }
-            case 5 -> {
-                endY = 2;
-            }
-            case 6-> {
-                endY = 1;
-            }
-            case 7-> {
-                endY = 0;
-            }
+            case 0 -> endY = 7;
+            case 1 -> endY = 6;
+            case 2 -> endY = 5;
+            case 3-> endY = 4;
+            case 4 -> endY = 3;
+            case 5 -> endY = 2;
+            case 6-> endY = 1;
+            case 7-> endY = 0;
         }
 
         Move move = new Move(startX, startY, endX, endY);

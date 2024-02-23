@@ -8,7 +8,6 @@ public class King extends Piece {
 
 
     private static final int[][] whiteKingPST = {
-            //white side here
             {-15,  36,  12, -54,   8, -28,  24,  14},
             {1,   7,  -8, -64, -43, -16,   9,   8},
             {-14, -14, -22, -46, -44, -30, -15, -27},
@@ -17,10 +16,8 @@ public class King extends Piece {
             {-9,  24,   2, -16, -20,   6,  22, -22},
             {29,  -1, -20,  -7,  -8,  -4, -38, -29},
             {-65,  23,  16, -15, -56, -34,   2,  13},
-            // black side here
     };
     private static final int[][] blackKingPST = {
-            // white side here
             {-65,  23,  16, -15, -56, -34,   2,  13},
             {29,  -1, -20,  -7,  -8,  -4, -38, -29},
             {-9,  24,   2, -16, -20,   6,  22, -22},
@@ -29,9 +26,7 @@ public class King extends Piece {
             {-14, -14, -22, -46, -44, -30, -15, -27},
             {1,   7,  -8, -64, -43, -16,   9,   8},
             {-15,  36,  12, -54, 8, -28,  24,  14},
-            // black side here
     };
-
 
 
 
@@ -323,6 +318,7 @@ public class King extends Piece {
             return blackKingPST[i][j];
         }
     }
+
 
 }
 
