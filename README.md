@@ -38,9 +38,8 @@ These two factors are weighted dynamically, where very similiar material will we
 [Link to the TalkChess forum discussion](http://www.talkchess.com/forum3/viewtopic.php?f=2&t=68311&start=19#)
 
 
-
 <div align="center">
-  <img src="https://github.com/SamChenYu/JavaChessEngine/assets/150127006/f254d4b6-aa5b-4a99-8ab3-1cf218cc59eb" alt="Image Alt Text">
+  <img src="https://github.com/SamChenYu/JavaChessEngine/assets/150127006/698c07f6-6cec-400e-89db-68e270dc1b19" alt="Image Alt Text">
 </div>
 
 
