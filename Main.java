@@ -5,9 +5,21 @@ public final class Main {
 
 
     private long board[] = new long[12];
+    private long occupiedSquares = 0L;
 
-    private HashMap<Integer, String> intPointers; // e.g. 0 -> a1
-    private HashMap<String, Long> stringPointers; // e.g. a1 -> 0b1L
+    // Constants for each piece
+    private static final int W_PAWN = 0;
+    private static final int W_KNIGHT = 1;
+    private static final int W_BISHOP = 2;
+    private static final int W_ROOK = 3;
+    private static final int W_QUEEN = 4;
+    private static final int W_KING = 5;
+    private static final int B_PAWN = 6;
+    private static final int B_KNIGHT = 7;
+    private static final int B_BISHOP = 8;
+    private static final int B_ROOK = 9;
+    private static final int B_QUEEN = 10;
+    private static final int B_KING = 11;
 
 
 
@@ -22,56 +34,130 @@ public final class Main {
 
     public static void main(String[] args) {
         Main main = new Main("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-        System.out.println(main.getArrayIndexOf("h8"));
     }
 
     public Main(String input) {
-        processString(input);
-        initPointers();
+        //processString(input);
+        initialiseStartingPosition();
+        printFEN();
     }
 
 
-    public void initPointers() {
-        stringPointers = new HashMap<>();
-        // now for easier development, you can input the square and then this hashmap will point towards the array index
-        // the pointers are placed in with the decimal representation of the binary number
-        // you can use Long.toBinaryString(result) to get the binary representation of the number
-        long mask = 1L;
-        for (char file = 'a'; file <= 'h'; file++) {
-            for (int rank = 1; rank <= 8; rank++) {
-                String square = String.valueOf(file) + rank;
-                stringPointers.put(square, mask);
-                mask <<= 1;
+    // Initialize the starting position
+    public void initialiseStartingPosition() {
+        // Clear all bitboards
+        for (int i = 0; i < 12; i++) {
+            board[i] = 0L;
+        }
+
+        // Set up white pieces
+        board[W_PAWN] = 0x000000000000FF00L;
+        board[W_KNIGHT] = 0x0000000000000042L;
+        board[W_BISHOP] = 0x0000000000000024L;
+        board[W_ROOK] = 0x0000000000000081L;
+        board[W_QUEEN] = 0x0000000000000008L;
+        board[W_KING] = 0x0000000000000010L;
+
+        // Set up black pieces
+        board[B_PAWN] = 0x00FF000000000000L;
+        board[B_KNIGHT] = 0x4200000000000000L;
+        board[B_BISHOP] = 0x2400000000000000L;
+        board[B_ROOK] = 0x8100000000000000L;
+        board[B_QUEEN] = 0x0800000000000000L;
+        board[B_KING] = 0x1000000000000000L;
+
+        updateOccupiedSquares();
+    }
+
+    public void updateOccupiedSquares() {
+        // Set occupied squares
+        for (int i = 0; i < 12; i++) {
+            occupiedSquares |= board[i];
+        }
+    }
+
+
+
+
+    // Output the board in FEN notation
+    public void printFEN() {
+        StringBuilder fen = new StringBuilder();
+
+        for (int rank = 7; rank >= 0; rank--) {
+            int emptyCount = 0;
+            for (int file = 0; file < 8; file++) {
+                long square = 1L << (file + rank * 8);
+                boolean isOccupied = (occupiedSquares & square) != 0;
+
+                if (!isOccupied) {
+                    emptyCount++;
+                } else {
+                    if (emptyCount > 0) {
+                        fen.append('-').append('\t');
+                        emptyCount = 0;
+                    }
+                    fen.append(pieceAt(square)).append('\t');
+                }
+            }
+
+            // Handle the case where the last square in a rank is empty
+            if (emptyCount > 0) {
+                fen.append('-').append('\t');
+            }
+
+            if (rank > 0) {
+                fen.append('\n');
             }
         }
 
-        intPointers = new HashMap<>();
-        char file;
-        int rank;
-        for (int i = 0; i < 64; i++) {
-            file = (char) ('a' + i % 8);
-            rank = 8 - (i / 8);
-            String square = Character.toString(file) + rank;
-            intPointers.put(i, square);
+        System.out.println(fen.toString());
+    }
+
+
+
+    // Helper method to determine piece at a given square
+    private char pieceAt(long square) {
+        for (int i = 0; i < 12; i++) {
+            if ((board[i] & square) != 0) {
+                return pieceTypeToChar(i);
+            }
+        }
+        return '-';
+    }
+
+    // Helper method to convert piece type index to FEN notation
+    private char pieceTypeToChar(int pieceType) {
+        switch (pieceType) {
+            case W_PAWN:
+                return 'P';
+            case W_KNIGHT:
+                return 'N';
+            case W_BISHOP:
+                return 'B';
+            case W_ROOK:
+                return 'R';
+            case W_QUEEN:
+                return 'Q';
+            case W_KING:
+                return 'K';
+            case B_PAWN:
+                return 'p';
+            case B_KNIGHT:
+                return 'n';
+            case B_BISHOP:
+                return 'b';
+            case B_ROOK:
+                return 'r';
+            case B_QUEEN:
+                return 'q';
+            case B_KING:
+                return 'k';
+            default:
+                return '-';
         }
     }
 
 
-    public long getArrayIndexOf(String square) {
-        if(stringPointers.containsKey(square)) {
-            return stringPointers.get(square);
-        } else {
-            return -1;
-        }
-    }
-
-    public long getArrayIndexOf(int square) {
-        if(intPointers.containsKey(square)) {
-            return stringPointers.get((intPointers.get(square)));
-        } else {
-            return -1;
-        }
-    }
     public void processString(String input) {
 
         // Split the FEN string using space as the delimiter
@@ -145,44 +231,22 @@ public final class Main {
     } // END PROCESS STRING
 
 
-//    public void printBoardState() {
-//
-//
-//
-//        System.out.println("Complete Board");
-//
-//        for(int i=0; i<64; i++) {
-//            String piece = "";
-//            long square = getArrayIndexOf(i);
-//            for(int j=0; j<12; j++) {
-//
-//
-//
-//
-//            }
-//
-//        }
-//
-//        for(int i=0; i<8; i++) {
-//            for(int j=0; j<8; j++) {
-//                char c = board[j][i].getName().charAt(0);
-//                if(board[j][i].getColor() == 'w') {
-//                    c = Character.toUpperCase(c);
-//                }
-//                System.out.print("\t " +  c + " \t");
-//            }
-//            System.out.print("\n");
-//        }
-//
-//        System.out.println("Active Color: " + activeColor);
-//        System.out.println("White Castle King Side " + whiteCastleKingSide);
-//        System.out.println("White Castle Queen Side " + whiteCastleQueenSide);
-//        System.out.println("Black Castle King Side " + blackCastleKingSide);
-//        System.out.println("Black Castle Queen Side " + blackCastleQueenSide);
-//        System.out.println("En Passant: " + enPassant);
-//        System.out.println("Half Move Clock " + halfMoveClock);
-//        System.out.println("Full Move Clock " + fullMoveClock);
-//    }
+    public void printBoardState() {
+
+
+
+        System.out.println("Complete Board");
+
+
+        System.out.println("Active Color: " + activeColor);
+        System.out.println("White Castle King Side " + whiteCastleKingSide);
+        System.out.println("White Castle Queen Side " + whiteCastleQueenSide);
+        System.out.println("Black Castle King Side " + blackCastleKingSide);
+        System.out.println("Black Castle Queen Side " + blackCastleQueenSide);
+        System.out.println("En Passant: " + enPassant);
+        System.out.println("Half Move Clock " + halfMoveClock);
+        System.out.println("Full Move Clock " + fullMoveClock);
+    }
 
 
 
