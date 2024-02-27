@@ -6,6 +6,8 @@ public final class Main {
 
     private long board[] = new long[12];
     private long occupiedSquares = 0L;
+    private long whiteSquares = 0L;
+    private long blackSquares = 0L;
 
     // Constants for each piece
     private static final int W_PAWN = 0;
@@ -37,9 +39,9 @@ public final class Main {
     }
 
     public Main(String input) {
-        //processString(input);
-        initialiseStartingPosition();
-        printFEN();
+        processString(input);
+        //initialiseStartingPosition();
+        printBoardState();
     }
 
 
@@ -71,8 +73,19 @@ public final class Main {
 
     public void updateOccupiedSquares() {
         // Set occupied squares
+        occupiedSquares = 0L;
+        whiteSquares = 0L;
+        blackSquares = 0L;
         for (int i = 0; i < 12; i++) {
             occupiedSquares |= board[i];
+        }
+
+        for(int i = 0; i < 6; i++) {
+            whiteSquares |= board[i];
+        }
+
+        for(int i = 6; i < 12; i++) {
+            blackSquares |= board[i];
         }
     }
 
@@ -80,7 +93,7 @@ public final class Main {
 
 
     // Output the board in FEN notation
-    public void printFEN() {
+    public void printBoardState() {
         StringBuilder fen = new StringBuilder();
 
         for (int rank = 7; rank >= 0; rank--) {
@@ -109,8 +122,20 @@ public final class Main {
                 fen.append('\n');
             }
         }
-
+        System.out.println("Complete Board");
         System.out.println(fen.toString());
+
+
+
+
+        System.out.println("Active Color: " + activeColor);
+        System.out.println("White Castle King Side " + whiteCastleKingSide);
+        System.out.println("White Castle Queen Side " + whiteCastleQueenSide);
+        System.out.println("Black Castle King Side " + blackCastleKingSide);
+        System.out.println("Black Castle Queen Side " + blackCastleQueenSide);
+        System.out.println("En Passant: " + enPassant);
+        System.out.println("Half Move Clock " + halfMoveClock);
+        System.out.println("Full Move Clock " + fullMoveClock);
     }
 
 
@@ -159,94 +184,96 @@ public final class Main {
 
 
     public void processString(String input) {
-
         // Split the FEN string using space as the delimiter
         String[] fenParts = input.split(" ");
 
         activeColor = fenParts[1].charAt(0);
 
-        for(int i=0; i<fenParts[2].length(); i++) {
+        // Process castling rights
+        for (int i = 0; i < fenParts[2].length(); i++) {
             char currentChar = fenParts[2].charAt(i);
-            switch(currentChar) {
-                case 'K' -> { whiteCastleKingSide = true; break; }
-                case 'Q' -> { whiteCastleQueenSide = true; break; }
-                case 'k' -> { blackCastleKingSide = true; break; }
-                case 'q' -> { blackCastleQueenSide = true; break; }
+            switch (currentChar) {
+                case 'K':
+                    whiteCastleKingSide = true;
+                    break;
+                case 'Q':
+                    whiteCastleQueenSide = true;
+                    break;
+                case 'k':
+                    blackCastleKingSide = true;
+                    break;
+                case 'q':
+                    blackCastleQueenSide = true;
+                    break;
+                case '-':
+                    break; // No castling rights for this side
+                default:
+                    throw new IllegalArgumentException("Invalid FEN string: castling rights");
             }
         }
         enPassant = fenParts[3];
-
         halfMoveClock = Integer.parseInt(fenParts[4]);
         fullMoveClock = Integer.parseInt(fenParts[5]);
 
-        String[] boardRows = fenParts[0].split("/");
-        // Now we can process the board
-
-        int currentSquare = 0;
-        for(int i=0; i<boardRows.length; i++) {
-
-            for (int j = 0; j < boardRows[i].length(); j++) {
-                // building the binary string to OR to add a new piece
-                int zeroPreceding = i;
-                int zeroSubsequent = 62 - i;
-                String binaryString = "0".repeat(zeroPreceding) + "1" + "0".repeat(zeroSubsequent);
-                System.out.println(binaryString);
-                long result = Long.parseLong(binaryString, 2);
-
-                char currentChar = boardRows[i].charAt(j);
-                switch (currentChar) {
-                    case 'P' -> { board[0] = board[0] | result; }
-                    case 'N' -> { board[1] = board[1] | result; }
-                    case 'B' -> { board[2] = board[2] | result; }
-                    case 'R' -> { board[3] = board[3] | result; }
-                    case 'Q' -> { board[4] = board[4] | result; }
-                    case 'K' -> { board[5] = board[5] | result; }
-                    case 'p' -> { board[6] = board[6] | result; }
-                    case 'n' -> { board[7] = board[7] | result; }
-                    case 'b' -> { board[8] = board[8] | result; }
-                    case 'r' -> { board[9] = board[9] | result; }
-                    case 'q' -> { board[10] = board[10] | result; }
-                    case 'k' -> { board[11] = board[11] | result; }
-                    case '1', '2', '3', '4', '5', '6', '7', '8' -> {
-                        // Convert the character to an integer and skip that number of squares
-                        int emptySquares = Character.getNumericValue(currentChar);
-                        i += emptySquares; // Subtract 1 because the loop will increment j
-                        break;
-                    } // end case 1,2,3,4...
-
-                } // end switch
-                currentSquare++;
-            } // end inner loop
-        } // end outer loop
-
-
-
-
-
-
-
-
-
-
-    } // END PROCESS STRING
-
-
-    public void printBoardState() {
-
-
-
-        System.out.println("Complete Board");
-
-
-        System.out.println("Active Color: " + activeColor);
-        System.out.println("White Castle King Side " + whiteCastleKingSide);
-        System.out.println("White Castle Queen Side " + whiteCastleQueenSide);
-        System.out.println("Black Castle King Side " + blackCastleKingSide);
-        System.out.println("Black Castle Queen Side " + blackCastleQueenSide);
-        System.out.println("En Passant: " + enPassant);
-        System.out.println("Half Move Clock " + halfMoveClock);
-        System.out.println("Full Move Clock " + fullMoveClock);
+        // Initialize the board
+        int rank = 7; // Start from the 8th rank (index 7) and go down to the 1st rank (index 0)
+        for (String row : fenParts[0].split("/")) {
+            int file = 0;
+            for (char c : row.toCharArray()) {
+                if (Character.isDigit(c)) {
+                    // Skip empty squares
+                    file += Character.getNumericValue(c);
+                } else {
+                    long square = 1L << (file + rank * 8);
+                    switch (c) {
+                        case 'P':
+                            board[W_PAWN] |= square;
+                            break;
+                        case 'N':
+                            board[W_KNIGHT] |= square;
+                            break;
+                        case 'B':
+                            board[W_BISHOP] |= square;
+                            break;
+                        case 'R':
+                            board[W_ROOK] |= square;
+                            break;
+                        case 'Q':
+                            board[W_QUEEN] |= square;
+                            break;
+                        case 'K':
+                            board[W_KING] |= square;
+                            break;
+                        case 'p':
+                            board[B_PAWN] |= square;
+                            break;
+                        case 'n':
+                            board[B_KNIGHT] |= square;
+                            break;
+                        case 'b':
+                            board[B_BISHOP] |= square;
+                            break;
+                        case 'r':
+                            board[B_ROOK] |= square;
+                            break;
+                        case 'q':
+                            board[B_QUEEN] |= square;
+                            break;
+                        case 'k':
+                            board[B_KING] |= square;
+                            break;
+                        default:
+                            throw new IllegalArgumentException("Invalid FEN string: board setup");
+                    }
+                    file++;
+                }
+            }
+            rank--; // Move to the next rank
+        }
+        updateOccupiedSquares();
     }
+
+
 
 
 
