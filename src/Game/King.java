@@ -6,58 +6,6 @@ import java.util.ArrayList;
 
 public class King extends Piece {
 
-
-    private static final int[][] whiteKingPST = {
-            {-15,  36,  12, -54,   8, -28,  24,  14},
-            {1,   7,  -8, -64, -43, -16,   9,   8},
-            {-14, -14, -22, -46, -44, -30, -15, -27},
-            {-49,  -1, -27, -39, -46, -44, -33, -51},
-            {-17, -20, -12, -27, -30, -25, -14, -36},
-            {-9,  24,   2, -16, -20,   6,  22, -22},
-            {29,  -1, -20,  -7,  -8,  -4, -38, -29},
-            {-65,  23,  16, -15, -56, -34,   2,  13},
-    };
-    private static final int[][] blackKingPST = {
-            {-65,  23,  16, -15, -56, -34,   2,  13},
-            {29,  -1, -20,  -7,  -8,  -4, -38, -29},
-            {-9,  24,   2, -16, -20,   6,  22, -22},
-            {-17, -20, -12, -27, -30, -25, -14, -36},
-            {-49,  -1, -27, -39, -46, -44, -33, -51},
-            {-14, -14, -22, -46, -44, -30, -15, -27},
-            {1,   7,  -8, -64, -43, -16,   9,   8},
-            {-15,  36,  12, -54, 8, -28,  24,  14},
-    };
-
-
-
-
-    private static final int[][] blackEndGameAltPST = {
-            {  0,  10,  20,  30,  30,  20,  10,   0},
-            { 10,  20,  30,  40,  40,  30,  20,  10},
-            { 20,  30,  40,  50,  50,  40,  30,  20},
-            { 30,  40,  50,  60,  60,  50,  40,  30},
-            { 30,  40,  50,  60,  60,  50,  40,  30},
-            { 20,  30,  40,  50,  50,  40,  30,  20},
-            { 10,  20,  30,  40,  40,  30,  20,  10},
-            {  0,  10,  20,  30,  30,  20,  10,   0}
-    };
-
-    private static final int[][] whiteEndGameAltPST = {
-            {  0,  10,  20,  30,  30,  20,  10,   0},
-            { 10,  20,  30,  40,  40,  30,  20,  10},
-            { 20,  30,  40,  50,  50,  40,  30,  20},
-            { 30,  40,  50,  60,  60,  50,  40,  30},
-            { 30,  40,  50,  60,  60,  50,  40,  30},
-            { 20,  30,  40,  50,  50,  40,  30,  20},
-            { 10,  20,  30,  40,  40,  30,  20,  10},
-            {  0,  10,  20,  30,  30,  20,  10,   0}
-    };
-
-
-
-
-
-
     public King(MovesGenerator mg, char c) {
         super("king", c);
         this.mg = mg;
@@ -309,14 +257,9 @@ public class King extends Piece {
         return (King) super.clone();
     }
 
-
     @Override
-    public int getPSTValue(int i, int j) {
-        if (this.getColor() == 'w') {
-            return whiteKingPST[i][j];
-        } else {
-            return blackKingPST[i][j];
-        }
+    public boolean isAttackingKing(Game game, int i, int j, int kingX, int kingY) {
+        return false; // king can't attack another king
     }
 
 

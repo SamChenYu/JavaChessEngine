@@ -5,7 +5,6 @@ import Game.*;
 public class CastleKingSide extends Move {
 
     public CastleKingSide(int startX, int startY, int endX, int endY) {
-
         super(startX, startY, endX, endY);
     }
 

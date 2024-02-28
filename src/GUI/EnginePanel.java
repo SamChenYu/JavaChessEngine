@@ -37,7 +37,7 @@ public final class EnginePanel extends JPanel {
 
 
 
-    
+
     public EnginePanel(String input) {
 
         engine = new Engine(input, this);
@@ -228,8 +228,8 @@ public final class EnginePanel extends JPanel {
                 int spriteX = (x*spriteWidth)+initialSquareOffsetX;
                 int spriteY = (y*spriteHeight)+initialSquareOffsetY;
                 g2.drawImage(board[x][y].getImage(),spriteX,spriteY,spriteWidth,spriteHeight,null);
-                    //g2.setColor(Color.red);
-                    //g2.drawRect(spriteX,spriteY,spriteWidth,spriteHeight);
+                //g2.setColor(Color.red);
+                //g2.drawRect(spriteX,spriteY,spriteWidth,spriteHeight);
             }
         }
 
@@ -281,15 +281,15 @@ public final class EnginePanel extends JPanel {
         repaint();
     }
 
-        
+
     public void loadImages() {
         try {
             String filepath = "/src/res/chessboard.jpg";
-            
+
             InputStream stream = getClass().getResourceAsStream("/res/chessboard.jpg");
             assert stream != null;
             boardImage = ImageIO.read(stream);
-            
+
         } catch(IOException e) {
             System.out.println("board image loading failed");
         }

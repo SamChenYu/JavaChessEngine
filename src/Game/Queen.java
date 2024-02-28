@@ -6,30 +6,6 @@ import java.util.ArrayList;
 
 public class Queen extends Piece{
 
-
-    private static final int[][]  whiteQueenPST= {
-            {-1, -18,  -9,  10, -15, -25, -31, -50},
-            {-35,  -8,  11,   2,   8,  15,  -3,   1},
-            {-14,   2, -11,  -2,  -5,   2,  14,   5},
-            {-9, -26,  -9, -10,  -2,  -4,   3,  -3},
-            {-27, -27, -16, -16,  -1,  17,  -2,   1},
-            {-13, -17,   7,   8,  29,  56,  47,  57},
-            {-24, -39,  -5,   1, -16,  57,  28,  54},
-            {-28,   0,  29,  12,  59,  44,  43,  45},
-    };
-    private static final int[][]  blackQueenPST= {
-            {-28,   0,  29,  12,  59,  44,  43,  45},
-            {-24, -39,  -5,   1, -16,  57,  28,  54},
-            {-13, -17,   7,   8,  29,  56,  47,  57},
-            {-27, -27, -16, -16,  -1,  17,  -2,   1},
-            {-9, -26,  -9, -10,  -2,  -4,   3,  -3},
-            {-14,   2, -11,  -2,  -5,   2,  14,   5},
-            {-35,  -8,  11,   2,   8,  15,  -3,   1},
-            {-1, -18,  -9,  10, -15, -25, -31, -50},
-    };
-
-
-
     public Queen(MovesGenerator mg, char c) {
         super("queen", c);
         this.mg = mg;
@@ -260,14 +236,118 @@ public class Queen extends Piece{
         return (Queen) super.clone();
     }
 
+
     @Override
-    public int getPSTValue(int i, int j) {
-        if (this.getColor() == 'w') {
-            return whiteQueenPST[i][j];
-        } else {
-            return blackQueenPST[i][j];
+    public boolean isAttackingKing(Game game, int i, int j, int kingX, int kingY) {
+        // 4 Diagonals:
+        Piece[][] board = game.getBoard();
+        int x = i;
+        int y = j;
+
+        // Top Right
+        while(x < 7 && y < 7) {
+            x++;
+            y++;
+            if(!board[x][y].isEmpty()) {
+                if(x == kingX && y == kingY) {
+                    return true;
+                }
+                break; // break as piece blocks
+            }
         }
+
+        // Top Left
+        x = i;
+        y = j;
+        while(x > 0 && y < 7) {
+            x--;
+            y++;
+            if(!board[x][y].isEmpty()) {
+                if(x == kingX && y == kingY) {
+                    return true;
+                }
+                break; // break as piece blocks
+            }
+        }
+        // Bottom Right
+        x = i;
+        y = j;
+        while(x < 7 && y > 0) {
+            x++;
+            y--;
+            if(!board[x][y].isEmpty()) {
+                if(x == kingX && y == kingY) {
+                    return true;
+                }
+                break; // break as piece blocks
+            }
+        }
+
+        // Bottom Left
+        x = i;
+        y = j;
+        while(x > 0 && y > 0) {
+            x--;
+            y--;
+            if(!board[x][y].isEmpty()) {
+                if(x == kingX && y == kingY) {
+                    return true;
+                }
+                break; // break as piece blocks
+            }
+        }
+
+        // 4 DIRECTIONS:
+        // POSITIVE X
+        x = i;
+        y = j;
+        while(x < 7) {
+            x++;
+            if(!board[x][y].isEmpty()) {
+                if(x == kingX && y == kingY) {
+                    return true;
+                }
+                break; // break as piece blocks
+            }
+        }
+        // NEGATIVE X
+        x = i;
+        y = j;
+        while(x > 0) {
+            x--;
+            if(!board[x][y].isEmpty()) {
+                if(x == kingX && y == kingY) {
+                    return true;
+                }
+                break; // break as piece blocks
+            }
+        }
+
+        // POSITIVE Y
+        x = i;
+        y = j;
+        while(y < 7) {
+            y++;
+            if(!board[x][y].isEmpty()) {
+                if(x == kingX && y == kingY) {
+                    return true;
+                }
+                break; // break as piece blocks
+            }
+        }
+        // NEGATIVE Y
+        x = i;
+        y = j;
+        while(y > 0) {
+            y--;
+
+            if(!board[x][y].isEmpty()) {
+                if(x == kingX && y == kingY) {
+                    return true;
+                }
+                break; // break as piece blocks
+            }
+        }
+        return false;
     }
-
-
 }

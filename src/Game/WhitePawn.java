@@ -4,23 +4,7 @@ import Move.*;
 import java.util.ArrayList;
 
 public class WhitePawn extends Piece{
-
-    private static int[][] whitePawnPST = {
-        // white side here
-        { 0,   0,   0,   0,   0,   0,  0,   0},
-        {-35,  -1, -20, -23, -15,  24, 38, -22},
-        {-26,  -4,  -4, -10,   3,   3, 33, -12},
-        {-27,  -2,  -5,  12,  17,   6, 10, -25},
-        {-14,  13,   6,  21,  23,  12, 17, -23},
-        {-6,   7,  26,  31,  65,  56, 25, -20},
-        {98, 134,  61,  95,  68, 126, 34, -11},
-        { 0,   0,   0,   0,   0,   0,  0,   0},
-        // black side here
-    };
-
-
-
-
+    
     public WhitePawn(MovesGenerator mg) {
         super("pawn", 'w');
         this.mg = mg;
@@ -190,10 +174,28 @@ public class WhitePawn extends Piece{
         return (WhitePawn) super.clone();
     }
 
+
+
     @Override
-    public int getPSTValue(int i, int j) {
-        return whitePawnPST[i][j];
+    public boolean isAttackingKing(Game game, int i, int j, int kingX, int kingY) {
+        // Attacking to the left (A pawn cannot attack left)
+        // Includes if it can attack the en passant square
+        if (i > 0) {
+            int x = i - 1, y = j + 1; // coords interested in
+            if (x == kingX && y == kingY) {
+                return true;
+            }
+        }
+
+        //Attacking to the right (H pawn cannot attack right)
+        // Includes if it can attack the en passant
+        if (i < 7) {
+            int x = i + 1, y = j + 1; // coords interested in
+            if (x == kingX && y == kingY) {
+                return true;
+
+            }
+        }
+        return false;
     }
-
-
 }
