@@ -2,7 +2,7 @@ package Main;
 
 public class Engine {
 
-    Game game;
+    public Game game;
 
 
     public Engine(String input) {

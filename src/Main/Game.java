@@ -1,5 +1,8 @@
 package Main;
 
+import java.util.ArrayList;
+import Move.Move;
+
 public final class Game {
 
 
@@ -33,6 +36,7 @@ public final class Game {
     private int halfMoveClock = 0; // turns since last capture for 50 move rule
     private int fullMoveClock = 1; // full amount of turns taken
 
+    public ArrayList<Move> moves = new ArrayList<>();
 
     public Game(String input) {
         processString(input);
@@ -269,7 +273,10 @@ public final class Game {
     }
 
 
+    // Getters and setters
 
+    public char getActiveColor() { return activeColor; }
+    public long[] getBoard() { return board; }
 
 
 
