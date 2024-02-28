@@ -3,6 +3,8 @@ In-Progress Chess Engine Developed With The MiniMax Algorithm Built From Scratch
 
 Current Estimated Elo (Depth 4) at 1150
 
+# The main branch is under construction! The 2D piece representation branch is working. This current branch is being refactored into using bitboards!
+
 ### Todo:
 - CPU bottlenecked by updating legal moves -> researching alternative methods to generate legal moves faster
 - Multithreading
