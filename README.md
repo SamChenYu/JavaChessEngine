@@ -40,13 +40,14 @@ These two factors are weighted dynamically, where very similiar material will we
 
 
 <div align="center">
-  <img src="https://github.com/SamChenYu/JavaChessEngine/assets/150127006/75e79efc-18e2-407d-b49c-75ec4ae8805a" alt="Image Alt Text" width="400">
+  <img src="https://github.com/SamChenYu/JavaChessEngine/assets/150127006/f254d4b6-aa5b-4a99-8ab3-1cf218cc59eb" alt="Image Alt Text">
 </div>
 
 
 
 <div style="text-align:center;">
-    <img src="https://github.com/SamChenYu/JavaChessEngine/assets/150127006/e1f63eba-69f1-4ba4-b716-52903ca63355" alt="EnginePanel">
+    <img src="https://github.com/SamChenYu/JavaChessEngine/assets/150127006/d857dc26-99a5-4608-a0f1-c937d830824d" alt="EnginePanel">
 </div>
+
 
 [Link to RyiSnow's Chess Pieces](https://ryisnow.itch.io/pixel-art-chess-piece-images)
