@@ -1,7 +1,7 @@
 # JavaChessEngine
 In-Progress Chess Engine Developed With The MiniMax Algorithm Built From Scratch.
 
-Current Estimated Elo (Depth 4) at 1150
+
 
 # The main branch is under construction! The 2D piece representation branch is working. This current branch is being refactored into using bitboards!
 
@@ -9,13 +9,7 @@ Current Estimated Elo (Depth 4) at 1150
 - CPU bottlenecked by updating legal moves -> researching alternative methods to generate legal moves faster
 - Multithreading
 - Transposition Tables HashMap<String, double) to save position evaluations
- 
-## Match History
-### Martin 250 Elo Bot (www.chess.com)
-- 31/02/2024 Depth 1 Engine : LOSS 
-- 04/02/2024 Depth 4 Engine: WIN 
-### Sven 1100 Elo Bot (www.chess.com)
-- 08/02/2024 Depth 4 Engine: WIN 
+
 
 ## EVALUATION Method  
 The evaluation method is between -1 and 0.
