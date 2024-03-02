@@ -2,11 +2,6 @@
 In-Progress Chess Engine Developed With The MiniMax Algorithm Built From Scratch.
 
 Current Estimated Elo (Depth 4) at 1150
-
-### Todo:
-- CPU bottlenecked by updating legal moves -> researching alternative methods to generate legal moves faster
-- Multithreading
-- Transposition Tables HashMap<String, double) to save position evaluations
  
 ## Match History
 ### Martin 250 Elo Bot (www.chess.com)
