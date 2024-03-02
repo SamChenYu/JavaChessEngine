@@ -6,9 +6,7 @@ In-Progress Chess Engine Developed With The MiniMax Algorithm Built From Scratch
 # The main branch is under construction! The 2D piece representation branch is working. This current branch is being refactored into using bitboards!
 
 ### Todo:
-- CPU bottlenecked by updating legal moves -> researching alternative methods to generate legal moves faster
-- Multithreading
-- Transposition Tables HashMap<String, double) to save position evaluations
+- Refactoring of Piece[][] into long[] bitboard representation
 
 
 ## EVALUATION Method  
