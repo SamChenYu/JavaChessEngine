@@ -12,18 +12,18 @@ public final class Game {
     private long blackSquares = 0L;
 
     // Constants for each piece
-    private static final int W_PAWN = 0;
-    private static final int W_KNIGHT = 1;
-    private static final int W_BISHOP = 2;
-    private static final int W_ROOK = 3;
-    private static final int W_QUEEN = 4;
-    private static final int W_KING = 5;
-    private static final int B_PAWN = 6;
-    private static final int B_KNIGHT = 7;
-    private static final int B_BISHOP = 8;
-    private static final int B_ROOK = 9;
-    private static final int B_QUEEN = 10;
-    private static final int B_KING = 11;
+    public static final int W_PAWN = 0;
+    public static final int W_KNIGHT = 1;
+    public static final int W_BISHOP = 2;
+    public static final int W_ROOK = 3;
+    public static final int W_QUEEN = 4;
+    public static final int W_KING = 5;
+    public static final int B_PAWN = 6;
+    public static final int B_KNIGHT = 7;
+    public static final int B_BISHOP = 8;
+    public static final int B_ROOK = 9;
+    public static final int B_QUEEN = 10;
+    public static final int B_KING = 11;
 
 
 
@@ -277,6 +277,9 @@ public final class Game {
 
     public char getActiveColor() { return activeColor; }
     public long[] getBoard() { return board; }
+    public long getWhiteOccupiedSquares() { return whiteSquares; }
+    public long getBlackOccupiedSquares() { return blackSquares; }
+    public long getOccupiedSquares() { return occupiedSquares; }
 
 
 

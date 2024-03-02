@@ -19,21 +19,61 @@ public class MovesGenerator {
 
 
     public ArrayList<Move> updateMoves(Game game) {
-        long[] board = game.getBoard();
+
+        char activeColor = game.getActiveColor();
+
+
+
         ArrayList<Move> moves = new ArrayList<>();
-        for(int i=0; i<8; i++) {
-            for(int j=0; j<8; j++) {
-                Piece piece = board[i][j];
-                if(game.getActiveColor() == piece.getColor()) {
-                    ArrayList<Move> temp = piece.update(game,i,j);
-                    if(temp!=null) {
-                        moves.addAll(temp);
-                    }
-                }
-            }
+
+
+        if(activeColor == 'w') {
+            updateWhite(moves);
+        } else {
+            updateBlack(moves);
         }
 
         return moves;
+    }
+
+
+    public void updateWhite(ArrayList<Move> moves) {
+        game.updateOccupiedSquares();
+        long[] board = game.getBoard();
+        long occupiedSquares = game.getOccupiedSquares();
+        long whiteOccupiedSquares = game.getWhiteOccupiedSquares();
+        long blackOccupiedSquares = game.getBlackOccupiedSquares();
+
+        // update white pawns
+        long whitePawns = board[Game.W_PAWN];
+
+        // Forward one step
+        long forwardOne = (whitePawns << 8) & ~occupiedSquares;
+        // shifts the bits up a row, then checks it with !occupiedSquares to see if it is empty
+
+        // Forward two steps
+//        long forwardTwo = ((forwardOne & (1L << 16)) << 8) & ~occupiedSquares;
+//
+//        // Left side capture
+//        long leftCapture = (whitePawns & ~Game.FILE_A) << 7 & blackOccupiedSquares;
+//
+//        // Right side capture
+//        long rightCapture = (whitePawns & ~Game.FILE_H) << 9 & blackOccupiedSquares;
+//
+//        // Promote
+//        long promote = forwardOne & Game.RANK_8;
+//
+//        // En Passant Capture
+//        long enPassantCapture = game.getEnPassantSquare() & forwardOne & (leftCapture | rightCapture);
+//
+//        // Add moves to the list
+//        long allMoves = forwardOne | forwardTwo | leftCapture | rightCapture | promote | enPassantCapture;
+
+
+    }
+
+    public void updateBlack(ArrayList<Move> moves) {
+
     }
 
 
