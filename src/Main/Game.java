@@ -36,7 +36,7 @@ public final class Game {
     private int halfMoveClock = 0; // turns since last capture for 50 move rule
     private int fullMoveClock = 1; // full amount of turns taken
 
-    public ArrayList<Integer> moves = new ArrayList<>();
+    public ArrayList<Move> moves = new ArrayList<>();
 
     public Game(String input) {
         processString(input);

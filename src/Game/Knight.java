@@ -1,5 +1,6 @@
 package Game;
 import Main.Game;
+import Move.*;
 public class Knight extends Piece {
 
     public static void updateMoves(Game game) {
@@ -11,9 +12,10 @@ public class Knight extends Piece {
 
 
         long knights = board[Game.W_KNIGHT];
-        long attackBitmask = 0L;
+
 
         while(knights != 0) {
+            long attackBitmask = 0L;
             int square = Long.numberOfTrailingZeros(knights); // finds the least significant 1 bit in knights (from right to left)
             knights &= knights - 1; // Reset the least significant 1 bit in knights
 
@@ -37,19 +39,14 @@ public class Knight extends Piece {
                 }
             }
 
-
-
             // now the moves must be extracted from the attack bitmask
 
             while(attackBitmask != 0) {
                 int move = Long.numberOfTrailingZeros(attackBitmask);
                 attackBitmask &= attackBitmask - 1;
 
-                game.moves.add(move); // Todo: this is meant to be changed to encoded moves
+                game.moves.add(new Move(square, move)) ;
             }
-
-            long moves = knightMoves(square);
-            game.moves.add((int) moves);
         }
 
 

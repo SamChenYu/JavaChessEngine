@@ -8,7 +8,7 @@ public class MovesGenerator {
 
     Engine engine;
     Game game;
-    ArrayList<Integer> moves;
+    ArrayList<Move> moves;
     public MovesGenerator(Engine engine) {
         this.engine = engine;
         game = engine.game;
@@ -18,13 +18,13 @@ public class MovesGenerator {
 
 
 
-    public ArrayList<Integer> updateMoves(Game game) {
+    public ArrayList<Move> updateMoves(Game game) {
 
         char activeColor = game.getActiveColor();
 
 
 
-        ArrayList<Integer> moves = new ArrayList<>();
+        ArrayList<Move> moves = new ArrayList<>();
 
 
         if(activeColor == 'w') {
@@ -37,9 +37,9 @@ public class MovesGenerator {
     }
 
 
-    public ArrayList<Integer> updateWhite() {
+    public ArrayList<Move> updateWhite() {
 
-        ArrayList<Integer> moves = new ArrayList<>();
+        ArrayList<Move> moves = new ArrayList<>();
 
         Knight.updateMoves(game);
         return moves;
@@ -48,7 +48,7 @@ public class MovesGenerator {
     private long squareToBitmask(int square) {
         return 1L << square;
     }
-    public ArrayList<Integer> updateBlack() {
+    public ArrayList<Move> updateBlack() {
         return null;
     }
 
