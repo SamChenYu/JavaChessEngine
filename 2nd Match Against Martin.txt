@@ -31,7 +31,7 @@ Nc6 9. Be3 Bf8 10. Bg5 b6 11. Bxd8 Kxd8 12. Bb5 Nge7 13. Nxc7 Kxc7 14. Qd6+ Kd8
 15. Qf6 Nb4 16. Qxh8 Ke8 17. c3 f6 18. exf6 Nbc6 19. Rad1 d6 20. Ng5 Bb7 21.
 Rxd6 Nd5 22. Qg8 Nxc3 23. Qe6+ Be7 24. Kh1 Bc8 25. Qg8+ Bf8 26. Qf7# 1-0
 
-Game Review
+Piece Review
 
 Moves Breakdown:
 

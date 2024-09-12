@@ -1,10 +1,9 @@
 package Move;
 
 
-import Game.Game;
-import Game.Piece;
-import Move.Move;
-import chessengine.Engine;
+import ChessEngine.Game;
+import Piece.Piece;
+import ChessEngine.Engine;
 
 
 import java.util.ArrayList;

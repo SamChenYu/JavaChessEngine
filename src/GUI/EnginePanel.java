@@ -1,8 +1,8 @@
 
 package GUI;
 
-import chessengine.Engine;
-import Game.Piece;
+import ChessEngine.Engine;
+import Piece.Piece;
 
 import javax.swing.*;
 import java.awt.Color;
@@ -15,10 +15,6 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.imageio.ImageIO;
-import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 
 public final class EnginePanel extends JPanel {
 
@@ -284,9 +280,9 @@ public final class EnginePanel extends JPanel {
 
     public void loadImages() {
         try {
-            String filepath = "/src/res/chessboard.jpg";
+            String filepath = "/src/Res/chessboard.jpg";
 
-            InputStream stream = getClass().getResourceAsStream("/res/chessboard.jpg");
+            InputStream stream = getClass().getResourceAsStream("/Res/chessboard.jpg");
             assert stream != null;
             boardImage = ImageIO.read(stream);
 

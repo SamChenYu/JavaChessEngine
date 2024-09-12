@@ -42,7 +42,7 @@ public final class ControlPanel extends JFrame {
         setTitle("Chess Engine Control Panel");
         inputTextField.setText("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 
-        ImageIcon icon = new ImageIcon("src/res/b-pawn.png");
+        ImageIcon icon = new ImageIcon("src/Res/b-pawn.png");
 
         // Set the icon for the JFrame
         setIconImage(icon.getImage());

@@ -1,5 +1,6 @@
 package Move;
-import Game.*;
+import ChessEngine.Game;
+import Piece.*;
 
 public class Promote extends Move{
 

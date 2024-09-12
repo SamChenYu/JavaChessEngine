@@ -14,7 +14,7 @@ public class EngineFrame extends JFrame {
         setVisible(true);
         setResizable(false);
         setTitle("Engine Panel");
-        ImageIcon icon = new ImageIcon("src/res/b-pawn.png");
+        ImageIcon icon = new ImageIcon("src/Res/b-pawn.png");
         setIconImage(icon.getImage());
 
     }

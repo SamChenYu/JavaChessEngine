@@ -1,6 +1,7 @@
 package Move;
 
-import Game.*;
+import ChessEngine.Game;
+import Piece.*;
 
 public class PromoteCapture extends Move {
 
